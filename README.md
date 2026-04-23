@@ -1,50 +1,38 @@
-# Supply Admin
+# supply-admin
 
-SvelteKit + Tailwind CSS v4 + Supabase starter.
+Internal admin / CRM SvelteKit app for the Dental Supply Platform.
+Implements the surface described in Section 5.2 of the requirements spec.
 
 ## Stack
 
-- [SvelteKit 2](https://kit.svelte.dev) with Svelte 5 runes
-- [Tailwind CSS v4](https://tailwindcss.com) via `@tailwindcss/vite`
-- [Supabase](https://supabase.com) via `@supabase/supabase-js` and `@supabase/ssr` for cookie-based session handling
+- SvelteKit (TypeScript), Svelte 5
+- Tailwind CSS
+- Supabase Auth (email + password) via `@supabase/ssr` for cookie-based SSR
+- Direct Supabase reads/writes gated by admin-role RLS; order and inventory
+  mutations call the Express API (`supply-api`)
 
-## Getting started
+## Phase 1 scope
+
+- Project config, Tailwind, Supabase SSR hooks
+- Login page with role check (non-admin users are redirected out)
+- Admin shell layout with top nav
+- Dashboard placeholder
+- Products list page reading `products` via RLS
+
+## Not yet implemented
+
+- Product create/edit/archive UI
+- Customers + pricing rules UI
+- Orders list + refund action
+- Inventory adjustment UI
+- Trend analytics views (Section 5.2.7)
+- API token management
+
+## Local development
 
 ```bash
-npm install
-cp .env.example .env   # fill in your Supabase project values
-npm run dev
+pnpm install
+cp .env.example .env
+# fill in Supabase URL + anon key
+pnpm dev
 ```
-
-### Environment variables
-
-| Name | Description |
-| --- | --- |
-| `PUBLIC_SUPABASE_URL` | Your Supabase project URL |
-| `PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon (publishable) key |
-
-## Scripts
-
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Start the dev server |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview the production build |
-| `npm run check` | Type-check with `svelte-check` |
-
-## Project layout
-
-```
-src/
-  app.css                 # Tailwind entry (@import 'tailwindcss')
-  app.d.ts                # App type augmentations (Locals, PageData)
-  app.html                # HTML shell
-  hooks.server.ts         # Supabase SSR client + auth guard
-  routes/
-    +layout.server.ts     # Exposes session, user, cookies to the client load
-    +layout.ts            # Creates the browser/server Supabase client
-    +layout.svelte        # Subscribes to auth state changes
-    +page.svelte          # Landing page
-```
-
-Any route under `/private/*` is gated in `hooks.server.ts` and redirects to `/` when unauthenticated.
