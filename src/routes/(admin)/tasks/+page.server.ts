@@ -1,42 +1,43 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { CustomerTask, TaskStatus } from '$lib/types/db';
+import type { CustomerTask, TaskPriority, TaskStatus } from '$lib/types/db';
 
 const STATUSES: TaskStatus[] = ['open', 'in_progress', 'done', 'cancelled'];
-const PAGE_SIZE = 50;
+const PRIORITIES: TaskPriority[] = ['low', 'normal', 'high', 'urgent'];
+
+// Board shows all matching tasks at once; cap to keep the page bounded.
+const TASK_LIMIT = 300;
 
 export const load: PageServerLoad = async ({ url, locals: { supabase, user } }) => {
-  const view = url.searchParams.get('view') ?? 'mine_open';
-  const statusParam = url.searchParams.get('status') ?? '';
+  const view = url.searchParams.get('view') ?? 'mine';
+  const priorityParam = url.searchParams.get('priority') ?? '';
   const assignee = url.searchParams.get('assignee') ?? '';
   const customer = url.searchParams.get('customer') ?? '';
-  const page = Math.max(1, Number(url.searchParams.get('page') ?? '1'));
-  const from = (page - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
 
   let q = supabase
     .from('customer_tasks')
     .select(
-      'id, customer_id, assigned_to, title, status, priority, due_at, created_at,' +
+      'id, customer_id, assigned_to, title, description, status, priority, due_at, created_at,' +
         ' customer:customers(business_name),' +
         ' assignee:user_profiles!customer_tasks_assigned_to_fkey(display_name)',
       { count: 'exact' }
     )
+    // Sort so each column lands with urgent/soon-due at the top.
+    .order('priority', { ascending: false })
     .order('due_at', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false })
-    .range(from, to);
+    .limit(TASK_LIMIT);
 
-  if (view === 'mine_open') {
+  if (view === 'mine') {
     if (user?.id) q = q.eq('assigned_to', user.id);
-    q = q.in('status', ['open', 'in_progress']);
   } else if (view === 'overdue') {
     q = q.in('status', ['open', 'in_progress']).lt('due_at', new Date().toISOString());
   } else if (view === 'unassigned') {
-    q = q.is('assigned_to', null).in('status', ['open', 'in_progress']);
+    q = q.is('assigned_to', null);
   }
 
-  if (statusParam && STATUSES.includes(statusParam as TaskStatus)) {
-    q = q.eq('status', statusParam);
+  if (priorityParam && PRIORITIES.includes(priorityParam as TaskPriority)) {
+    q = q.eq('priority', priorityParam);
   }
   if (assignee) q = q.eq('assigned_to', assignee);
   if (customer) q = q.eq('customer_id', customer);
@@ -54,17 +55,24 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, user } }) 
     tasks: (tasksRes.data ?? []) as unknown as Array<
       Pick<
         CustomerTask,
-        'id' | 'customer_id' | 'assigned_to' | 'title' | 'status' | 'priority' | 'due_at' | 'created_at'
+        | 'id'
+        | 'customer_id'
+        | 'assigned_to'
+        | 'title'
+        | 'description'
+        | 'status'
+        | 'priority'
+        | 'due_at'
+        | 'created_at'
       > & {
         customer: { business_name: string } | null;
         assignee: { display_name: string | null } | null;
       }
     >,
     total: tasksRes.count ?? 0,
-    page,
-    pageSize: PAGE_SIZE,
+    limit: TASK_LIMIT,
     admins: (adminsRes.data ?? []) as Array<{ id: string; display_name: string | null }>,
-    filters: { view, status: statusParam, assignee, customer }
+    filters: { view, priority: priorityParam, assignee, customer }
   };
 };
 

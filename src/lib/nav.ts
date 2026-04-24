@@ -17,7 +17,8 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: 'Inventory', href: '/inventory' },
       { label: 'Orders', href: '/orders' },
       { label: 'Featured Groups', href: '/featured-groups' },
-      { label: 'Categories', href: '/categories' }
+      { label: 'Categories', href: '/categories' },
+      { label: 'Image Generator', href: '/image-generator' }
     ]
   },
   {

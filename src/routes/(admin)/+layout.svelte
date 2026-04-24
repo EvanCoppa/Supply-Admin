@@ -43,9 +43,8 @@
 
   <div class="flex min-w-0 flex-1 flex-col">
     <header
-      class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3"
+      class="flex items-center justify-end border-b border-slate-200 bg-white px-6 py-3"
     >
-      <div class="text-sm text-slate-500">{page.url.pathname}</div>
       <div class="flex items-center gap-3 text-sm">
         <span class="text-slate-600">{data.user?.email}</span>
         <form method="POST" action="/logout">

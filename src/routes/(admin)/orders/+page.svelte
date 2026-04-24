@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currency, dateTime } from '$lib/format';
+  import OrderStatusBadge from '$lib/components/OrderStatusBadge.svelte';
 
   let { data } = $props();
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
@@ -90,7 +91,7 @@
                   {o.customer?.business_name ?? '—'}
                 </a>
               </td>
-              <td class="px-4 py-2">{o.status}</td>
+              <td class="px-4 py-2"><OrderStatusBadge status={o.status} /></td>
               <td class="px-4 py-2 text-right">{currency(o.total)}</td>
               <td class="px-4 py-2">{o.source}</td>
               <td class="px-4 py-2 text-right text-slate-500">{dateTime(o.placed_at)}</td>

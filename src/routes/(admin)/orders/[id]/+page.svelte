@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { currency, dateTime } from '$lib/format';
+  import OrderStatusBadge from '$lib/components/OrderStatusBadge.svelte';
 
   let { data, form } = $props();
   let o = $derived(data.order);
@@ -26,7 +27,7 @@
     <a class="text-sm text-sky-700 hover:underline" href="/orders">← Orders</a>
     <div class="flex items-center gap-3">
       <h1 class="text-2xl font-semibold font-mono">{o.id.slice(0, 8)}</h1>
-      <span class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{o.status}</span>
+      <OrderStatusBadge status={o.status} />
       <span class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{o.source}</span>
     </div>
     <p class="text-sm text-slate-500">Placed {dateTime(o.placed_at)}</p>
