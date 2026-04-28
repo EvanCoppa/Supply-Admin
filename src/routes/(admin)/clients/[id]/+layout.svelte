@@ -17,6 +17,7 @@
     { href: `/clients/${clientId}/pricing`, label: 'Pricing' },
     { href: `/clients/${clientId}/featured`, label: 'Featured' },
     { href: `/clients/${clientId}/orders`, label: 'Orders' },
+    { href: `/clients/${clientId}/trends`, label: 'Trends' },
     { href: `/clients/${clientId}/invoices`, label: 'Invoices' },
     { href: `/clients/${clientId}/rmas`, label: 'RMAs' },
     { href: `/clients/${clientId}/credit`, label: 'Credit' },
