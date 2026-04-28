@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { parseForm, tokenCreateSchema } from '$lib/schemas';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
   const { data } = await supabase
@@ -31,16 +32,19 @@ async function hashToken(raw: string): Promise<string> {
 export const actions: Actions = {
   create: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
-    const label = String(form.get('label') ?? '').trim() || null;
+    const parsed = parseForm(tokenCreateSchema, form);
+    if (!parsed.success) {
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    }
     const plaintext = generateTokenString();
     const token_hash = await hashToken(plaintext);
 
     const { error } = await supabase
       .from('api_tokens')
-      .insert({ customer_id: params.id, token_hash, label });
-    if (error) return fail(400, { message: error.message });
+      .insert({ customer_id: params.id, token_hash, label: parsed.data.label });
+    if (error) return fail(400, { message: error.message, fieldErrors: {} });
 
-    return { created: { plaintext, label } };
+    return { created: { plaintext, label: parsed.data.label } };
   },
 
   revoke: async ({ params, request, locals: { supabase } }) => {
@@ -51,7 +55,7 @@ export const actions: Actions = {
       .update({ revoked_at: new Date().toISOString() })
       .eq('id', id)
       .eq('customer_id', params.id);
-    if (error) return fail(400, { message: error.message });
+    if (error) return fail(400, { message: error.message, fieldErrors: {} });
     return { saved: true };
   }
 };
