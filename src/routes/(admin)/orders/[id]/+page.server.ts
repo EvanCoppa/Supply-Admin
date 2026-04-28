@@ -1,6 +1,7 @@
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { callApi } from '$lib/api';
+import { orderRefundSchema, orderTransitionSchema, parseForm } from '$lib/schemas';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
   const [orderRes, lineItemsRes, paymentsRes] = await Promise.all([
@@ -43,34 +44,42 @@ const ALLOWED_TRANSITIONS: Record<string, string[]> = {
 export const actions: Actions = {
   transition: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
-    const to = String(form.get('to') ?? '');
-    const tracking = String(form.get('tracking') ?? '').trim();
+    const parsed = parseForm(orderTransitionSchema, form);
+    if (!parsed.success) {
+      return fail(400, {
+        message: parsed.message,
+        fieldErrors: parsed.fieldErrors,
+        code: undefined
+      });
+    }
+    const { to } = parsed.data;
 
     const { data: order } = await supabase
       .from('orders')
       .select('status')
       .eq('id', params.id)
       .maybeSingle();
-    if (!order) return fail(404, { message: 'Order not found.', code: undefined });
+    if (!order)
+      return fail(404, { message: 'Order not found.', fieldErrors: {}, code: undefined });
 
     const allowed = ALLOWED_TRANSITIONS[order.status] ?? [];
     if (!allowed.includes(to)) {
-      return fail(400, { message: `Cannot transition ${order.status} → ${to}.`, code: undefined });
+      return fail(400, {
+        message: `Cannot transition ${order.status} → ${to}.`,
+        fieldErrors: {},
+        code: undefined
+      });
     }
 
-    const patch: Record<string, unknown> = { status: to };
-    if (to === 'shipped' && tracking) {
-      // No tracking column on orders in v1; store in payment_reference adjacent field if needed.
-      // For now we no-op on tracking persistence — API endpoint should own shipment details.
-    }
-
-    const { error } = await supabase.from('orders').update(patch).eq('id', params.id);
-    if (error) return fail(400, { message: error.message, code: undefined });
+    const { error } = await supabase.from('orders').update({ status: to }).eq('id', params.id);
+    if (error)
+      return fail(400, { message: error.message, fieldErrors: {}, code: undefined });
     return { saved: true, message: undefined, code: undefined };
   },
 
   cancel: async ({ params, locals }) => {
-    if (!locals.session) return fail(401, { message: 'Not signed in.', code: undefined });
+    if (!locals.session)
+      return fail(401, { message: 'Not signed in.', fieldErrors: {}, code: undefined });
     const res = await callApi({
       path: `/api/v1/admin/orders/${params.id}/refund`,
       method: 'POST',
@@ -80,6 +89,7 @@ export const actions: Actions = {
     if (!res.ok)
       return fail(res.status || 500, {
         message: res.error?.message ?? 'Cancel failed.',
+        fieldErrors: {},
         code: res.error?.code
       });
     return { saved: true, message: undefined, code: undefined };
@@ -87,22 +97,28 @@ export const actions: Actions = {
 
   refund: async ({ params, request, locals }) => {
     const form = await request.formData();
-    const amount = form.get('amount');
-    const parsed = amount !== null && amount !== '' ? Number(amount) : null;
-    if (parsed !== null && (!Number.isFinite(parsed) || parsed <= 0)) {
-      return fail(400, { message: 'Refund amount must be positive.', code: undefined });
+    const parsed = parseForm(orderRefundSchema, form);
+    if (!parsed.success) {
+      return fail(400, {
+        message: parsed.message,
+        fieldErrors: parsed.fieldErrors,
+        code: undefined
+      });
     }
-    if (!locals.session) return fail(401, { message: 'Not signed in.', code: undefined });
+    if (!locals.session)
+      return fail(401, { message: 'Not signed in.', fieldErrors: {}, code: undefined });
 
+    const { amount } = parsed.data;
     const res = await callApi({
       path: `/api/v1/admin/orders/${params.id}/refund`,
       method: 'POST',
-      body: parsed !== null ? { amount: parsed } : {},
+      body: amount !== null ? { amount } : {},
       accessToken: locals.session.access_token
     });
     if (!res.ok)
       return fail(res.status || 500, {
         message: res.error?.message ?? 'Refund failed.',
+        fieldErrors: {},
         code: res.error?.code
       });
     return { saved: true, message: undefined, code: undefined };
