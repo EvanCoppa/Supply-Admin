@@ -45,6 +45,7 @@ export interface UserProfile {
   role: UserRole;
   customer_id: string | null;
   display_name: string | null;
+  deactivated_at: string | null;
   created_at: string;
   updated_at: string;
 }
