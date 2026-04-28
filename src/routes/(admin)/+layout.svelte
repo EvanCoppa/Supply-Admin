@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { NAV_SECTIONS } from '$lib/nav';
+  import GlobalSearch from '$lib/components/GlobalSearch.svelte';
 
   let { data, children } = $props();
 
@@ -43,8 +44,9 @@
 
   <div class="flex min-w-0 flex-1 flex-col">
     <header
-      class="flex items-center justify-end border-b border-slate-200 bg-white px-6 py-3"
+      class="flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-3"
     >
+      <GlobalSearch />
       <div class="flex items-center gap-3 text-sm">
         <span class="text-slate-600">{data.user?.email}</span>
         <form method="POST" action="/logout">

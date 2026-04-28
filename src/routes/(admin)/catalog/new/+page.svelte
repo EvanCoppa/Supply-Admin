@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import ProductForm from '$lib/components/ProductForm.svelte';
+  import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 
   let { data, form } = $props();
 </script>
@@ -8,8 +9,13 @@
 <svelte:head><title>New product · Supply Admin</title></svelte:head>
 
 <section class="space-y-4">
-  <header>
-    <a class="text-sm text-sky-700 hover:underline" href="/catalog">← Catalog</a>
+  <header class="space-y-2">
+    <Breadcrumbs
+      items={[
+        { label: 'Catalog', href: '/catalog' },
+        { label: 'New product' }
+      ]}
+    />
     <h1 class="text-2xl font-semibold">New product</h1>
   </header>
 

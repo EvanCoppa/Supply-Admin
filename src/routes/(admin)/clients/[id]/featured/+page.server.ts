@@ -96,6 +96,24 @@ export const actions: Actions = {
 
   reorder: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
+    // Accept either { ids: "id1,id2,id3" } for drag-and-drop or { id, direction } for arrow buttons.
+    const idsRaw = String(form.get('ids') ?? '').trim();
+    if (idsRaw) {
+      const ids = idsRaw.split(',').filter(Boolean);
+      const updates = await Promise.all(
+        ids.map((id, i) =>
+          supabase
+            .from('customer_featured_items')
+            .update({ display_order: i })
+            .eq('id', id)
+            .eq('customer_id', params.id)
+        )
+      );
+      const firstErr = updates.find((u) => u.error)?.error;
+      if (firstErr) return fail(400, { message: firstErr.message });
+      return { saved: true };
+    }
+
     const id = String(form.get('id') ?? '');
     const direction = String(form.get('direction') ?? '');
     if (direction !== 'up' && direction !== 'down') return fail(400, { message: 'Bad direction.' });
