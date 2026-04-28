@@ -4,6 +4,15 @@
   let { data } = $props();
 
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
+
+  const exportQuery = $derived(() => {
+    const params = new URLSearchParams();
+    if (data.filters.search) params.set('q', data.filters.search);
+    if (data.filters.status) params.set('status', data.filters.status);
+    if (data.filters.categoryId) params.set('category', data.filters.categoryId);
+    const s = params.toString();
+    return s ? `?${s}` : '';
+  });
 </script>
 
 <svelte:head><title>Catalog · Supply Admin</title></svelte:head>
@@ -14,12 +23,26 @@
       <h1 class="text-2xl font-semibold">Catalog</h1>
       <p class="text-sm text-slate-500">{data.total} product{data.total === 1 ? '' : 's'}</p>
     </div>
-    <a
-      href="/catalog/new"
-      class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
-    >
-      New product
-    </a>
+    <div class="flex flex-wrap items-center gap-2">
+      <a
+        href="/catalog/import"
+        class="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
+      >
+        Import CSV
+      </a>
+      <a
+        href={`/catalog/export${exportQuery()}`}
+        class="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
+      >
+        Export CSV
+      </a>
+      <a
+        href="/catalog/new"
+        class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+      >
+        New product
+      </a>
+    </div>
   </header>
 
   <form method="GET" class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-3">
