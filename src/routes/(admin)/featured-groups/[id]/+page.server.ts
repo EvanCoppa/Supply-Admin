@@ -1,5 +1,11 @@
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import {
+  featuredGroupProductSchema,
+  featuredGroupReorderSchema,
+  featuredGroupSchema,
+  parseForm
+} from '$lib/schemas';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
   const { data: group } = await supabase
@@ -24,7 +30,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 
   return {
     group,
+    productIds: ids,
     currentProducts: current,
+    allProducts: (productsRes.data ?? []) as Array<{ id: string; sku: string; name: string }>,
     availableProducts: (productsRes.data ?? []).filter((p) => !ids.includes(p.id))
   };
 };
@@ -32,12 +40,27 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 export const actions: Actions = {
   save: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
-    const name = String(form.get('name') ?? '').trim();
-    const description = String(form.get('description') ?? '').trim() || null;
-    if (!name) return fail(400, { message: 'Name is required.' });
+    const parsed = parseForm(featuredGroupSchema, form);
+    if (!parsed.success) {
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    }
     const { error } = await supabase
       .from('featured_groups')
-      .update({ name, description })
+      .update(parsed.data)
+      .eq('id', params.id);
+    if (error) return fail(400, { message: error.message, fieldErrors: {} });
+    return { saved: true };
+  },
+
+  saveProducts: async ({ params, request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const ids = String(form.get('product_ids') ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const { error } = await supabase
+      .from('featured_groups')
+      .update({ product_ids: ids })
       .eq('id', params.id);
     if (error) return fail(400, { message: error.message });
     return { saved: true };
@@ -45,8 +68,11 @@ export const actions: Actions = {
 
   addProduct: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
-    const product_id = String(form.get('product_id') ?? '');
-    if (!product_id) return fail(400, { message: 'Pick a product.' });
+    const parsed = parseForm(featuredGroupProductSchema, form);
+    if (!parsed.success) {
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    }
+    const { product_id } = parsed.data;
 
     const { data: group } = await supabase
       .from('featured_groups')
@@ -60,13 +86,17 @@ export const actions: Actions = {
       .from('featured_groups')
       .update({ product_ids: ids })
       .eq('id', params.id);
-    if (error) return fail(400, { message: error.message });
+    if (error) return fail(400, { message: error.message, fieldErrors: {} });
     return { saved: true };
   },
 
   removeProduct: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
-    const product_id = String(form.get('product_id') ?? '');
+    const parsed = parseForm(featuredGroupProductSchema, form);
+    if (!parsed.success) {
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    }
+    const { product_id } = parsed.data;
     const { data: group } = await supabase
       .from('featured_groups')
       .select('product_ids')
@@ -77,14 +107,18 @@ export const actions: Actions = {
       .from('featured_groups')
       .update({ product_ids: ids })
       .eq('id', params.id);
-    if (error) return fail(400, { message: error.message });
+    if (error) return fail(400, { message: error.message, fieldErrors: {} });
     return { saved: true };
   },
 
   reorder: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
-    const product_id = String(form.get('product_id') ?? '');
-    const direction = String(form.get('direction') ?? '');
+    const parsed = parseForm(featuredGroupReorderSchema, form);
+    if (!parsed.success) {
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    }
+    const { product_id, direction } = parsed.data;
+
     const { data: group } = await supabase
       .from('featured_groups')
       .select('product_ids')
@@ -100,7 +134,7 @@ export const actions: Actions = {
       .from('featured_groups')
       .update({ product_ids: ids })
       .eq('id', params.id);
-    if (error) return fail(400, { message: error.message });
+    if (error) return fail(400, { message: error.message, fieldErrors: {} });
     return { saved: true };
   }
 };

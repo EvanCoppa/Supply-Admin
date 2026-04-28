@@ -17,7 +17,8 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
     overdueTasks,
     overdueInvoices,
     outstandingInvoices,
-    atRiskCustomers
+    atRiskCustomers,
+    recentAdjustments
   ] = await Promise.all([
     supabase
       .from('orders')
@@ -73,6 +74,13 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
       .select('customer_id, business_name, lifecycle_stage, outstanding_balance, last_order_at, overdue_tasks')
       .in('lifecycle_stage', ['at_risk', 'churned'])
       .order('outstanding_balance', { ascending: false })
+      .limit(8),
+    supabase
+      .from('inventory_ledger')
+      .select(
+        'id, delta, reason, notes, order_id, created_at, product:products(id, sku, name)'
+      )
+      .order('created_at', { ascending: false })
       .limit(8)
   ]);
 
@@ -113,6 +121,15 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
     last_order_at: string | null;
     overdue_tasks: number;
   };
+  type AdjustmentEntry = {
+    id: string;
+    delta: number;
+    reason: string;
+    notes: string | null;
+    order_id: string | null;
+    created_at: string;
+    product: { id: string; sku: string; name: string } | null;
+  };
 
   return {
     metrics: {
@@ -127,6 +144,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
     recentOrders: (recentOrders.data ?? []) as unknown as RecentOrder[],
     lowStock: (lowStock.data ?? []) as unknown as LowStockRow[],
     myOpenTasks: (myOpenTasks.data ?? []) as unknown as MyTask[],
-    atRiskCustomers: (atRiskCustomers.data ?? []) as unknown as AtRisk[]
+    atRiskCustomers: (atRiskCustomers.data ?? []) as unknown as AtRisk[],
+    recentAdjustments: (recentAdjustments.data ?? []) as unknown as AdjustmentEntry[]
   };
 };

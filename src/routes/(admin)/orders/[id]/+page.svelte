@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import { currency, dateTime } from '$lib/format';
   import OrderStatusBadge from '$lib/components/OrderStatusBadge.svelte';
+  import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 
   let { data, form } = $props();
   let o = $derived(data.order);
@@ -23,8 +24,13 @@
 <svelte:head><title>Order {o.id.slice(0, 8)} · Supply Admin</title></svelte:head>
 
 <section class="space-y-5">
-  <header>
-    <a class="text-sm text-sky-700 hover:underline" href="/orders">← Orders</a>
+  <header class="space-y-2">
+    <Breadcrumbs
+      items={[
+        { label: 'Orders', href: '/orders' },
+        { label: o.id.slice(0, 8) }
+      ]}
+    />
     <div class="flex items-center gap-3">
       <h1 class="text-2xl font-semibold font-mono">{o.id.slice(0, 8)}</h1>
       <OrderStatusBadge status={o.status} />

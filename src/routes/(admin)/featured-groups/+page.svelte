@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import ProductPicker from '$lib/components/ProductPicker.svelte';
 
   let { data, form } = $props();
 </script>
@@ -36,6 +37,10 @@
       <span class="mb-1 block text-sm font-medium">Description</span>
       <input name="description" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
     </label>
+    <div class="block sm:col-span-3">
+      <span class="mb-1 block text-sm font-medium">Products</span>
+      <ProductPicker products={data.products} name="product_ids" />
+    </div>
     <div class="sm:col-span-3 flex justify-end">
       <button
         type="submit"

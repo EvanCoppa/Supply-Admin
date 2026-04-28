@@ -1,11 +1,20 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { currency, dateShort } from '$lib/format';
+  import { currency, dateShort, dateTime } from '$lib/format';
 
   let { data, form } = $props();
 
   let scope = $state<'product' | 'category'>('product');
   let overrideType = $state<'absolute_price' | 'percent_discount'>('percent_discount');
+
+  const conflictSet = $derived(new Set(data.conflictingIds));
+  const hasConflicts = $derived(conflictSet.size > 0);
+
+  const actionClass: Record<string, string> = {
+    create: 'bg-emerald-50 text-emerald-700',
+    update: 'bg-sky-50 text-sky-700',
+    delete: 'bg-red-50 text-red-700'
+  };
 </script>
 
 <div class="space-y-5">
@@ -157,8 +166,13 @@
   </div>
 
   <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-    <div class="border-b border-slate-200 px-4 py-3">
+    <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
       <h2 class="font-semibold">Rules</h2>
+      {#if hasConflicts}
+        <span class="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
+          {conflictSet.size} conflict{conflictSet.size === 1 ? '' : 's'} detected
+        </span>
+      {/if}
     </div>
     {#if data.rules.length === 0}
       <p class="px-4 py-10 text-center text-sm text-slate-500">No rules yet.</p>
@@ -175,7 +189,7 @@
         </thead>
         <tbody class="divide-y divide-slate-100">
           {#each data.rules as r}
-            <tr>
+            <tr class:bg-amber-50={conflictSet.has(r.id)}>
               <td class="px-4 py-2">{r.scope}</td>
               <td class="px-4 py-2">
                 {#if r.scope === 'product'}
@@ -183,6 +197,14 @@
                   {r.product?.name ?? '—'}
                 {:else}
                   {r.category?.name ?? '—'}
+                {/if}
+                {#if conflictSet.has(r.id)}
+                  <span
+                    class="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-800"
+                    title="Another rule already covers this scope+target for this client"
+                  >
+                    duplicate
+                  </span>
                 {/if}
               </td>
               <td class="px-4 py-2">
@@ -208,6 +230,51 @@
                     Delete
                   </button>
                 </form>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    {/if}
+  </div>
+
+  <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 px-4 py-3">
+      <h2 class="font-semibold">Audit log</h2>
+      <p class="text-xs text-slate-500">Recent changes to this client's pricing rules.</p>
+    </div>
+    {#if data.auditLog.length === 0}
+      <p class="px-4 py-6 text-sm text-slate-500">No rule changes recorded yet.</p>
+    {:else}
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+          <tr>
+            <th class="px-4 py-2 text-left font-medium">When</th>
+            <th class="px-4 py-2 text-left font-medium">Action</th>
+            <th class="px-4 py-2 text-left font-medium">Actor</th>
+            <th class="px-4 py-2 text-left font-medium">Rule</th>
+            <th class="px-4 py-2 text-left font-medium">Details</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {#each data.auditLog as entry}
+            <tr>
+              <td class="px-4 py-2 text-slate-500">{dateTime(entry.created_at)}</td>
+              <td class="px-4 py-2">
+                <span class="rounded px-1.5 py-0.5 text-xs {actionClass[entry.action] ?? ''}">
+                  {entry.action}
+                </span>
+              </td>
+              <td class="px-4 py-2 text-slate-600">{entry.actor_email ?? '—'}</td>
+              <td class="px-4 py-2 font-mono text-xs text-slate-500">
+                {entry.rule_id ? entry.rule_id.slice(0, 8) : '—'}
+              </td>
+              <td class="px-4 py-2 text-xs text-slate-600">
+                {#if entry.changes}
+                  <code class="block overflow-x-auto whitespace-pre-wrap break-words text-[11px]">{JSON.stringify(entry.changes)}</code>
+                {:else}
+                  —
+                {/if}
               </td>
             </tr>
           {/each}
