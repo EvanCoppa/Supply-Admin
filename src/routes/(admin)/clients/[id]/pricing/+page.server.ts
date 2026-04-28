@@ -1,6 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Actions, PageServerLoad } from './$types';
+import { parseForm, pricingPreviewSchema, pricingRuleSchema } from '$lib/schemas';
 
 type AuditAction = 'create' | 'update' | 'delete';
 
@@ -98,56 +99,30 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 export const actions: Actions = {
   create: async ({ params, request, locals: { supabase, user } }) => {
     const form = await request.formData();
-    const scope = String(form.get('scope') ?? '');
-    const override_type = String(form.get('override_type') ?? '');
-    if (scope !== 'product' && scope !== 'category') {
-      return fail(400, { message: 'Choose a scope.' });
+    const parsed = parseForm(pricingRuleSchema, form);
+    if (!parsed.success) {
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
     }
-    if (override_type !== 'absolute_price' && override_type !== 'percent_discount') {
-      return fail(400, { message: 'Choose an override type.' });
-    }
-
-    const product_id = scope === 'product' ? String(form.get('product_id') ?? '') || null : null;
-    const category_id = scope === 'category' ? String(form.get('category_id') ?? '') || null : null;
-    if (scope === 'product' && !product_id) return fail(400, { message: 'Pick a product.' });
-    if (scope === 'category' && !category_id) return fail(400, { message: 'Pick a category.' });
-
-    const absolute_price =
-      override_type === 'absolute_price' ? Number(form.get('absolute_price')) : null;
-    const percent_discount =
-      override_type === 'percent_discount' ? Number(form.get('percent_discount')) : null;
-
-    if (absolute_price !== null && (!Number.isFinite(absolute_price) || absolute_price < 0)) {
-      return fail(400, { message: 'Absolute price must be ≥ 0.' });
-    }
-    if (
-      percent_discount !== null &&
-      (!Number.isFinite(percent_discount) || percent_discount < 0 || percent_discount > 100)
-    ) {
-      return fail(400, { message: 'Percent discount must be between 0 and 100.' });
-    }
-
-    const effective_start = String(form.get('effective_start') ?? '').trim() || null;
-    const effective_end = String(form.get('effective_end') ?? '').trim() || null;
-
+    const { scope, override_type } = parsed.data;
     const payload = {
       customer_id: params.id,
       scope,
-      product_id,
-      category_id,
+      product_id: scope === 'product' ? parsed.data.product_id : null,
+      category_id: scope === 'category' ? parsed.data.category_id : null,
       override_type,
-      absolute_price,
-      percent_discount,
-      effective_start,
-      effective_end
+      absolute_price:
+        override_type === 'absolute_price' ? parsed.data.absolute_price : null,
+      percent_discount:
+        override_type === 'percent_discount' ? parsed.data.percent_discount : null,
+      effective_start: parsed.data.effective_start,
+      effective_end: parsed.data.effective_end
     };
-
     const { data, error } = await supabase
       .from('customer_pricing_rules')
       .insert(payload)
       .select('id')
       .maybeSingle();
-    if (error) return fail(400, { message: error.message });
+    if (error) return fail(400, { message: error.message, fieldErrors: {} });
 
     await logAudit(supabase, {
       customer_id: params.id,
@@ -176,7 +151,7 @@ export const actions: Actions = {
       .delete()
       .eq('id', id)
       .eq('customer_id', params.id);
-    if (error) return fail(400, { message: error.message });
+    if (error) return fail(400, { message: error.message, fieldErrors: {} });
 
     await logAudit(supabase, {
       customer_id: params.id,
@@ -191,14 +166,21 @@ export const actions: Actions = {
 
   preview: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
-    const productId = String(form.get('product_id') ?? '');
-    if (!productId) return fail(400, { message: 'Pick a product to preview.' });
-
+    const parsed = parseForm(pricingPreviewSchema, form);
+    if (!parsed.success) {
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    }
+    const productId = parsed.data.product_id;
     const { data, error } = await supabase.rpc('resolve_customer_price', {
       p_customer_id: params.id,
       p_product_id: productId
     });
-    if (error) return fail(400, { previewProductId: productId, message: error.message });
+    if (error)
+      return fail(400, {
+        previewProductId: productId,
+        message: error.message,
+        fieldErrors: {}
+      });
     return { previewProductId: productId, resolvedPrice: data as number | null };
   }
 };

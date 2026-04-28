@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import type { CustomerLifecycleStage, CustomerTag, Territory } from '$lib/types/db';
+import { customerCreateSchema, parseForm } from '$lib/schemas';
 
 const PAGE_SIZE = 25;
 const LIFECYCLE_STAGES: CustomerLifecycleStage[] = [
@@ -99,21 +100,18 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
 export const actions: Actions = {
   create: async ({ request, locals: { supabase } }) => {
     const form = await request.formData();
-    const business_name = String(form.get('business_name') ?? '').trim();
-    if (!business_name) return fail(400, { message: 'Business name is required.' });
+    const parsed = parseForm(customerCreateSchema, form);
+    if (!parsed.success) {
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    }
 
     const { data, error } = await supabase
       .from('customers')
-      .insert({
-        business_name,
-        primary_contact_name: String(form.get('primary_contact_name') ?? '').trim() || null,
-        email: String(form.get('email') ?? '').trim() || null,
-        phone: String(form.get('phone') ?? '').trim() || null
-      })
+      .insert(parsed.data)
       .select('id')
       .single();
 
-    if (error) return fail(400, { message: error.message });
+    if (error) return fail(400, { message: error.message, fieldErrors: {} });
     throw redirect(303, `/clients/${data.id}`);
   }
 };
