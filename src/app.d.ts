@@ -1,4 +1,5 @@
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
+import type { UserProfile } from '$lib/types/db';
 
 declare global {
   namespace App {
@@ -7,13 +8,13 @@ declare global {
       safeGetSession: () => Promise<{ session: Session | null; user: User | null }>;
       session: Session | null;
       user: User | null;
+      profile: UserProfile | null;
     }
     interface PageData {
       session: Session | null;
       user: User | null;
+      profile?: UserProfile | null;
     }
-    // interface Error {}
-    // interface Platform {}
   }
 }
 
