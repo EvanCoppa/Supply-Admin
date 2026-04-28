@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { dateTime } from '$lib/format';
+  import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 
   let { data, form } = $props();
 </script>
@@ -8,8 +9,14 @@
 <svelte:head><title>{data.product.name} ledger · Supply Admin</title></svelte:head>
 
 <section class="space-y-5">
-  <header>
-    <a class="text-sm text-sky-700 hover:underline" href="/inventory">← Inventory</a>
+  <header class="space-y-2">
+    <Breadcrumbs
+      items={[
+        { label: 'Inventory', href: '/inventory' },
+        { label: data.product.name, href: `/catalog/${data.product.id}` },
+        { label: 'Ledger' }
+      ]}
+    />
     <h1 class="text-2xl font-semibold">{data.product.name}</h1>
     <p class="text-xs font-mono text-slate-500">{data.product.sku}</p>
   </header>

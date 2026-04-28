@@ -202,4 +202,50 @@
       {/if}
     </div>
   </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+    <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+      <h2 class="font-semibold">Recent inventory adjustments</h2>
+      <a class="text-xs text-sky-700 hover:underline" href="/inventory">View inventory</a>
+    </div>
+    {#if data.recentAdjustments.length === 0}
+      <p class="px-4 py-6 text-sm text-slate-500">No adjustments recorded yet.</p>
+    {:else}
+      <ul class="divide-y divide-slate-100 text-sm">
+        {#each data.recentAdjustments as entry}
+          <li class="flex items-start justify-between gap-3 px-4 py-2.5">
+            <div class="min-w-0 flex-1">
+              <p class="truncate">
+                {#if entry.product}
+                  <a class="text-sky-700 hover:underline" href="/inventory/{entry.product.id}/ledger">
+                    <span class="font-mono text-xs text-slate-500">{entry.product.sku}</span>
+                    {entry.product.name}
+                  </a>
+                {:else}
+                  <span class="text-slate-500">Unknown product</span>
+                {/if}
+              </p>
+              <p class="text-xs text-slate-500">
+                {entry.reason.replace('_', ' ')}
+                {#if entry.order_id}
+                  · <a class="hover:underline" href="/orders/{entry.order_id}">order {entry.order_id.slice(0, 8)}</a>
+                {/if}
+                {#if entry.notes}· {entry.notes}{/if}
+                · {dateTime(entry.created_at)}
+              </p>
+            </div>
+            <span
+              class="shrink-0 rounded px-2 py-0.5 text-xs font-semibold"
+              class:bg-emerald-50={entry.delta > 0}
+              class:text-emerald-700={entry.delta > 0}
+              class:bg-red-50={entry.delta < 0}
+              class:text-red-700={entry.delta < 0}
+            >
+              {entry.delta > 0 ? '+' : ''}{entry.delta}
+            </span>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+  </div>
 </section>

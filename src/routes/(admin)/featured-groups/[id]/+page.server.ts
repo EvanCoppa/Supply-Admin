@@ -30,7 +30,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 
   return {
     group,
+    productIds: ids,
     currentProducts: current,
+    allProducts: (productsRes.data ?? []) as Array<{ id: string; sku: string; name: string }>,
     availableProducts: (productsRes.data ?? []).filter((p) => !ids.includes(p.id))
   };
 };
@@ -47,6 +49,20 @@ export const actions: Actions = {
       .update(parsed.data)
       .eq('id', params.id);
     if (error) return fail(400, { message: error.message, fieldErrors: {} });
+    return { saved: true };
+  },
+
+  saveProducts: async ({ params, request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const ids = String(form.get('product_ids') ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const { error } = await supabase
+      .from('featured_groups')
+      .update({ product_ids: ids })
+      .eq('id', params.id);
+    if (error) return fail(400, { message: error.message });
     return { saved: true };
   },
 

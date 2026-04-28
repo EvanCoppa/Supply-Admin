@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { currency, dateShort } from '$lib/format';
+  import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 
   let { data, children } = $props();
 
@@ -37,7 +38,12 @@
 
 <section class="space-y-5">
   <header class="space-y-2">
-    <a class="text-sm text-sky-700 hover:underline" href="/clients">← Clients</a>
+    <Breadcrumbs
+      items={[
+        { label: 'Clients', href: '/clients' },
+        { label: data.client.business_name }
+      ]}
+    />
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="text-2xl font-semibold">{data.client.business_name}</h1>
       <span
