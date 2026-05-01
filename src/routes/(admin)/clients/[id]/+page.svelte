@@ -71,6 +71,20 @@
       {/each}
     </select>
   </label>
+  <label class="block sm:col-span-2">
+    <span class="mb-1 block text-sm font-medium">External code</span>
+    <input
+      type="text"
+      name="external_code"
+      value={c.external_code ?? ''}
+      placeholder="e.g. dent_acme123"
+      class="w-full rounded border border-slate-300 px-2 py-1.5 font-mono text-sm"
+    />
+    <span class="mt-1 block text-xs text-slate-500">
+      Share with external apps (e.g. Guaranteeth) so they can identify this customer.
+      Pair with an active API token from the API Tokens tab.
+    </span>
+  </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Primary contact</span>
     <input

@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import type { CustomerLifecycleStage, CustomerTag, Territory } from '$lib/types/db';
-import { customerCreateSchema, parseForm } from '$lib/schemas';
+import { customerCreateSchema, deriveExternalCode, parseForm } from '$lib/schemas';
 
 const PAGE_SIZE = 25;
 const LIFECYCLE_STAGES: CustomerLifecycleStage[] = [
@@ -105,9 +105,14 @@ export const actions: Actions = {
       return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
     }
 
+    const payload = { ...parsed.data };
+    if (!payload.external_code) {
+      payload.external_code = deriveExternalCode(payload.business_name);
+    }
+
     const { data, error } = await supabase
       .from('customers')
-      .insert(parsed.data)
+      .insert(payload)
       .select('id')
       .single();
 
