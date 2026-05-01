@@ -15,6 +15,11 @@ const optionalEmail = optionalTrimmed.refine(
   { message: 'Invalid email address.' }
 );
 
+const optionalExternalCode = optionalTrimmed.refine(
+  (v) => v === null || /^[a-zA-Z0-9_-]{3,64}$/.test(v),
+  { message: 'External code must be 3-64 chars: letters, digits, _ or -.' }
+);
+
 export const customerCreateSchema = z.object({
   business_name: requiredTrimmed('Business name is required.'),
   primary_contact_name: optionalTrimmed,
@@ -29,6 +34,7 @@ export const customerUpdateSchema = z.object({
   phone: optionalTrimmed,
   assigned_sales_rep_id: optionalTrimmed,
   territory_id: optionalTrimmed,
+  external_code: optionalExternalCode,
   status: enumWithDefault(CUSTOMER_STATUSES, 'active', 'Invalid status.'),
   lifecycle_stage: enumWithDefault(
     LIFECYCLE_STAGES,
