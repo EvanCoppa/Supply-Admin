@@ -1,6 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { parseForm, tokenCreateSchema } from '$lib/schemas';
+import { env } from '$env/dynamic/private';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
   const { data } = await supabase
@@ -57,5 +58,71 @@ export const actions: Actions = {
       .eq('customer_id', params.id);
     if (error) return fail(400, { message: error.message, fieldErrors: {} });
     return { saved: true };
+  },
+
+  pushToGuaranteeth: async ({ params, request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const orgId = String(form.get('org_id') ?? '').trim();
+    const plaintext = String(form.get('plaintext') ?? '').trim();
+
+    if (!orgId || !plaintext) {
+      return fail(400, { message: 'Org ID and token are required.', fieldErrors: {} });
+    }
+
+    const guaranteethUrl = env.GUARANTEETH_API_URL;
+    const secret = env.SUPPLY_ADMIN_SYNC_SECRET;
+    if (!guaranteethUrl || !secret) {
+      return fail(500, {
+        message: 'GUARANTEETH_API_URL and SUPPLY_ADMIN_SYNC_SECRET must be set.',
+        fieldErrors: {}
+      });
+    }
+
+    const { data: customer, error: cErr } = await supabase
+      .from('customers')
+      .select('external_code')
+      .eq('id', params.id)
+      .maybeSingle();
+    if (cErr || !customer) {
+      return fail(400, { message: 'Customer lookup failed.', fieldErrors: {} });
+    }
+    if (!customer.external_code) {
+      return fail(400, {
+        message: 'Set an External code on the customer profile before pushing.',
+        fieldErrors: {}
+      });
+    }
+
+    try {
+      const resp = await fetch(
+        `${guaranteethUrl.replace(/\/$/, '')}/api/admin/link-supply-account`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${secret}`
+          },
+          body: JSON.stringify({
+            orgId: Number.isNaN(Number(orgId)) ? orgId : Number(orgId),
+            supplyCustomerCode: customer.external_code,
+            supplyApiToken: plaintext
+          })
+        }
+      );
+
+      if (!resp.ok) {
+        const body = await resp.text();
+        return fail(resp.status, {
+          message: `Guaranteeth rejected push (${resp.status}): ${body.slice(0, 200)}`,
+          fieldErrors: {}
+        });
+      }
+      return { pushed: { orgId } };
+    } catch (e) {
+      return fail(500, {
+        message: `Failed to reach Guaranteeth: ${(e as Error).message}`,
+        fieldErrors: {}
+      });
+    }
   }
 };
