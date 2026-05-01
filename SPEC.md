@@ -42,11 +42,11 @@ SvelteKit (TypeScript) internal CRM for client staff. Reads/writes Supabase dire
 - [ ] Create product form with all required fields (SKU, name, description, category, manufacturer, UoM, pack size, base price, tax class, weight, images, status).
 - [ ] Edit product — same form, pre-populated; updates via `supabase-js` under admin RLS.
 - [ ] Archive / restore toggle (`status = 'archived' | 'active'`).
-- [ ] Image upload to Supabase Storage; stores resulting paths in `products.image_paths` JSONB.
-- [ ] Image reorder + delete UI.
+- [x] Image upload to Supabase Storage; stores resulting paths in `products.image_paths` JSONB.
+- [x] Image reorder + delete UI.
 - [ ] Category picker supports nested categories.
-- [ ] Bulk CSV import — parses, previews, validates, reports per-row errors before commit.
-- [ ] Bulk CSV export of full catalog (filtered or all).
+- [x] Bulk CSV import — parses, previews, validates, reports per-row errors before commit.
+- [x] Bulk CSV export of full catalog (filtered or all).
 - [ ] Form validation via shared Zod schemas (same as API uses).
 
 ## 6. Inventory Management

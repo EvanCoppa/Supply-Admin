@@ -1,9 +1,14 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import ProductForm from '$lib/components/ProductForm.svelte';
+  import ProductImageManager from '$lib/components/ProductImageManager.svelte';
   import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 
   let { data, form } = $props();
+
+  const imagePaths = $derived(
+    Array.isArray(data.product.image_paths) ? data.product.image_paths : []
+  );
 </script>
 
 <svelte:head><title>{data.product.name} · Supply Admin</title></svelte:head>
@@ -71,6 +76,12 @@
   >
     <ProductForm product={data.product} categories={data.categories} submitLabel="Save" />
   </form>
+
+  <ProductImageManager
+    productId={data.product.id}
+    images={imagePaths}
+    imageUrls={data.imageUrls}
+  />
 
   <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
     <h2 class="mb-3 font-semibold">Inventory</h2>
