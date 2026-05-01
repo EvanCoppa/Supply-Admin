@@ -20,9 +20,15 @@
     </div>
   {/if}
 
+  {#if form?.pushed}
+    <div class="rounded border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+      Pushed to Guaranteeth org {form.pushed.orgId}.
+    </div>
+  {/if}
+
   {#if form?.created}
-    <div class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm">
-      <p class="mb-1 font-semibold text-amber-900">
+    <div class="space-y-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm">
+      <p class="font-semibold text-amber-900">
         Copy this token now — it will not be shown again.
       </p>
       <div class="flex items-center gap-2">
@@ -37,6 +43,29 @@
           {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
+
+      <form method="POST" action="?/pushToGuaranteeth" use:enhance class="flex flex-wrap items-end gap-2 border-t border-amber-300 pt-3">
+        <input type="hidden" name="plaintext" value={form.created.plaintext} />
+        <label class="block flex-1 min-w-[200px]">
+          <span class="mb-1 block text-xs font-medium text-amber-900">Guaranteeth org ID</span>
+          <input
+            name="org_id"
+            required
+            placeholder="e.g. 42"
+            class="w-full rounded border border-amber-300 px-2 py-1.5 text-sm"
+          />
+        </label>
+        <button
+          type="submit"
+          class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+        >
+          Push to Guaranteeth
+        </button>
+      </form>
+      <p class="text-xs text-amber-800">
+        Sends this token + the customer's external code to Guaranteeth so the org's
+        supply credentials get written without manual SQL.
+      </p>
     </div>
   {/if}
 

@@ -60,6 +60,7 @@ export interface Customer {
   status: CustomerStatus;
   lifecycle_stage: CustomerLifecycleStage;
   territory_id: string | null;
+  external_code: string | null;
   created_at: string;
   updated_at: string;
 }

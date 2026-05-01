@@ -15,11 +15,17 @@ const optionalEmail = optionalTrimmed.refine(
   { message: 'Invalid email address.' }
 );
 
+const optionalExternalCode = optionalTrimmed.refine(
+  (v) => v === null || /^[a-zA-Z0-9_-]{3,64}$/.test(v),
+  { message: 'External code must be 3-64 chars: letters, digits, _ or -.' }
+);
+
 export const customerCreateSchema = z.object({
   business_name: requiredTrimmed('Business name is required.'),
   primary_contact_name: optionalTrimmed,
   email: optionalEmail,
-  phone: optionalTrimmed
+  phone: optionalTrimmed,
+  external_code: optionalExternalCode
 });
 
 export const customerUpdateSchema = z.object({
@@ -29,6 +35,7 @@ export const customerUpdateSchema = z.object({
   phone: optionalTrimmed,
   assigned_sales_rep_id: optionalTrimmed,
   territory_id: optionalTrimmed,
+  external_code: optionalExternalCode,
   status: enumWithDefault(CUSTOMER_STATUSES, 'active', 'Invalid status.'),
   lifecycle_stage: enumWithDefault(
     LIFECYCLE_STAGES,
@@ -40,3 +47,19 @@ export const customerUpdateSchema = z.object({
 
 export type CustomerCreateInput = z.infer<typeof customerCreateSchema>;
 export type CustomerUpdateInput = z.infer<typeof customerUpdateSchema>;
+
+/**
+ * Generates a default external_code from a business name when the admin
+ * leaves the field blank on the create form. Slugifies and adds a short
+ * random suffix to avoid collisions on businesses with similar names.
+ */
+export function deriveExternalCode(businessName: string): string {
+  const slug = businessName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 48);
+  const suffix = Math.random().toString(36).slice(2, 8);
+  const base = slug.length >= 3 ? slug : 'cust';
+  return `${base}_${suffix}`;
+}

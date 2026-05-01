@@ -5,6 +5,9 @@
   let { data, form } = $props();
 
   let showCreate = $state(false);
+  let businessName = $state('');
+  let externalCode = $state('');
+
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
 
   const lifecycleClass: Record<string, string> = {
@@ -14,6 +17,22 @@
     at_risk: 'bg-amber-50 text-amber-700',
     churned: 'bg-slate-200 text-slate-700'
   };
+
+  function suggestCode(name: string) {
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .slice(0, 48);
+    if (!slug) return '';
+    const suffix = Math.random().toString(36).slice(2, 6);
+    return `${slug}_${suffix}`;
+  }
+
+  function onBusinessInput(e: Event) {
+    businessName = (e.target as HTMLInputElement).value;
+    if (!externalCode) externalCode = suggestCode(businessName);
+  }
 </script>
 
 <svelte:head><title>Clients · Supply Admin</title></svelte:head>
@@ -51,8 +70,22 @@
           type="text"
           name="business_name"
           required
+          oninput={onBusinessInput}
           class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
         />
+      </label>
+      <label class="block">
+        <span class="mb-1 block text-sm font-medium">External code</span>
+        <input
+          type="text"
+          name="external_code"
+          bind:value={externalCode}
+          placeholder="auto-generated if blank"
+          class="w-full rounded border border-slate-300 px-2 py-1.5 font-mono text-sm"
+        />
+        <span class="mt-1 block text-xs text-slate-500">
+          Used by external apps (e.g. Guaranteeth) to identify this customer.
+        </span>
       </label>
       <label class="block">
         <span class="mb-1 block text-sm font-medium">Primary contact</span>
