@@ -15,6 +15,7 @@
     { href: `/clients/${clientId}/tasks`, label: 'Tasks' },
     { href: `/clients/${clientId}/addresses`, label: 'Addresses' },
     { href: `/clients/${clientId}/pricing`, label: 'Pricing' },
+    { href: `/clients/${clientId}/catalog-access`, label: 'Catalog Access' },
     { href: `/clients/${clientId}/featured`, label: 'Featured' },
     { href: `/clients/${clientId}/orders`, label: 'Orders' },
     { href: `/clients/${clientId}/trends`, label: 'Trends' },

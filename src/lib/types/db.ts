@@ -39,6 +39,7 @@ export type InventoryReason =
 export type PricingScope = 'product' | 'category';
 export type PricingOverrideType = 'absolute_price' | 'percent_discount';
 export type PaymentStatus = 'succeeded' | 'failed' | 'refunded';
+export type CatalogAccessMode = 'all_active' | 'allowlist';
 
 export interface UserProfile {
   id: string;
@@ -61,6 +62,7 @@ export interface Customer {
   lifecycle_stage: CustomerLifecycleStage;
   territory_id: string | null;
   external_code: string | null;
+  catalog_access_mode: CatalogAccessMode;
   created_at: string;
   updated_at: string;
 }
@@ -159,6 +161,15 @@ export interface CustomerFeaturedItem {
   group_id: string | null;
   display_order: number;
   created_at: string;
+}
+
+export interface CustomerProductAccess {
+  customer_id: string;
+  product_id: string;
+  can_view: boolean;
+  can_buy: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Order {

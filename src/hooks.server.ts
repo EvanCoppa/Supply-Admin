@@ -4,7 +4,13 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 import type { UserProfile } from '$lib/types/db';
 
-const PUBLIC_PATHS = ['/login', '/auth'];
+const PUBLIC_PATHS = [
+  '/login',
+  '/auth',
+  '/api/v1/products',
+  '/api/v1/orders',
+  '/api/v1/integrations/guaranteeth/organizations'
+];
 
 const supabase: Handle = async ({ event, resolve }) => {
   const cookies: CookieMethodsServer = {
