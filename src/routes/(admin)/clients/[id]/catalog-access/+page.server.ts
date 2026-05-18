@@ -1,6 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Actions, PageServerLoad } from './$types';
+import { createSupabaseAdminClient } from '$lib/supabase.server';
 
 const PAGE_SIZE = 50;
 const MAX_BULK_PRODUCTS = 5000;
@@ -120,6 +121,7 @@ async function resolveProductIds(
 }
 
 export const load: PageServerLoad = async ({ params, locals: { supabase }, url }) => {
+  const adminSupabase = createSupabaseAdminClient();
   const search = (url.searchParams.get('q') ?? '').trim();
   const categoryId = (url.searchParams.get('category') ?? '').trim();
   const groupId = (url.searchParams.get('group') ?? '').trim();
@@ -133,7 +135,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
       .select('catalog_access_mode')
       .eq('id', params.id)
       .maybeSingle(),
-    supabase
+    adminSupabase
       .from('customer_product_access')
       .select('product_id, can_view, can_buy')
       .eq('customer_id', params.id),
@@ -215,7 +217,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
 };
 
 export const actions: Actions = {
-  saveMode: async ({ params, request, locals: { supabase } }) => {
+  saveMode: async ({ params, request }) => {
+    const supabase = createSupabaseAdminClient();
     const form = await request.formData();
     const mode = String(form.get('catalog_access_mode') ?? '');
     if (mode !== 'all_active' && mode !== 'allowlist') {
@@ -231,7 +234,8 @@ export const actions: Actions = {
     return { saved: true };
   },
 
-  setAccess: async ({ params, request, locals: { supabase } }) => {
+  setAccess: async ({ params, request }) => {
+    const supabase = createSupabaseAdminClient();
     const form = await request.formData();
     const product_id = String(form.get('product_id') ?? '');
     const can_view = form.get('can_view') === 'on';
@@ -251,7 +255,8 @@ export const actions: Actions = {
     return { saved: true };
   },
 
-  bulkAccess: async ({ params, request, locals: { supabase } }) => {
+  bulkAccess: async ({ params, request }) => {
+    const supabase = createSupabaseAdminClient();
     const form = await request.formData();
     const scope = String(form.get('scope') ?? '') as ProductScope;
     const operation = String(form.get('operation') ?? '') as BulkOperation;
@@ -297,7 +302,8 @@ export const actions: Actions = {
     return { saved: true, affected: productIds.length };
   },
 
-  clearAccess: async ({ params, request, locals: { supabase } }) => {
+  clearAccess: async ({ params, request }) => {
+    const supabase = createSupabaseAdminClient();
     const form = await request.formData();
     const product_id = String(form.get('product_id') ?? '');
     if (!product_id) return fail(400, { message: 'Missing product.' });
