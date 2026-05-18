@@ -101,6 +101,12 @@ export interface Product {
   weight_grams: number | null;
   image_paths: string[];
   status: ProductStatus;
+  source_system: string | null;
+  source_last_purchased_at: string | null;
+  source_total_orders: number | null;
+  source_last_purchased_quantity: number | null;
+  price_needs_review: boolean;
+  imported_at: string | null;
   created_at: string;
   updated_at: string;
 }

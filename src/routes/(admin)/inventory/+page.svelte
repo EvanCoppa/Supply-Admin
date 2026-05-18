@@ -9,9 +9,17 @@
 <svelte:head><title>Inventory · Supply Admin</title></svelte:head>
 
 <section class="space-y-4">
-  <header>
-    <h1 class="text-2xl font-semibold">Inventory</h1>
-    <p class="text-sm text-slate-500">{data.total} item{data.total === 1 ? '' : 's'}</p>
+  <header class="flex items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold">Inventory</h1>
+      <p class="text-sm text-slate-500">{data.total} item{data.total === 1 ? '' : 's'}</p>
+    </div>
+    <a
+      href="/inventory/import"
+      class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+    >
+      Import inventory
+    </a>
   </header>
 
   <form method="GET" class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-3">
