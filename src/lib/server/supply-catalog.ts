@@ -31,7 +31,7 @@ export async function getCatalogCustomer(
   return {
     id: data.id,
     catalog_access_mode:
-      data.catalog_access_mode === 'allowlist' ? 'allowlist' : 'all_active'
+      data.catalog_access_mode === 'all_active' ? 'all_active' : 'allowlist'
   };
 }
 

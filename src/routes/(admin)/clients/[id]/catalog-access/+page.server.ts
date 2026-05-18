@@ -34,13 +34,13 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
   );
 
   return {
-    mode: customerRes.data?.catalog_access_mode === 'allowlist' ? 'allowlist' : 'all_active',
+    mode: customerRes.data?.catalog_access_mode === 'all_active' ? 'all_active' : 'allowlist',
     search,
     products: (productsRes.data ?? []).map((product) => {
       const row = access.get(product.id);
       return {
         ...product,
-        can_view: row?.can_view ?? (customerRes.data?.catalog_access_mode === 'allowlist' ? false : true),
+        can_view: row?.can_view ?? (customerRes.data?.catalog_access_mode === 'all_active' ? true : false),
         can_buy: row?.can_buy ?? true,
         has_override: !!row
       };

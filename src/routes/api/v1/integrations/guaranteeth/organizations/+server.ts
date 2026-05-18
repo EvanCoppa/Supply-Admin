@@ -64,6 +64,7 @@ export const POST: RequestHandler = async ({ request }) => {
     email: cleanOptionalString(body.email),
     phone: cleanOptionalString(body.phone),
     external_code: externalCode.length >= 3 ? externalCode : deriveExternalCode(name),
+    catalog_access_mode: 'allowlist',
     status: 'active',
     lifecycle_stage: 'active'
   };
