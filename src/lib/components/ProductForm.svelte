@@ -9,9 +9,12 @@
     product?: ProductLike;
     categories: Array<{ id: string; name: string }>;
     submitLabel?: string;
+    fieldErrors?: Record<string, string[]>;
   }
 
-  let { product = {}, categories, submitLabel = 'Save' }: Props = $props();
+  let { product = {}, categories, submitLabel = 'Save', fieldErrors = {} }: Props = $props();
+
+  const imageError = $derived(fieldErrors.image?.[0]);
 </script>
 
 <div class="grid gap-4 sm:grid-cols-2">
@@ -124,6 +127,22 @@
       <option value="active" selected={product.status !== 'archived'}>Active</option>
       <option value="archived" selected={product.status === 'archived'}>Archived</option>
     </select>
+  </label>
+  <label class="block sm:col-span-2">
+    <span class="mb-1 block text-sm font-medium">Preview image</span>
+    <input
+      type="file"
+      name="image"
+      accept="image/jpeg,image/png,image/webp"
+      class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm file:mr-3 file:rounded file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-sm file:font-medium file:text-slate-700"
+      aria-invalid={imageError ? 'true' : undefined}
+      aria-describedby={imageError ? 'product-image-error' : 'product-image-help'}
+    />
+    {#if imageError}
+      <p id="product-image-error" class="mt-1 text-xs text-red-700">{imageError}</p>
+    {:else}
+      <p id="product-image-help" class="mt-1 text-xs text-slate-500">JPEG, PNG, or WebP up to 10 MB.</p>
+    {/if}
   </label>
 </div>
 

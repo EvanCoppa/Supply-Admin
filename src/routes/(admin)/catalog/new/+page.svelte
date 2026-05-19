@@ -27,9 +27,15 @@
 
   <form
     method="POST"
+    enctype="multipart/form-data"
     use:enhance
     class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
   >
-    <ProductForm product={form?.payload ?? {}} categories={data.categories} submitLabel="Create" />
+    <ProductForm
+      product={form?.payload ?? {}}
+      categories={data.categories}
+      fieldErrors={form?.fieldErrors ?? {}}
+      submitLabel="Create"
+    />
   </form>
 </section>

@@ -63,14 +63,50 @@
     </div>
   {/if}
 
-  <form
-    method="POST"
-    action="?/save"
-    use:enhance
-    class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
-  >
-    <ProductForm product={data.product} categories={data.categories} submitLabel="Save" />
-  </form>
+  <div class="grid gap-5 lg:grid-cols-[240px_1fr]">
+    <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 class="mb-3 font-semibold">Preview image</h2>
+      {#if data.productImageUrl}
+        <img
+          src={data.productImageUrl}
+          alt="{data.product.name} preview"
+          class="aspect-square w-full rounded border border-slate-200 object-cover"
+        />
+        <form method="POST" action="?/delete-image" use:enhance class="mt-3">
+          <button
+            type="submit"
+            onclick={(e) => {
+              if (!confirm('Remove this product image?')) e.preventDefault();
+            }}
+            class="w-full rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+          >
+            Remove image
+          </button>
+        </form>
+      {:else}
+        <div
+          class="flex aspect-square w-full items-center justify-center rounded border border-dashed border-slate-300 bg-slate-50 text-sm text-slate-500"
+        >
+          No image
+        </div>
+      {/if}
+    </div>
+
+    <form
+      method="POST"
+      action="?/save"
+      enctype="multipart/form-data"
+      use:enhance
+      class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+    >
+      <ProductForm
+        product={data.product}
+        categories={data.categories}
+        fieldErrors={form?.fieldErrors ?? {}}
+        submitLabel="Save"
+      />
+    </form>
+  </div>
 
   <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
     <h2 class="mb-3 font-semibold">Inventory</h2>

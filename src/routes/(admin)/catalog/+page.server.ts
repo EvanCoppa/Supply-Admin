@@ -1,4 +1,5 @@
 import type { PageServerLoad } from './$types';
+import { getFirstProductImagePath, getProductImagePublicUrl } from '$lib/server/product-images';
 
 const PAGE_SIZE = 25;
 
@@ -13,7 +14,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
   let query = supabase
     .from('products')
     .select(
-      'id, sku, name, manufacturer, base_price, status, category:categories(id, name), inventory:inventory(quantity_on_hand, low_stock_threshold)',
+      'id, sku, name, manufacturer, base_price, status, image_paths, category:categories(id, name), inventory:inventory(quantity_on_hand, low_stock_threshold)',
       { count: 'exact' }
     )
     .order('name', { ascending: true })
@@ -41,12 +42,21 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     manufacturer: string | null;
     base_price: number;
     status: 'active' | 'archived';
+    image_paths: string[] | null;
+    image_url: string | null;
     category: { id: string; name: string } | null;
     inventory: { quantity_on_hand: number; low_stock_threshold: number } | null;
   };
 
+  const products = ((productsRes.data ?? []) as unknown as Omit<ProductRow, 'image_url'>[]).map(
+    (product) => ({
+      ...product,
+      image_url: getProductImagePublicUrl(supabase, getFirstProductImagePath(product.image_paths))
+    })
+  );
+
   return {
-    products: (productsRes.data ?? []) as unknown as ProductRow[],
+    products,
     total: productsRes.count ?? 0,
     page,
     pageSize: PAGE_SIZE,
