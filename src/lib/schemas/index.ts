@@ -7,3 +7,4 @@ export * from './customer';
 export * from './featured-group';
 export * from './order';
 export * from './token';
+export * from './invoice';

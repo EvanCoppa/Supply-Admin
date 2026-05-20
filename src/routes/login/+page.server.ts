@@ -28,16 +28,24 @@ export const actions: Actions = {
 
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('role')
+      .select('role, customer_id')
       .eq('id', data.user.id)
       .maybeSingle();
 
-    if (profile?.role !== 'admin') {
+    if (!profile || (profile.role !== 'admin' && profile.role !== 'customer')) {
       await supabase.auth.signOut();
-      return fail(403, { email, message: 'This account does not have admin access.' });
+      return fail(403, { email, message: 'This account does not have application access.' });
     }
 
-    throw redirect(303, next.startsWith('/') ? next : '/');
+    if (profile.role === 'customer') {
+      if (!profile.customer_id) {
+        await supabase.auth.signOut();
+        return fail(403, { email, message: 'This customer account is not linked to a business.' });
+      }
+      throw redirect(303, next.startsWith('/portal') ? next : '/portal/invoices');
+    }
+
+    throw redirect(303, next.startsWith('/') && !next.startsWith('/portal') ? next : '/');
   },
 
   reset: async ({ request, locals: { supabase }, url }) => {

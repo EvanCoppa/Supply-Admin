@@ -31,6 +31,9 @@
       <h1 class="text-2xl font-semibold">Invoices</h1>
       <p class="text-sm text-slate-500">{data.total} total</p>
     </div>
+    <a class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800" href="/invoices/new">
+      New invoice
+    </a>
   </header>
 
   <form method="GET" class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-3 text-sm">
@@ -77,7 +80,7 @@
           {#each data.invoices as inv}
             <tr class="hover:bg-slate-50" class:bg-red-50={isOverdue(inv)}>
               <td class="px-3 py-2 font-mono text-xs">
-                <a class="text-sky-700 hover:underline" href="/clients/{inv.customer_id}/invoices">
+                <a class="text-sky-700 hover:underline" href="/invoices/{inv.id}">
                   {inv.invoice_number}
                 </a>
               </td>

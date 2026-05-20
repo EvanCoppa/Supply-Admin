@@ -6,6 +6,8 @@
   const bannerFromError = $derived(
     data.errorCode === 'not_admin'
       ? 'Your account does not have admin access. Please sign in with an admin account.'
+      : data.errorCode === 'not_customer'
+        ? 'Your account is not linked to a customer portal.'
       : null
   );
 </script>
@@ -19,7 +21,7 @@
     <div class="mb-6 space-y-1">
       <p class="text-sm font-medium uppercase tracking-wider text-sky-600">Supply Admin</p>
       <h1 class="text-2xl font-semibold text-slate-900">Sign in</h1>
-      <p class="text-sm text-slate-600">Admin access only.</p>
+      <p class="text-sm text-slate-600">Admin and customer portal access.</p>
     </div>
 
     {#if bannerFromError}

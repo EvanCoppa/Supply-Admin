@@ -19,6 +19,22 @@ export type InvoiceStatus =
   | 'void'
   | 'refunded';
 export type InvoiceTerms = 'due_on_receipt' | 'net_15' | 'net_30' | 'net_60' | 'prepaid';
+export type InvoicePaymentStatus =
+  | 'not_started'
+  | 'intent_created'
+  | 'processing'
+  | 'paid'
+  | 'failed'
+  | 'cancelled';
+export type InvoiceEmailEventType = 'send' | 'reminder' | 'receipt';
+export type InvoiceEmailEventStatus = 'sent' | 'failed' | 'skipped';
+export type InvoicePaymentIntentStatus =
+  | 'created'
+  | 'processing'
+  | 'succeeded'
+  | 'failed'
+  | 'cancelled'
+  | 'expired';
 export type RmaStatus = 'requested' | 'approved' | 'received' | 'refunded' | 'rejected' | 'cancelled';
 export type ProductStatus = 'active' | 'archived';
 export type OrderStatus =
@@ -314,14 +330,71 @@ export interface Invoice {
   subtotal: number;
   tax: number;
   shipping: number;
+  discount: number;
   total: number;
   amount_paid: number;
   terms: InvoiceTerms | null;
   issued_at: string | null;
   due_at: string | null;
   paid_at: string | null;
+  sent_at: string | null;
+  last_reminded_at: string | null;
+  billing_email: string | null;
   billing_address_snapshot: Record<string, unknown> | null;
+  customer_memo: string | null;
+  internal_notes: string | null;
   notes: string | null;
+  payment_url: string | null;
+  payment_status: InvoicePaymentStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InvoiceLineItem {
+  id: string;
+  invoice_id: string;
+  order_line_item_id: string | null;
+  product_id: string | null;
+  product_sku_snapshot: string | null;
+  product_name_snapshot: string | null;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  discount: number;
+  tax: number;
+  line_total: number;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InvoiceEmailEvent {
+  id: string;
+  invoice_id: string;
+  customer_id: string;
+  type: InvoiceEmailEventType;
+  recipient: string;
+  subject: string;
+  status: InvoiceEmailEventStatus;
+  provider: string | null;
+  provider_message_id: string | null;
+  error_message: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface InvoicePaymentIntent {
+  id: string;
+  invoice_id: string;
+  customer_id: string;
+  amount: number;
+  currency: string;
+  status: InvoicePaymentIntentStatus;
+  provider: string;
+  provider_reference: string | null;
+  payment_url: string | null;
+  metadata: Record<string, unknown>;
+  completed_at: string | null;
   created_at: string;
   updated_at: string;
 }

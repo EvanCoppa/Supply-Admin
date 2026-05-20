@@ -27,13 +27,21 @@
       <h2 class="font-semibold">Invoices</h2>
       <p class="text-sm text-slate-500">{data.invoices.length} total</p>
     </div>
-    <button
-      type="button"
-      onclick={() => (showCreate = !showCreate)}
-      class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
-    >
-      {showCreate ? 'Cancel' : 'Issue invoice'}
-    </button>
+    <div class="flex gap-2">
+      <button
+        type="button"
+        onclick={() => (showCreate = !showCreate)}
+        class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+      >
+        {showCreate ? 'Cancel' : 'Issue invoice'}
+      </button>
+      <a
+        href="/invoices/new?customer={data.client.id}"
+        class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+      >
+        Custom invoice
+      </a>
+    </div>
   </div>
 
   {#if showCreate}
@@ -107,7 +115,9 @@
         <tbody class="divide-y divide-slate-100">
           {#each data.invoices as inv}
             <tr class="hover:bg-slate-50">
-              <td class="px-3 py-2 font-mono text-xs">{inv.invoice_number}</td>
+              <td class="px-3 py-2 font-mono text-xs">
+                <a class="text-sky-700 hover:underline" href="/invoices/{inv.id}">{inv.invoice_number}</a>
+              </td>
               <td class="px-3 py-2">
                 <form method="POST" action="?/setStatus" use:enhance class="inline">
                   <input type="hidden" name="id" value={inv.id} />

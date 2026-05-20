@@ -1,5 +1,5 @@
 import { createServerClient, type CookieMethodsServer } from '@supabase/ssr';
-import { type Handle, redirect } from '@sveltejs/kit';
+import { error, type Handle, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 import type { UserProfile } from '$lib/types/db';
@@ -54,9 +54,13 @@ const authGuard: Handle = async ({ event, resolve }) => {
   event.locals.profile = null;
 
   const isPublic = PUBLIC_PATHS.some((p) => event.url.pathname.startsWith(p));
+  const isApi = event.url.pathname.startsWith('/api/');
+  const isPortal = event.url.pathname.startsWith('/portal');
+  const isInvoiceApi = event.url.pathname.startsWith('/api/v1/invoices');
 
   if (!session || !user) {
     if (!isPublic) {
+      if (isApi) throw error(401, 'Not signed in.');
       const next = encodeURIComponent(event.url.pathname + event.url.search);
       throw redirect(303, `/login?next=${next}`);
     }
@@ -71,13 +75,36 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
   event.locals.profile = profile as UserProfile | null;
 
-  if (!isPublic && profile?.role !== 'admin') {
-    // Non-admins get bounced. Sign them out so they don't sit in a broken session.
+  if (isPublic) {
+    if (event.url.pathname === '/login' && profile?.role === 'admin') {
+      throw redirect(303, '/');
+    }
+    if (event.url.pathname === '/login' && profile?.role === 'customer') {
+      throw redirect(303, '/portal/invoices');
+    }
+    return resolve(event);
+  }
+
+  if (isPortal) {
+    if (profile?.role === 'customer' && profile.customer_id) return resolve(event);
+    if (profile?.role === 'admin') throw redirect(303, '/');
     await event.locals.supabase.auth.signOut();
+    throw redirect(303, '/login?error=not_customer');
+  }
+
+  if (isInvoiceApi) {
+    if (profile?.role === 'admin') return resolve(event);
+    if (profile?.role === 'customer' && profile.customer_id) return resolve(event);
+    throw error(403, 'Forbidden.');
+  }
+
+  if (profile?.role !== 'admin') {
+    await event.locals.supabase.auth.signOut();
+    if (isApi) throw error(403, 'Forbidden.');
     throw redirect(303, '/login?error=not_admin');
   }
 
-  if (isPublic && profile?.role === 'admin') {
+  if (event.url.pathname === '/login' && profile?.role === 'admin') {
     throw redirect(303, '/');
   }
 
