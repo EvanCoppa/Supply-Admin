@@ -13,6 +13,7 @@ export const NAV_SECTIONS: NavSection[] = [
     heading: 'Commerce',
     items: [
       { label: 'Dashboard', href: '/' },
+      { label: 'Financials', href: '/dashboard' },
       { label: 'Catalog', href: '/catalog' },
       { label: 'Inventory', href: '/inventory' },
       { label: 'Orders', href: '/orders' },
