@@ -4,7 +4,7 @@ import { callApi } from '$lib/api';
 import { orderRefundSchema, orderTransitionSchema, parseForm } from '$lib/schemas';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
-  const [orderRes, lineItemsRes, paymentsRes] = await Promise.all([
+  const [orderRes, lineItemsRes, paymentsRes, purchasesRes] = await Promise.all([
     supabase
       .from('orders')
       .select('*, customer:customers(id, business_name, email)')
@@ -19,15 +19,35 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
       .from('payment_attempts')
       .select('*')
       .eq('order_id', params.id)
-      .order('created_at', { ascending: false })
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('purchases')
+      .select(
+        'id, ordered_at, status, payment_status, subtotal, freight, distribution_fee, total, supplier:suppliers(id, name, key)'
+      )
+      .eq('order_id', params.id)
+      .order('ordered_at', { ascending: false })
   ]);
 
   if (orderRes.error || !orderRes.data) throw error(404, 'Order not found');
 
+  type PurchaseForOrder = {
+    id: string;
+    ordered_at: string;
+    status: string;
+    payment_status: string;
+    subtotal: number;
+    freight: number;
+    distribution_fee: number;
+    total: number;
+    supplier: { id: string; name: string; key: string } | null;
+  };
+
   return {
     order: orderRes.data,
     lineItems: lineItemsRes.data ?? [],
-    payments: paymentsRes.data ?? []
+    payments: paymentsRes.data ?? [],
+    purchases: (purchasesRes.data ?? []) as unknown as PurchaseForOrder[]
   };
 };
 

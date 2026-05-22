@@ -19,6 +19,30 @@
 
   const canCancel = $derived(!['delivered', 'cancelled', 'refunded'].includes(o.status));
   const canRefund = $derived(['paid', 'fulfilled', 'shipped', 'delivered'].includes(o.status));
+
+  const cogsTotal = $derived(
+    data.purchases
+      .filter((p) => p.status !== 'cancelled')
+      .reduce((acc, p) => acc + Number(p.total), 0)
+  );
+  const grossProfit = $derived(Number(o.total) - cogsTotal);
+  const margin = $derived(Number(o.total) > 0 ? grossProfit / Number(o.total) : 0);
+
+  const purchaseStatusClass: Record<string, string> = {
+    draft: 'bg-slate-100 text-slate-700',
+    ordered: 'bg-sky-50 text-sky-800',
+    received: 'bg-emerald-50 text-emerald-800',
+    cancelled: 'bg-slate-100 text-slate-500'
+  };
+
+  function pct(v: number) {
+    return `${(v * 100).toFixed(1)}%`;
+  }
+  function marginClass(v: number) {
+    if (v >= 0.4) return 'text-emerald-700';
+    if (v >= 0.25) return 'text-amber-700';
+    return 'text-red-700';
+  }
 </script>
 
 <svelte:head><title>Order {o.id.slice(0, 8)} · Supply Admin</title></svelte:head>
@@ -94,6 +118,69 @@
             </tr>
           </tfoot>
         </table>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="mb-3 flex items-center justify-between">
+          <h2 class="font-semibold">Purchases for this order</h2>
+          <a
+            href={`/purchases/new?order=${o.id}`}
+            class="rounded bg-slate-900 px-2.5 py-1 text-xs font-medium text-white hover:bg-slate-800"
+          >
+            Add purchase
+          </a>
+        </div>
+
+        {#if data.purchases.length === 0}
+          <p class="text-sm text-slate-500">
+            No purchases logged. Split across suppliers as needed.
+          </p>
+        {:else}
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+              <tr>
+                <th class="px-3 py-2 text-left font-medium">Ordered</th>
+                <th class="px-3 py-2 text-left font-medium">Supplier</th>
+                <th class="px-3 py-2 text-left font-medium">Status</th>
+                <th class="px-3 py-2 text-left font-medium">Payment</th>
+                <th class="px-3 py-2 text-right font-medium">Freight + fee</th>
+                <th class="px-3 py-2 text-right font-medium">Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              {#each data.purchases as p (p.id)}
+                <tr class="hover:bg-slate-50">
+                  <td class="px-3 py-2 text-slate-500">
+                    <a class="hover:underline" href="/purchases/{p.id}">{dateTime(p.ordered_at)}</a>
+                  </td>
+                  <td class="px-3 py-2">{p.supplier?.name ?? '—'}</td>
+                  <td class="px-3 py-2">
+                    <span class="rounded px-2 py-0.5 text-xs {purchaseStatusClass[p.status] ?? ''}">{p.status}</span>
+                  </td>
+                  <td class="px-3 py-2">{p.payment_status}</td>
+                  <td class="px-3 py-2 text-right text-slate-600">
+                    {currency(Number(p.freight) + Number(p.distribution_fee))}
+                  </td>
+                  <td class="px-3 py-2 text-right font-medium">{currency(p.total)}</td>
+                </tr>
+              {/each}
+            </tbody>
+            <tfoot class="bg-slate-50 text-sm">
+              <tr class="font-semibold">
+                <td class="px-3 py-2" colspan="5">COGS</td>
+                <td class="px-3 py-2 text-right">{currency(cogsTotal)}</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2" colspan="5">Gross profit</td>
+                <td class="px-3 py-2 text-right">{currency(grossProfit)}</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2" colspan="5">Margin</td>
+                <td class="px-3 py-2 text-right {marginClass(margin)}">{pct(margin)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        {/if}
       </div>
 
       <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
