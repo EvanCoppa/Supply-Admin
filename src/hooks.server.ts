@@ -9,6 +9,7 @@ const PUBLIC_PATHS = [
   '/auth',
   '/api/v1/products',
   '/api/v1/orders',
+  '/api/v1/reorder-plan',
   '/api/v1/integrations/guaranteeth/organizations'
 ];
 

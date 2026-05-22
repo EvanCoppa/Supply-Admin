@@ -19,6 +19,7 @@
     { href: `/clients/${clientId}/featured`, label: 'Featured' },
     { href: `/clients/${clientId}/orders`, label: 'Orders' },
     { href: `/clients/${clientId}/trends`, label: 'Trends' },
+    { href: `/clients/${clientId}/reorder`, label: 'Reorder' },
     { href: `/clients/${clientId}/invoices`, label: 'Invoices' },
     { href: `/clients/${clientId}/rmas`, label: 'RMAs' },
     { href: `/clients/${clientId}/credit`, label: 'Credit' },
@@ -108,8 +109,8 @@
     {/if}
   </header>
 
-  <nav class="border-b border-slate-200">
-    <ul class="flex gap-6 text-sm">
+  <nav class="overflow-x-auto border-b border-slate-200">
+    <ul class="flex min-w-max gap-6 text-sm">
       {#each tabs as tab}
         <li>
           <a
