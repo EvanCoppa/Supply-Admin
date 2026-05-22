@@ -17,6 +17,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: 'Financials', href: '/dashboard' },
       { label: 'Insights', href: '/insights' },
       { label: 'Profitability', href: '/reports/profitability' },
+      { label: 'AR Aging', href: '/reports/ar-aging' },
       { label: 'Catalog', href: '/catalog' },
       { label: 'Inventory', href: '/inventory' },
       { label: 'Orders', href: '/orders' },
