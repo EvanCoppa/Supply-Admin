@@ -107,7 +107,7 @@
     </div>
   </div>
 
-  <div class="grid gap-4 lg:grid-cols-2">
+  <div class="grid gap-4 lg:grid-cols-3">
     <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
         Supplier spend · last 30 days
@@ -128,6 +128,31 @@
               <div class="mt-1 h-1.5 w-full rounded bg-slate-100">
                 <div class="h-full rounded bg-sky-500" style="width: {share * 100}%"></div>
               </div>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+
+    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="mb-2 flex items-center justify-between">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          Trending items · last 30 days
+        </p>
+        <a href="/insights" class="text-xs text-sky-700 hover:underline">See all →</a>
+      </div>
+      {#if data.trendingItems.length === 0}
+        <p class="text-sm text-slate-500">Not enough order history to surface trends yet.</p>
+      {:else}
+        <ul class="space-y-1.5 text-sm">
+          {#each data.trendingItems as t (t.product_id)}
+            <li class="flex items-center justify-between gap-2">
+              <a class="min-w-0 truncate text-slate-800 hover:underline" href="/inventory/{t.product_id}">
+                {t.name ?? t.sku ?? '—'}
+              </a>
+              <span class="shrink-0 text-xs text-slate-500">
+                {Number(t.total_qty).toLocaleString()} units · {t.unique_customers} client{t.unique_customers === 1 ? '' : 's'}
+              </span>
             </li>
           {/each}
         </ul>
@@ -157,6 +182,29 @@
             </span>
           </li>
         {/if}
+        {#if m.dueSoonCount > 0}
+          <li class="space-y-1">
+            <div class="flex items-start gap-2">
+              <span class="mt-0.5 inline-block h-2 w-2 shrink-0 rounded-full bg-amber-500"></span>
+              <span>
+                <a class="font-medium text-amber-800 hover:underline" href="/purchases?payment_status=unpaid">
+                  {m.dueSoonCount} supplier payment{m.dueSoonCount === 1 ? '' : 's'} due within 7 days
+                </a>
+                ({currency(m.dueSoonTotal)}).
+              </span>
+            </div>
+            <ul class="ml-4 space-y-1 text-xs text-slate-600">
+              {#each data.dueSoonPurchases as p (p.id)}
+                <li class="flex justify-between gap-3">
+                  <a class="truncate hover:underline" href="/purchases/{p.id}">
+                    {p.supplier?.name ?? 'Supplier'} · due {dateShort(p.due_date)}
+                  </a>
+                  <span>{currency(p.total)}</span>
+                </li>
+              {/each}
+            </ul>
+          </li>
+        {/if}
         {#if data.lowMarginOrders.length > 0}
           <li class="space-y-1">
             <div class="flex items-start gap-2">
@@ -177,7 +225,7 @@
             </ul>
           </li>
         {/if}
-        {#if m.overdueInvoices === 0 && m.medplusPendingCount === 0 && data.lowMarginOrders.length === 0}
+        {#if m.overdueInvoices === 0 && m.medplusPendingCount === 0 && m.dueSoonCount === 0 && data.lowMarginOrders.length === 0}
           <li class="text-sm text-slate-500">All clear — no alerts.</li>
         {/if}
       </ul>

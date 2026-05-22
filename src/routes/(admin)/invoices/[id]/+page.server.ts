@@ -162,6 +162,16 @@ export const actions: Actions = {
       completed_at: now
     });
 
+    await supabase.from('cash_entries').insert({
+      occurred_on: now.slice(0, 10),
+      direction: 'in',
+      amount: parsed.data.amount,
+      source: 'invoice_payment',
+      ref_table: 'invoices',
+      ref_id: invoice.id,
+      notes: `Invoice ${invoice.invoice_number ?? invoice.id.slice(0, 8)} payment`
+    });
+
     return { saved: true, message: 'Payment recorded.' };
   },
 

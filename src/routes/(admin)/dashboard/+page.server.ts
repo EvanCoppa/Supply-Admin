@@ -50,7 +50,8 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
     cashToday,
     outstandingInvoices,
     outstandingPurchases,
-    overdueInvoicesCount
+    overdueInvoicesCount,
+    trendingItems
   ] = await Promise.all([
     supabase
       .from('orders')
@@ -80,7 +81,12 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
       .from('invoices')
       .select('id', { count: 'exact', head: true })
       .in('status', ['issued', 'partially_paid', 'overdue'])
-      .lt('due_at', nowIso)
+      .lt('due_at', nowIso),
+    supabase
+      .from('v_product_velocity_30d')
+      .select('product_id, sku, name, total_qty, unique_customers, order_count, revenue')
+      .order('total_qty', { ascending: false })
+      .limit(5)
   ]);
 
   const cogsMap = new Map<string, number>();
@@ -144,6 +150,14 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   const medplusPendingRows = outstandingApRows.filter((p) => p.supplier?.key === 'medplus');
   const medplusPendingTotal = medplusPendingRows.reduce((a, r) => a + Number(r.total), 0);
 
+  const dueSoonCutoff = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+  const dueSoonRows = outstandingApRows
+    .filter((p) => p.due_date && p.due_date <= dueSoonCutoff)
+    .sort((a, b) => (a.due_date ?? '').localeCompare(b.due_date ?? ''));
+  const dueSoonTotal = dueSoonRows.reduce((a, r) => a + Number(r.total), 0);
+
   return {
     metrics: {
       revenueToday,
@@ -161,10 +175,22 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
       outstandingAp,
       overdueInvoices: overdueInvoicesCount.count ?? 0,
       medplusPendingCount: medplusPendingRows.length,
-      medplusPendingTotal
+      medplusPendingTotal,
+      dueSoonCount: dueSoonRows.length,
+      dueSoonTotal
     },
     supplierBreakdown,
     supplierGrandTotal,
-    lowMarginOrders: lowMarginOrders.slice(0, 5)
+    lowMarginOrders: lowMarginOrders.slice(0, 5),
+    dueSoonPurchases: dueSoonRows.slice(0, 5),
+    trendingItems: (trendingItems.data ?? []) as Array<{
+      product_id: string;
+      sku: string | null;
+      name: string | null;
+      total_qty: number;
+      unique_customers: number;
+      order_count: number;
+      revenue: number;
+    }>
   };
 };
