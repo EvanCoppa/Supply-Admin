@@ -13,9 +13,15 @@ export const NAV_SECTIONS: NavSection[] = [
     heading: 'Commerce',
     items: [
       { label: 'Dashboard', href: '/' },
+      { label: 'Today', href: '/routine' },
+      { label: 'Financials', href: '/dashboard' },
+      { label: 'Insights', href: '/insights' },
+      { label: 'Profitability', href: '/reports/profitability' },
+      { label: 'AR Aging', href: '/reports/ar-aging' },
       { label: 'Catalog', href: '/catalog' },
       { label: 'Inventory', href: '/inventory' },
       { label: 'Orders', href: '/orders' },
+      { label: 'Purchases', href: '/purchases' },
       { label: 'Featured Groups', href: '/featured-groups' },
       { label: 'Categories', href: '/categories' },
       { label: 'Image Generator', href: '/image-generator' }
