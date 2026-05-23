@@ -2,7 +2,7 @@
   import { enhance } from '$app/forms';
   import { currency, dateTime } from '$lib/format';
   import OrderStatusBadge from '$lib/components/OrderStatusBadge.svelte';
-  import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+  import { Breadcrumbs } from '$lib/components/ui';
 
   let { data, form } = $props();
   let o = $derived(data.order);

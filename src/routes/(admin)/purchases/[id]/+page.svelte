@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { currency, dateShort, dateTime } from '$lib/format';
-  import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+  import { Breadcrumbs } from '$lib/components/ui';
 
   let { data, form } = $props();
   const p = $derived(data.purchase);

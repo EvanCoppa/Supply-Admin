@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { OrderStatus } from '$lib/types/db';
+  import { Badge } from '$lib/components/ui';
 
   interface Props {
     status: OrderStatus | string;
@@ -18,4 +19,4 @@
   };
 </script>
 
-<span class="rounded px-1.5 py-0.5 text-xs {statusClass[status] ?? ''}">{status}</span>
+<Badge class={statusClass[status] ?? ''}>{status}</Badge>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import ProductForm from '$lib/components/ProductForm.svelte';
-  import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+  import { Breadcrumbs } from '$lib/components/ui';
 
   let { data, form } = $props();
 </script>

@@ -1,6 +1,8 @@
-<script lang="ts">
+<script lang="ts" module>
   export type Crumb = { label: string; href?: string };
+</script>
 
+<script lang="ts">
   interface Props {
     items: Crumb[];
   }

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { currency } from '$lib/format';
+  import { Card, Input, Kbd } from '$lib/components/ui';
 
   type ProductHit = { id: string; sku: string; name: string; status: string };
   type CustomerHit = { id: string; business_name: string; email: string | null };
@@ -137,25 +138,21 @@
 </script>
 
 <div bind:this={rootEl} class="relative w-72">
-  <input
+  <Input
     type="search"
     placeholder="Search SKU, customer, order…"
     value={q}
     oninput={onInput}
     onfocus={() => (open = true)}
     onkeydown={onKeydown}
-    class="w-full rounded border border-slate-300 bg-white px-3 py-1.5 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
     aria-label="Global search"
+    class="px-3"
   />
-  <kbd
-    class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-slate-200 bg-slate-50 px-1 text-[10px] text-slate-400"
-  >
-    ⌘K
-  </kbd>
+  <Kbd class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">⌘K</Kbd>
 
   {#if open && q.trim().length >= 2}
-    <div
-      class="absolute right-0 z-30 mt-1 w-[420px] max-w-[90vw] overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg"
+    <Card
+      class="absolute right-0 z-30 mt-1 w-[420px] max-w-[90vw] overflow-hidden rounded-md shadow-lg"
     >
       {#if loading}
         <p class="px-3 py-3 text-xs text-slate-500">Searching…</p>
@@ -186,6 +183,6 @@
           {/each}
         </ul>
       {/if}
-    </div>
+    </Card>
   {/if}
 </div>

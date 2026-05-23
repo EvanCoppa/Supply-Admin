@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+  import { Breadcrumbs } from '$lib/components/ui';
   import ProductPicker from '$lib/components/ProductPicker.svelte';
 
   let { data, form } = $props();

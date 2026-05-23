@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Button, Card } from '$lib/components/ui';
+
   type Product = { id: string; sku: string; name: string };
 
   interface Props {
@@ -61,7 +63,7 @@
 <div class="space-y-2">
   <input type="hidden" {name} value={selected.join(',')} />
 
-  <div class="rounded border border-slate-200 bg-white">
+  <Card>
     {#if selected.length === 0}
       <p class="px-3 py-3 text-xs text-slate-500">No products selected.</p>
     {:else}
@@ -78,35 +80,29 @@
               <span class="text-slate-400">unknown product</span>
             {/if}
             <div class="flex gap-1">
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="xs"
                 aria-label="Move up"
                 onclick={() => move(id, -1)}
-                class="rounded border border-slate-300 px-1.5 py-0.5 text-xs hover:bg-slate-100"
                 disabled={i === 0}
-              >↑</button>
-              <button
-                type="button"
+              >↑</Button>
+              <Button
+                variant="outline"
+                size="xs"
                 aria-label="Move down"
                 onclick={() => move(id, 1)}
-                class="rounded border border-slate-300 px-1.5 py-0.5 text-xs hover:bg-slate-100"
                 disabled={i === selected.length - 1}
-              >↓</button>
-              <button
-                type="button"
-                onclick={() => remove(id)}
-                class="rounded border border-red-300 px-1.5 py-0.5 text-xs text-red-700 hover:bg-red-50"
-              >
-                Remove
-              </button>
+              >↓</Button>
+              <Button variant="destructive" size="xs" onclick={() => remove(id)}>Remove</Button>
             </div>
           </li>
         {/each}
       </ul>
     {/if}
-  </div>
+  </Card>
 
-  <div class="rounded border border-slate-200 bg-white">
+  <Card>
     <input
       type="search"
       bind:value={q}
@@ -131,5 +127,5 @@
         {/each}
       </ul>
     {/if}
-  </div>
+  </Card>
 </div>

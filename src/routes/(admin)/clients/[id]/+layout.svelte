@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { currency, dateShort } from '$lib/format';
-  import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+  import { Breadcrumbs } from '$lib/components/ui';
 
   let { data, children } = $props();
 
