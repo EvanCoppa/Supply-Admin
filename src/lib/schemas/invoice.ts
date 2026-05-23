@@ -91,7 +91,10 @@ export function parseInvoiceLineItems(raw: string): InvoiceLineInput[] {
     throw new Error('Invoice lines must be valid JSON.');
   }
 
-  const result = z.array(invoiceLineInputSchema).min(1, 'Add at least one invoice line.').safeParse(json);
+  const result = z
+    .array(invoiceLineInputSchema)
+    .min(1, 'Add at least one invoice line.')
+    .safeParse(json);
   if (!result.success) {
     throw new Error(result.error.issues[0]?.message ?? 'Invalid invoice line item.');
   }

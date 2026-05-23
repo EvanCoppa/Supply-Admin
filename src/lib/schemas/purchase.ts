@@ -13,8 +13,6 @@ const optionalDateOnly = optionalTrimmed.refine(
   { message: 'Use YYYY-MM-DD.' }
 );
 
-const money = z.coerce.number().finite().nonnegative();
-
 const optionalUuid = optionalTrimmed.refine(
   (v) => v === null || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v),
   { message: 'Invalid id.' }

@@ -44,7 +44,9 @@
   </form>
 
   {#if data.notes.length === 0}
-    <p class="rounded border border-dashed border-slate-300 bg-white px-4 py-10 text-center text-sm text-slate-500">
+    <p
+      class="rounded border border-dashed border-slate-300 bg-white px-4 py-10 text-center text-sm text-slate-500"
+    >
       No notes yet.
     </p>
   {:else}
@@ -70,7 +72,8 @@
                 rows="3"
                 required
                 class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-              >{n.body}</textarea>
+                >{n.body}</textarea
+              >
               <div class="flex items-center justify-between">
                 <label class="inline-flex items-center gap-2 text-sm text-slate-600">
                   <input type="checkbox" name="pinned" checked={n.pinned} /> Pinned
@@ -98,7 +101,9 @@
                 <p class="whitespace-pre-wrap text-sm text-slate-800">{n.body}</p>
                 <p class="mt-2 text-xs text-slate-500">
                   {#if n.pinned}
-                    <span class="mr-1 rounded bg-amber-100 px-1.5 py-0.5 text-amber-800">Pinned</span>
+                    <span class="mr-1 rounded bg-amber-100 px-1.5 py-0.5 text-amber-800"
+                      >Pinned</span
+                    >
                   {/if}
                   {n.author?.display_name ?? 'Unknown'} · {dateTime(n.created_at)}
                 </p>

@@ -49,11 +49,17 @@
     >
       <label class="block">
         <span class="mb-1 block text-xs font-medium">First name</span>
-        <input name="first_name" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+        <input
+          name="first_name"
+          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        />
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Last name</span>
-        <input name="last_name" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+        <input
+          name="last_name"
+          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        />
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Title</span>
@@ -61,15 +67,27 @@
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Email</span>
-        <input type="email" name="email" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+        <input
+          type="email"
+          name="email"
+          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        />
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Phone</span>
-        <input type="tel" name="phone" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+        <input
+          type="tel"
+          name="phone"
+          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        />
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Mobile</span>
-        <input type="tel" name="mobile_phone" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+        <input
+          type="tel"
+          name="mobile_phone"
+          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        />
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Role</span>
@@ -171,7 +189,10 @@
                 </label>
                 <label class="block">
                   <span class="mb-1 block text-xs font-medium">Role</span>
-                  <select name="role" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+                  <select
+                    name="role"
+                    class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+                  >
                     <option value="" selected={!ct.role}>—</option>
                     {#each ['primary', 'billing', 'shipping', 'clinical', 'other'] as r}
                       <option value={r} selected={ct.role === r}>{r}</option>
@@ -212,10 +233,15 @@
                   <p class="font-medium">
                     {[ct.first_name, ct.last_name].filter(Boolean).join(' ') || '—'}
                     {#if ct.is_primary}
-                      <span class="ml-1 rounded bg-emerald-50 px-1.5 py-0.5 text-xs text-emerald-700">Primary</span>
+                      <span
+                        class="ml-1 rounded bg-emerald-50 px-1.5 py-0.5 text-xs text-emerald-700"
+                        >Primary</span
+                      >
                     {/if}
                     {#if ct.role}
-                      <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">{ct.role}</span>
+                      <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600"
+                        >{ct.role}</span
+                      >
                     {/if}
                   </p>
                   {#if ct.title}

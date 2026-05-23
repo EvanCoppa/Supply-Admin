@@ -30,13 +30,11 @@ export function parseForm<T extends ZodTypeAny>(
   return { success: false, message, fieldErrors };
 }
 
-export const optionalTrimmed = z
-  .union([z.string(), z.undefined()])
-  .transform((v) => {
-    if (typeof v !== 'string') return null;
-    const trimmed = v.trim();
-    return trimmed === '' ? null : trimmed;
-  });
+export const optionalTrimmed = z.union([z.string(), z.undefined()]).transform((v) => {
+  if (typeof v !== 'string') return null;
+  const trimmed = v.trim();
+  return trimmed === '' ? null : trimmed;
+});
 
 export const requiredTrimmed = (message = 'Required.') =>
   z

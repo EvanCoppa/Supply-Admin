@@ -2,13 +2,7 @@ import { z } from 'zod';
 import { enumWithDefault, optionalTrimmed, requiredTrimmed, stringArray } from './helpers';
 
 export const CUSTOMER_STATUSES = ['active', 'suspended', 'archived'] as const;
-export const LIFECYCLE_STAGES = [
-  'lead',
-  'prospect',
-  'active',
-  'at_risk',
-  'churned'
-] as const;
+export const LIFECYCLE_STAGES = ['lead', 'prospect', 'active', 'at_risk', 'churned'] as const;
 
 const optionalEmail = optionalTrimmed.refine(
   (v) => v === null || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
@@ -37,11 +31,7 @@ export const customerUpdateSchema = z.object({
   territory_id: optionalTrimmed,
   external_code: optionalExternalCode,
   status: enumWithDefault(CUSTOMER_STATUSES, 'active', 'Invalid status.'),
-  lifecycle_stage: enumWithDefault(
-    LIFECYCLE_STAGES,
-    'active',
-    'Invalid lifecycle stage.'
-  ),
+  lifecycle_stage: enumWithDefault(LIFECYCLE_STAGES, 'active', 'Invalid lifecycle stage.'),
   tag_id: stringArray
 });
 

@@ -55,10 +55,7 @@ function summarizeAccess(mode: AccessMode, accessRows: AccessRow[], productIds: 
   };
 }
 
-async function getGroupProductIds(
-  supabase: SupabaseClient,
-  groupId: string
-): Promise<string[]> {
+async function getGroupProductIds(supabase: SupabaseClient, groupId: string): Promise<string[]> {
   if (!groupId) return [];
 
   const { data, error } = await supabase
@@ -88,15 +85,22 @@ async function resolveProductIds(
       .slice(0, MAX_BULK_PRODUCTS);
   }
 
-  const scopedCategoryId = scope === 'category' ? String(form.get('bulk_category_id') ?? '').trim() : categoryId;
-  const scopedGroupId = scope === 'group' ? String(form.get('bulk_group_id') ?? '').trim() : groupId;
+  const scopedCategoryId =
+    scope === 'category' ? String(form.get('bulk_category_id') ?? '').trim() : categoryId;
+  const scopedGroupId =
+    scope === 'group' ? String(form.get('bulk_group_id') ?? '').trim() : groupId;
   const groupProductIds =
-    (scope === 'group' || (scope === 'filtered' && scopedGroupId))
+    scope === 'group' || (scope === 'filtered' && scopedGroupId)
       ? await getGroupProductIds(supabase, scopedGroupId)
       : [];
 
-  if ((scope === 'category' && !scopedCategoryId) || (scope === 'group' && !scopedGroupId)) return [];
-  if ((scope === 'group' || (scope === 'filtered' && scopedGroupId)) && groupProductIds.length === 0) return [];
+  if ((scope === 'category' && !scopedCategoryId) || (scope === 'group' && !scopedGroupId))
+    return [];
+  if (
+    (scope === 'group' || (scope === 'filtered' && scopedGroupId)) &&
+    groupProductIds.length === 0
+  )
+    return [];
 
   let query = supabase
     .from('products')
@@ -130,11 +134,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
   const to = from + PAGE_SIZE - 1;
 
   const [customerRes, accessRes, categoriesRes, groupsRes, activeProductsRes] = await Promise.all([
-    supabase
-      .from('customers')
-      .select('catalog_access_mode')
-      .eq('id', params.id)
-      .maybeSingle(),
+    supabase.from('customers').select('catalog_access_mode').eq('id', params.id).maybeSingle(),
     adminSupabase
       .from('customer_product_access')
       .select('product_id, can_view, can_buy')
@@ -151,7 +151,10 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
   const mode = modeFromValue(customerRes.data?.catalog_access_mode);
   const accessRows = (accessRes.data ?? []) as AccessRow[];
   const access = new Map(accessRows.map((row) => [row.product_id, row]));
-  const activeProducts = (activeProductsRes.data ?? []) as Array<{ id: string; category_id: string | null }>;
+  const activeProducts = (activeProductsRes.data ?? []) as {
+    id: string;
+    category_id: string | null;
+  }[];
   const activeIds = activeProducts.map((product) => product.id);
   const activeIdSet = new Set(activeIds);
   const selectedGroupProductIds = groupId ? await getGroupProductIds(supabase, groupId) : [];
@@ -177,8 +180,12 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
   }
 
   const productsRes = await productsQuery;
-  const categories = (categoriesRes.data ?? []) as Array<{ id: string; name: string }>;
-  const groups = (groupsRes.data ?? []) as Array<{ id: string; name: string; product_ids: string[] | null }>;
+  const categories = (categoriesRes.data ?? []) as { id: string; name: string }[];
+  const groups = (groupsRes.data ?? []) as {
+    id: string;
+    name: string;
+    product_ids: string[] | null;
+  }[];
 
   const categorySummaries = categories.map((category) => {
     const ids = activeProducts
@@ -196,14 +203,16 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
     mode,
     search,
     filters: { categoryId, groupId },
-    products: ((productsRes.data ?? []) as unknown as Array<{
-      id: string;
-      sku: string;
-      name: string;
-      status: 'active';
-      category_id: string | null;
-      category: { id: string; name: string } | null;
-    }>).map((product) => ({
+    products: (
+      (productsRes.data ?? []) as unknown as {
+        id: string;
+        sku: string;
+        name: string;
+        status: 'active';
+        category_id: string | null;
+        category: { id: string; name: string } | null;
+      }[]
+    ).map((product) => ({
       ...product,
       ...accessFor(mode, access.get(product.id))
     })),
@@ -269,7 +278,8 @@ export const actions: Actions = {
     }
 
     const productIds = await resolveProductIds(supabase, scope, form);
-    if (productIds.length === 0) return fail(400, { message: 'No matching active products found.' });
+    if (productIds.length === 0)
+      return fail(400, { message: 'No matching active products found.' });
 
     if (operation === 'clear') {
       const { error } = await supabase

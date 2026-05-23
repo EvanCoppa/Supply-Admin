@@ -10,12 +10,7 @@
 
 <section class="space-y-4">
   <header class="space-y-2">
-    <Breadcrumbs
-      items={[
-        { label: 'Catalog', href: '/catalog' },
-        { label: 'New product' }
-      ]}
-    />
+    <Breadcrumbs items={[{ label: 'Catalog', href: '/catalog' }, { label: 'New product' }]} />
     <h1 class="text-2xl font-semibold">New product</h1>
   </header>
 

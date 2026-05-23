@@ -24,9 +24,14 @@
 <svelte:head><title>Reorder planner · Supply Admin</title></svelte:head>
 
 <div class="space-y-5">
-  <form method="GET" class="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+  <form
+    method="GET"
+    class="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+  >
     <label class="block">
-      <span class="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500">Lookback</span>
+      <span class="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500"
+        >Lookback</span
+      >
       <select name="lookback_days" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
         <option value="90" selected={data.filters.lookbackDays === 90}>90 days</option>
         <option value="180" selected={data.filters.lookbackDays === 180}>180 days</option>
@@ -35,7 +40,9 @@
       </select>
     </label>
     <label class="block">
-      <span class="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500">Horizon</span>
+      <span class="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500"
+        >Horizon</span
+      >
       <select name="horizon_days" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
         <option value="14" selected={data.filters.horizonDays === 14}>14 days</option>
         <option value="30" selected={data.filters.horizonDays === 30}>30 days</option>
@@ -44,7 +51,9 @@
       </select>
     </label>
     <label class="block">
-      <span class="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500">Rows</span>
+      <span class="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500"
+        >Rows</span
+      >
       <select name="limit" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
         <option value="10" selected={data.filters.limit === 10}>10</option>
         <option value="25" selected={data.filters.limit === 25}>25</option>
@@ -53,14 +62,21 @@
       </select>
     </label>
     <label class="block">
-      <span class="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500">Unavailable</span>
-      <select name="include_unavailable" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
+      <span class="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500"
+        >Unavailable</span
+      >
+      <select
+        name="include_unavailable"
+        class="rounded border border-slate-300 px-2 py-1.5 text-sm"
+      >
         <option value="true" selected={data.filters.includeUnavailable}>Show</option>
         <option value="false" selected={!data.filters.includeUnavailable}>Hide</option>
       </select>
     </label>
     <label class="block">
-      <span class="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500">Not due</span>
+      <span class="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-500"
+        >Not due</span
+      >
       <select name="include_not_due" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
         <option value="false" selected={!data.filters.includeNotDue}>Hide</option>
         <option value="true" selected={data.filters.includeNotDue}>Show</option>
@@ -94,7 +110,9 @@
   </dl>
 
   <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
+    <div
+      class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3"
+    >
       <h2 class="font-semibold text-slate-900">Recommended items</h2>
       <p class="text-xs text-slate-500">
         {plan.lookback_days}d lookback · {plan.horizon_days}d horizon
@@ -125,12 +143,16 @@
             {#each plan.items as item}
               <tr class="hover:bg-slate-50">
                 <td class="px-4 py-3">
-                  <a class="font-medium text-sky-700 hover:underline" href="/catalog/{item.product.id}">
+                  <a
+                    class="font-medium text-sky-700 hover:underline"
+                    href="/catalog/{item.product.id}"
+                  >
                     {item.product.name}
                   </a>
                   <p class="mt-0.5 text-xs text-slate-500">
                     <span class="font-mono">{item.product.sku}</span>
-                    {#if item.product.category} · {item.product.category.name}{/if}
+                    {#if item.product.category}
+                      · {item.product.category.name}{/if}
                   </p>
                 </td>
                 <td class="px-4 py-3 text-right">
@@ -149,7 +171,8 @@
                 </td>
                 <td class="px-4 py-3 text-right">
                   <span class="block tabular-nums">{item.usage.last_order_quantity}</span>
-                  <span class="text-xs text-slate-500">{dateShort(item.usage.last_ordered_at)}</span>
+                  <span class="text-xs text-slate-500">{dateShort(item.usage.last_ordered_at)}</span
+                  >
                 </td>
                 <td class="px-4 py-3 text-right">
                   {#if item.recommendation.days_until_reorder === null}
@@ -165,12 +188,18 @@
                   <span class="text-xs text-slate-500">/ {item.inventory.quantity_on_hand}</span>
                 </td>
                 <td class="px-4 py-3">
-                  <span class="rounded px-2 py-0.5 text-xs {stockClass[item.inventory.stock_status]}">
+                  <span
+                    class="rounded px-2 py-0.5 text-xs {stockClass[item.inventory.stock_status]}"
+                  >
                     {label(item.inventory.stock_status)}
                   </span>
                 </td>
                 <td class="px-4 py-3">
-                  <span class="rounded px-2 py-0.5 text-xs {confidenceClass[item.recommendation.confidence]}">
+                  <span
+                    class="rounded px-2 py-0.5 text-xs {confidenceClass[
+                      item.recommendation.confidence
+                    ]}"
+                  >
                     {item.recommendation.confidence}
                   </span>
                 </td>

@@ -22,7 +22,10 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 
   if (status === 'outstanding') {
     query = query.in('status', ['issued', 'partially_paid', 'overdue']);
-  } else if (status && ['draft', 'issued', 'paid', 'partially_paid', 'overdue', 'void', 'refunded'].includes(status)) {
+  } else if (
+    status &&
+    ['draft', 'issued', 'paid', 'partially_paid', 'overdue', 'void', 'refunded'].includes(status)
+  ) {
     query = query.eq('status', status);
   }
 
@@ -32,7 +35,16 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 
   type Row = Pick<
     Invoice,
-    'id' | 'customer_id' | 'invoice_number' | 'status' | 'total' | 'amount_paid' | 'terms' | 'issued_at' | 'due_at' | 'created_at'
+    | 'id'
+    | 'customer_id'
+    | 'invoice_number'
+    | 'status'
+    | 'total'
+    | 'amount_paid'
+    | 'terms'
+    | 'issued_at'
+    | 'due_at'
+    | 'created_at'
   > & { customer: { business_name: string } | null };
 
   return {

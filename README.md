@@ -18,19 +18,19 @@ npm run dev
 
 ### Environment variables
 
-| Name | Description |
-| --- | --- |
-| `PUBLIC_SUPABASE_URL` | Your Supabase project URL |
+| Name                       | Description                          |
+| -------------------------- | ------------------------------------ |
+| `PUBLIC_SUPABASE_URL`      | Your Supabase project URL            |
 | `PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon (publishable) key |
 
 ## Scripts
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Start the dev server |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview the production build |
-| `npm run check` | Type-check with `svelte-check` |
+| Command           | What it does                   |
+| ----------------- | ------------------------------ |
+| `npm run dev`     | Start the dev server           |
+| `npm run build`   | Build for production           |
+| `npm run preview` | Preview the production build   |
+| `npm run check`   | Type-check with `svelte-check` |
 
 ## Project layout
 

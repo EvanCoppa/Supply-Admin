@@ -97,7 +97,9 @@
     >
       <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Outstanding AR</p>
       <p class="mt-1 text-2xl font-semibold">{currency(m.outstandingAr)}</p>
-      <p class="text-xs text-slate-500">{m.overdueInvoices} invoice{m.overdueInvoices === 1 ? '' : 's'} overdue</p>
+      <p class="text-xs text-slate-500">
+        {m.overdueInvoices} invoice{m.overdueInvoices === 1 ? '' : 's'} overdue
+      </p>
     </a>
 
     <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -147,11 +149,17 @@
         <ul class="space-y-1.5 text-sm">
           {#each data.trendingItems as t (t.product_id)}
             <li class="flex items-center justify-between gap-2">
-              <a class="min-w-0 truncate text-slate-800 hover:underline" href="/inventory/{t.product_id}">
+              <a
+                class="min-w-0 truncate text-slate-800 hover:underline"
+                href="/inventory/{t.product_id}"
+              >
                 {t.name ?? t.sku ?? '—'}
               </a>
               <span class="shrink-0 text-xs text-slate-500">
-                {Number(t.total_qty).toLocaleString()} units · {t.unique_customers} client{t.unique_customers === 1 ? '' : 's'}
+                {Number(t.total_qty).toLocaleString()} units · {t.unique_customers} client{t.unique_customers ===
+                1
+                  ? ''
+                  : 's'}
               </span>
             </li>
           {/each}
@@ -166,7 +174,10 @@
           <li class="flex items-start gap-2">
             <span class="mt-0.5 inline-block h-2 w-2 shrink-0 rounded-full bg-red-500"></span>
             <span>
-              <a class="font-medium text-red-700 hover:underline" href="/invoices?status=outstanding">
+              <a
+                class="font-medium text-red-700 hover:underline"
+                href="/invoices?status=outstanding"
+              >
                 {m.overdueInvoices} overdue invoice{m.overdueInvoices === 1 ? '' : 's'}
               </a>
               — follow up on AR.
@@ -177,8 +188,9 @@
           <li class="flex items-start gap-2">
             <span class="mt-0.5 inline-block h-2 w-2 shrink-0 rounded-full bg-amber-500"></span>
             <span>
-              {m.medplusPendingCount} MedPlus charge{m.medplusPendingCount === 1 ? '' : 's'} pending
-              ({currency(m.medplusPendingTotal)}).
+              {m.medplusPendingCount} MedPlus charge{m.medplusPendingCount === 1 ? '' : 's'} pending ({currency(
+                m.medplusPendingTotal
+              )}).
             </span>
           </li>
         {/if}
@@ -187,7 +199,10 @@
             <div class="flex items-start gap-2">
               <span class="mt-0.5 inline-block h-2 w-2 shrink-0 rounded-full bg-amber-500"></span>
               <span>
-                <a class="font-medium text-amber-800 hover:underline" href="/purchases?payment_status=unpaid">
+                <a
+                  class="font-medium text-amber-800 hover:underline"
+                  href="/purchases?payment_status=unpaid"
+                >
                   {m.dueSoonCount} supplier payment{m.dueSoonCount === 1 ? '' : 's'} due within 7 days
                 </a>
                 ({currency(m.dueSoonTotal)}).
@@ -210,7 +225,8 @@
             <div class="flex items-start gap-2">
               <span class="mt-0.5 inline-block h-2 w-2 shrink-0 rounded-full bg-amber-500"></span>
               <span class="font-medium text-amber-800">
-                {data.lowMarginOrders.length} order{data.lowMarginOrders.length === 1 ? '' : 's'} below 40% margin
+                {data.lowMarginOrders.length} order{data.lowMarginOrders.length === 1 ? '' : 's'} below
+                40% margin
               </span>
             </div>
             <ul class="ml-4 space-y-1 text-xs text-slate-600">

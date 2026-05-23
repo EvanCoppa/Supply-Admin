@@ -9,7 +9,8 @@ export const POST: RequestHandler = async ({ params, locals, url }) => {
   const profile = locals.profile;
   if (!profile) throw error(401, 'Not signed in.');
   if (profile.role !== 'admin' && profile.role !== 'customer') throw error(403, 'Forbidden.');
-  if (profile.role === 'customer' && !profile.customer_id) throw error(403, 'Customer profile is not linked.');
+  if (profile.role === 'customer' && !profile.customer_id)
+    throw error(403, 'Customer profile is not linked.');
 
   const supabase = createSupabaseAdminClient();
   let query = supabase.from('invoices').select('*').eq('id', params.id);

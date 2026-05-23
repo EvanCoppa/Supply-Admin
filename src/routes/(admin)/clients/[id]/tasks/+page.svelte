@@ -70,7 +70,10 @@
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Assignee</span>
-        <select name="assigned_to" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+        <select
+          name="assigned_to"
+          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        >
           <option value="">— Unassigned —</option>
           {#each data.admins as a}
             <option value={a.id}>{a.display_name ?? a.id.slice(0, 8)}</option>
@@ -106,7 +109,9 @@
   {/if}
 
   {#if data.tasks.length === 0}
-    <p class="rounded border border-dashed border-slate-300 bg-white px-4 py-10 text-center text-sm text-slate-500">
+    <p
+      class="rounded border border-dashed border-slate-300 bg-white px-4 py-10 text-center text-sm text-slate-500"
+    >
       No tasks yet.
     </p>
   {:else}
@@ -134,14 +139,19 @@
                     onchange={(e) => (e.currentTarget.form as HTMLFormElement).requestSubmit()}
                   >
                     <option value="open" selected={t.status === 'open'}>Open</option>
-                    <option value="in_progress" selected={t.status === 'in_progress'}>In progress</option>
+                    <option value="in_progress" selected={t.status === 'in_progress'}
+                      >In progress</option
+                    >
                     <option value="done" selected={t.status === 'done'}>Done</option>
                     <option value="cancelled" selected={t.status === 'cancelled'}>Cancelled</option>
                   </select>
                 </form>
               </td>
               <td class="px-3 py-2">
-                <p class="font-medium" class:line-through={t.status === 'done' || t.status === 'cancelled'}>
+                <p
+                  class="font-medium"
+                  class:line-through={t.status === 'done' || t.status === 'cancelled'}
+                >
                   {t.title}
                 </p>
                 {#if t.description}
@@ -149,7 +159,9 @@
                 {/if}
               </td>
               <td class="px-3 py-2">
-                <span class="rounded px-1.5 py-0.5 text-xs {priorityClass[t.priority] ?? ''}">{t.priority}</span>
+                <span class="rounded px-1.5 py-0.5 text-xs {priorityClass[t.priority] ?? ''}"
+                  >{t.priority}</span
+                >
               </td>
               <td class="px-3 py-2 text-slate-600">{t.assignee?.display_name ?? '—'}</td>
               <td class="px-3 py-2 text-slate-600" class:text-red-700={isOverdue(t)}>

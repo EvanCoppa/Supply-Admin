@@ -17,7 +17,9 @@
   const selectedSet = $derived(new Set(selectedIds));
   const visibleIds = $derived(data.products.map((product) => product.id));
   const selectedVisibleCount = $derived(visibleIds.filter((id) => selectedSet.has(id)).length);
-  const allVisibleSelected = $derived(data.products.length > 0 && selectedVisibleCount === data.products.length);
+  const allVisibleSelected = $derived(
+    data.products.length > 0 && selectedVisibleCount === data.products.length
+  );
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
   const selectedProductsValue = $derived(selectedIds.join(','));
   const filterQuery = $derived(
@@ -84,14 +86,18 @@
       <div class="text-xs font-medium uppercase text-slate-500">Visible</div>
       <div class="mt-2 flex items-end gap-2">
         <span class="text-2xl font-semibold text-slate-900">{data.summary.visible}</span>
-        <span class="pb-1 text-xs text-slate-500">{statPercent(data.summary.visible, data.summary.total)}</span>
+        <span class="pb-1 text-xs text-slate-500"
+          >{statPercent(data.summary.visible, data.summary.total)}</span
+        >
       </div>
     </div>
     <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div class="text-xs font-medium uppercase text-slate-500">Buyable</div>
       <div class="mt-2 flex items-end gap-2">
         <span class="text-2xl font-semibold text-slate-900">{data.summary.buyable}</span>
-        <span class="pb-1 text-xs text-slate-500">{statPercent(data.summary.buyable, data.summary.total)}</span>
+        <span class="pb-1 text-xs text-slate-500"
+          >{statPercent(data.summary.buyable, data.summary.total)}</span
+        >
       </div>
     </div>
     <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -100,7 +106,9 @@
     </div>
   </section>
 
-  <section class="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[minmax(260px,0.8fr)_1fr]">
+  <section
+    class="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[minmax(260px,0.8fr)_1fr]"
+  >
     <form method="POST" action="?/saveMode" use:enhance class="space-y-3">
       <div>
         <h2 class="text-base font-semibold text-slate-900">Default Access</h2>
@@ -257,7 +265,10 @@
             {#each data.categories as category}
               <tr>
                 <td class="px-4 py-2">
-                  <a class="font-medium text-sky-700 hover:underline" href="?category={category.id}">
+                  <a
+                    class="font-medium text-sky-700 hover:underline"
+                    href="?category={category.id}"
+                  >
                     {category.name}
                   </a>
                   <div class="text-xs text-slate-500">{category.total} active</div>
@@ -267,7 +278,11 @@
                 <td class="px-4 py-2 text-right">{category.overrides}</td>
               </tr>
             {:else}
-              <tr><td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">No categories.</td></tr>
+              <tr
+                ><td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500"
+                  >No categories.</td
+                ></tr
+              >
             {/each}
           </tbody>
         </table>
@@ -302,7 +317,11 @@
                 <td class="px-4 py-2 text-right">{group.overrides}</td>
               </tr>
             {:else}
-              <tr><td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">No featured groups.</td></tr>
+              <tr
+                ><td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500"
+                  >No featured groups.</td
+                ></tr
+              >
             {/each}
           </tbody>
         </table>
@@ -310,7 +329,10 @@
     </div>
   </section>
 
-  <form method="GET" class="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm md:grid-cols-[1fr_220px_220px_auto]">
+  <form
+    method="GET"
+    class="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm md:grid-cols-[1fr_220px_220px_auto]"
+  >
     <label class="block">
       <span class="sr-only">Search</span>
       <input
@@ -336,14 +358,18 @@
         </option>
       {/each}
     </select>
-    <button class="inline-flex items-center justify-center gap-2 rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800">
+    <button
+      class="inline-flex items-center justify-center gap-2 rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+    >
       <Search size={16} />
       Filter
     </button>
   </form>
 
   <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
+    <div
+      class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3"
+    >
       <div>
         <h2 class="text-base font-semibold text-slate-900">Products</h2>
         <p class="text-sm text-slate-500">
@@ -430,7 +456,9 @@
               {#if product.has_override}
                 <form method="POST" action="?/clearAccess" use:enhance>
                   <input type="hidden" name="product_id" value={product.id} />
-                  <button class="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50">
+                  <button
+                    class="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50"
+                  >
                     Clear
                   </button>
                 </form>

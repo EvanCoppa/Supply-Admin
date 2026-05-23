@@ -10,7 +10,9 @@
 <section class="space-y-4">
   <header>
     <h1 class="text-2xl font-semibold">Featured Groups</h1>
-    <p class="text-sm text-slate-500">Reusable groups of products that can be featured per client.</p>
+    <p class="text-sm text-slate-500">
+      Reusable groups of products that can be featured per client.
+    </p>
   </header>
 
   {#if form?.message}
@@ -35,7 +37,10 @@
     </label>
     <label class="block sm:col-span-2">
       <span class="mb-1 block text-sm font-medium">Description</span>
-      <input name="description" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+      <input
+        name="description"
+        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+      />
     </label>
     <div class="block sm:col-span-3">
       <span class="mb-1 block text-sm font-medium">Products</span>

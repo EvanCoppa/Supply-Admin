@@ -85,11 +85,13 @@
     return 'bg-slate-100 text-slate-700';
   }
 
-  const today = new Date(`${data.today}T00:00:00`).toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric'
-  });
+  const today = $derived(
+    new Date(`${data.today}T00:00:00`).toLocaleDateString(undefined, {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric'
+    })
+  );
 
   const stepTitles: Record<StepSlug, string> = {
     review_orders: 'Review new orders',
@@ -117,7 +119,9 @@
   </header>
 
   {#if allDone}
-    <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+    <div
+      class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+    >
       All steps complete for today. Nice work.
     </div>
   {/if}
@@ -153,14 +157,23 @@
         <div class="flex-1">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <h2 class="text-base font-semibold {done ? 'text-slate-500 line-through' : 'text-slate-900'}">
+              <h2
+                class="text-base font-semibold {done
+                  ? 'text-slate-500 line-through'
+                  : 'text-slate-900'}"
+              >
                 {i + 1}. {step.title}
               </h2>
               <p class="text-sm text-slate-500">{step.blurb}</p>
             </div>
             {#if step.badge}
-              <span class="whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium {toneClass(step.badge.tone)}">
-                {step.badge.count} {step.badge.label}
+              <span
+                class="whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium {toneClass(
+                  step.badge.tone
+                )}"
+              >
+                {step.badge.count}
+                {step.badge.label}
               </span>
             {/if}
           </div>
@@ -182,7 +195,9 @@
     <aside class="rounded-lg border border-amber-200 bg-amber-50 p-4">
       <h3 class="text-sm font-semibold text-amber-900">Skipped yesterday</h3>
       <p class="mt-1 text-xs text-amber-800">
-        These steps weren't checked off on {new Date(`${data.yesterday}T00:00:00`).toLocaleDateString(undefined, {
+        These steps weren't checked off on {new Date(
+          `${data.yesterday}T00:00:00`
+        ).toLocaleDateString(undefined, {
           weekday: 'long',
           month: 'short',
           day: 'numeric'

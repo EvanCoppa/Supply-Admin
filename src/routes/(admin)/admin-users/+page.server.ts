@@ -18,7 +18,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const actions: Actions = {
   invite: async ({ request, locals }) => {
     const form = await request.formData();
-    const email = String(form.get('email') ?? '').trim().toLowerCase();
+    const email = String(form.get('email') ?? '')
+      .trim()
+      .toLowerCase();
     const display_name = String(form.get('display_name') ?? '').trim();
 
     if (!email || !EMAIL_RE.test(email)) {

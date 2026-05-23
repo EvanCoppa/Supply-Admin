@@ -49,12 +49,7 @@
 
 <section class="space-y-5">
   <header class="space-y-2">
-    <Breadcrumbs
-      items={[
-        { label: 'Orders', href: '/orders' },
-        { label: o.id.slice(0, 8) }
-      ]}
-    />
+    <Breadcrumbs items={[{ label: 'Orders', href: '/orders' }, { label: o.id.slice(0, 8) }]} />
     <div class="flex items-center gap-3">
       <h1 class="text-2xl font-semibold font-mono">{o.id.slice(0, 8)}</h1>
       <OrderStatusBadge status={o.status} />
@@ -155,7 +150,9 @@
                   </td>
                   <td class="px-3 py-2">{p.supplier?.name ?? '—'}</td>
                   <td class="px-3 py-2">
-                    <span class="rounded px-2 py-0.5 text-xs {purchaseStatusClass[p.status] ?? ''}">{p.status}</span>
+                    <span class="rounded px-2 py-0.5 text-xs {purchaseStatusClass[p.status] ?? ''}"
+                      >{p.status}</span
+                    >
                   </td>
                   <td class="px-3 py-2">{p.payment_status}</td>
                   <td class="px-3 py-2 text-right text-slate-600">

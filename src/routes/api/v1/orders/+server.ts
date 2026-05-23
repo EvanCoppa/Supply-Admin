@@ -101,7 +101,8 @@ export const POST: RequestHandler = async ({ request }) => {
     })
   );
 
-  const subtotal = Math.round(lineItems.reduce((sum, item) => sum + item.line_total, 0) * 100) / 100;
+  const subtotal =
+    Math.round(lineItems.reduce((sum, item) => sum + item.line_total, 0) * 100) / 100;
   const tax = 0;
   const shipping = 0;
   const total = subtotal + tax + shipping;

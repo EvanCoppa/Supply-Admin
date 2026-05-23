@@ -11,9 +11,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     .order('created_at', { ascending: false });
 
   return {
-    notes: (data ?? []) as Array<
-      CustomerNote & { author: { display_name: string | null } | null }
-    >
+    notes: (data ?? []) as (CustomerNote & { author: { display_name: string | null } | null })[]
   };
 };
 

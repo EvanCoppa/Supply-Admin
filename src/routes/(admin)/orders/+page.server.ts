@@ -23,10 +23,9 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
 
   let query = supabase
     .from('orders')
-    .select(
-      'id, status, total, placed_at, source, customer:customers(id, business_name)',
-      { count: 'exact' }
-    )
+    .select('id, status, total, placed_at, source, customer:customers(id, business_name)', {
+      count: 'exact'
+    })
     .order('placed_at', { ascending: false })
     .range(sliceFrom, sliceTo);
 
@@ -56,7 +55,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     page,
     pageSize: PAGE_SIZE,
     statuses: STATUSES,
-    customers: (customersRes.data ?? []) as Array<{ id: string; business_name: string }>,
+    customers: customersRes.data ?? [],
     filters: { status, customerId, source, from, to }
   };
 };

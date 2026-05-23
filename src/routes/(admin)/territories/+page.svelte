@@ -16,7 +16,9 @@
   </header>
 
   {#if form?.message}
-    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">{form.message}</div>
+    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+      {form.message}
+    </div>
   {/if}
 
   <form
@@ -27,11 +29,18 @@
   >
     <label class="block">
       <span class="mb-1 block text-xs font-medium">Name</span>
-      <input name="name" required class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+      <input
+        name="name"
+        required
+        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+      />
     </label>
     <label class="block sm:col-span-2">
       <span class="mb-1 block text-xs font-medium">Description</span>
-      <input name="description" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+      <input
+        name="description"
+        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+      />
     </label>
     <div class="sm:col-span-3 flex justify-end">
       <button
@@ -100,7 +109,9 @@
                 </td>
               {:else}
                 <td class="px-3 py-2 font-medium">
-                  <a class="text-sky-700 hover:underline" href="/clients?territory={t.id}">{t.name}</a>
+                  <a class="text-sky-700 hover:underline" href="/clients?territory={t.id}"
+                    >{t.name}</a
+                  >
                 </td>
                 <td class="px-3 py-2 text-slate-600">{t.description ?? '—'}</td>
                 <td class="px-3 py-2 text-right">{t.customer_count}</td>

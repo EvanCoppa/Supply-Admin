@@ -39,8 +39,12 @@
     <div class="space-y-1">
       <h1 class="text-2xl font-semibold font-mono">{p.id.slice(0, 8)}</h1>
       <div class="flex items-center gap-2">
-        <span class="rounded px-2 py-0.5 text-xs {statusClass[String(p.status)] ?? ''}">{p.status}</span>
-        <span class="rounded px-2 py-0.5 text-xs {paymentClass[String(p.payment_status)] ?? ''}">{p.payment_status}</span>
+        <span class="rounded px-2 py-0.5 text-xs {statusClass[String(p.status)] ?? ''}"
+          >{p.status}</span
+        >
+        <span class="rounded px-2 py-0.5 text-xs {paymentClass[String(p.payment_status)] ?? ''}"
+          >{p.payment_status}</span
+        >
       </div>
       <p class="text-sm text-slate-500">
         {p.supplier?.name ?? '—'} · ordered {dateTime(String(p.ordered_at))}
@@ -99,7 +103,9 @@
         </div>
 
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-slate-600">Supplier invoice / PO ref</span>
+          <span class="mb-1 block text-xs font-medium text-slate-600"
+            >Supplier invoice / PO ref</span
+          >
           <input
             name="invoice_ref"
             value={String(p.invoice_ref ?? '')}
@@ -109,10 +115,9 @@
 
         <label class="block">
           <span class="mb-1 block text-xs font-medium text-slate-600">Notes</span>
-          <textarea
-            name="notes"
-            rows="3"
-            class="w-full rounded border border-slate-300 px-2 py-1.5">{p.notes ?? ''}</textarea>
+          <textarea name="notes" rows="3" class="w-full rounded border border-slate-300 px-2 py-1.5"
+            >{p.notes ?? ''}</textarea
+          >
         </label>
       </div>
 
@@ -183,7 +188,11 @@
         <div class="grid gap-3 sm:grid-cols-3">
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Status</span>
-            <select name="status" value={String(p.status)} class="w-full rounded border border-slate-300 px-2 py-1.5">
+            <select
+              name="status"
+              value={String(p.status)}
+              class="w-full rounded border border-slate-300 px-2 py-1.5"
+            >
               <option value="draft">draft</option>
               <option value="ordered">ordered</option>
               <option value="received">received</option>
@@ -192,7 +201,11 @@
           </label>
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Payment</span>
-            <select name="payment_status" value={String(p.payment_status)} class="w-full rounded border border-slate-300 px-2 py-1.5">
+            <select
+              name="payment_status"
+              value={String(p.payment_status)}
+              class="w-full rounded border border-slate-300 px-2 py-1.5"
+            >
               <option value="unpaid">unpaid</option>
               <option value="partial">partial</option>
               <option value="paid">paid</option>
@@ -249,7 +262,9 @@
             >
               Record payment
             </button>
-            <p class="text-xs text-slate-500">Adds a cash-out entry for {currency(Number(p.total))}.</p>
+            <p class="text-xs text-slate-500">
+              Adds a cash-out entry for {currency(Number(p.total))}.
+            </p>
           </form>
         </div>
       {/if}

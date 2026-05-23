@@ -48,7 +48,9 @@ export const actions: Actions = {
     const base64 = buffer.toString('base64');
     const originalDataUrl = `data:${file.type};base64,${base64}`;
 
-    const prompt = context ? `${BASE_PROMPT}\n\nExtra context from the operator: ${context}` : BASE_PROMPT;
+    const prompt = context
+      ? `${BASE_PROMPT}\n\nExtra context from the operator: ${context}`
+      : BASE_PROMPT;
 
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
@@ -61,10 +63,7 @@ export const actions: Actions = {
           contents: [
             {
               role: 'user',
-              parts: [
-                { text: prompt },
-                { inline_data: { mime_type: file.type, data: base64 } }
-              ]
+              parts: [{ text: prompt }, { inline_data: { mime_type: file.type, data: base64 } }]
             }
           ],
           generationConfig: { responseModalities: ['IMAGE'] }

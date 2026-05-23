@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions: Actions = {
-  login: async ({ request, locals: { supabase }, url }) => {
+  login: async ({ request, locals: { supabase } }) => {
     const form = await request.formData();
     const email = String(form.get('email') ?? '').trim();
     const password = String(form.get('password') ?? '');

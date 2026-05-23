@@ -26,10 +26,10 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
   ]);
 
   return {
-    tasks: (tasksRes.data ?? []) as unknown as Array<
-      CustomerTask & { assignee: { display_name: string | null } | null }
-    >,
-    admins: (adminsRes.data ?? []) as Array<{ id: string; display_name: string | null }>
+    tasks: (tasksRes.data ?? []) as unknown as (CustomerTask & {
+      assignee: { display_name: string | null } | null;
+    })[],
+    admins: adminsRes.data ?? []
   };
 };
 

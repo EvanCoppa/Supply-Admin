@@ -61,10 +61,10 @@ export const GET: RequestHandler = async ({ request, url }) => {
     | InvoicePaymentStatus
     | '';
 
-  if (status && !ALLOWED_STATUSES.has(status as InvoiceStatus)) {
+  if (status && !ALLOWED_STATUSES.has(status)) {
     throw error(400, `Invalid status: ${status}`);
   }
-  if (paymentStatus && !ALLOWED_PAYMENT_STATUSES.has(paymentStatus as InvoicePaymentStatus)) {
+  if (paymentStatus && !ALLOWED_PAYMENT_STATUSES.has(paymentStatus)) {
     throw error(400, `Invalid payment_status: ${paymentStatus}`);
   }
 

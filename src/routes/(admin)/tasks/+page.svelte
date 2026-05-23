@@ -8,7 +8,7 @@
   type StatusKey = TaskStatus;
   type StatusVis = 'new' | 'prog' | 'done' | 'cancel';
 
-  const COLS: Array<{ key: StatusKey; title: string; vis: StatusVis; pct: number }> = [
+  const COLS: { key: StatusKey; title: string; vis: StatusVis; pct: number }[] = [
     { key: 'open', title: 'Backlog', vis: 'new', pct: 0 },
     { key: 'in_progress', title: 'In Progress', vis: 'prog', pct: 0.5 },
     { key: 'done', title: 'Shipped', vis: 'done', pct: 1 },
@@ -90,7 +90,7 @@
     if (!name) return 'a0';
     let h = 0;
     for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
-    return ['a1', 'a2', 'a3', 'a4'][h % 4];
+    return ['a1', 'a2', 'a3', 'a4'][h % 4] ?? 'a0';
   }
 
   // ── Drag machinery ──────────────────────────────────────────────────────
@@ -144,12 +144,14 @@
       targetEl = best;
     }
     if (!targetEl) return null;
-    const status = targetEl.dataset.status as StatusKey;
+    const status = targetEl.dataset['status'] as StatusKey;
     const cardEls = targetEl.querySelectorAll<HTMLElement>('.card:not(.is-dragging)');
     let index = 0;
     let placed = false;
     for (let i = 0; i < cardEls.length; i++) {
-      const r = cardEls[i].getBoundingClientRect();
+      const el = cardEls[i];
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
       const mid = r.top + r.height / 2;
       if (clientY < mid) {
         index = i;
@@ -217,14 +219,15 @@
       if (flatIdx < 0) return;
       const next = [...localTasks];
       const [task] = next.splice(flatIdx, 1);
-      const moved: Task = { ...task, status: targetStatus };
+      if (!task) return;
+      const moved = { ...task, status: targetStatus } as Task;
 
       const idsForStatus = next.filter((t) => t.status === targetStatus).map((t) => t.id);
       let insertFlat: number;
       if (targetIdx >= idsForStatus.length) {
         let lastFlat = -1;
         for (let i = next.length - 1; i >= 0; i--) {
-          if (next[i].status === targetStatus) {
+          if (next[i]?.status === targetStatus) {
             lastFlat = i;
             break;
           }
@@ -245,8 +248,8 @@
         const body = new FormData();
         body.set('id', d.cardId);
         body.set('status', targetStatus);
-        fetch('?/setStatus', { method: 'POST', body }).then((res) => {
-          if (res.ok) invalidateAll();
+        void fetch('?/setStatus', { method: 'POST', body }).then((res) => {
+          if (res.ok) void invalidateAll();
         });
       }
     };
@@ -256,7 +259,7 @@
     window.addEventListener('pointercancel', onUp);
   }
 
-  const draggingTask = $derived(dragState ? findTask(dragState.cardId) ?? null : null);
+  const draggingTask = $derived(dragState ? (findTask(dragState.cardId) ?? null) : null);
 </script>
 
 <svelte:head><title>Tasks · Supply Admin</title></svelte:head>
@@ -267,7 +270,8 @@
       <h1>Sprint board</h1>
       <p class="meta">
         {localTasks.length} tasks
-        {#if stats.overdue > 0}<span class="dot">·</span> <span class="warn">{stats.overdue} overdue</span>{/if}
+        {#if stats.overdue > 0}<span class="dot">·</span>
+          <span class="warn">{stats.overdue} overdue</span>{/if}
         {#if stats.unassigned > 0}<span class="dot">·</span> {stats.unassigned} unassigned{/if}
         {#if data.total > data.limit}
           <span class="dot">·</span>
@@ -308,11 +312,7 @@
     {#each COLS as col}
       {@const items = tasksByStatus[col.key]}
       {@const isOver = !!dragState && dragState.over?.status === col.key}
-      <div
-        class="col col-{col.vis}"
-        class:drop-active={isOver}
-        data-status={col.key}
-      >
+      <div class="col col-{col.vis}" class:drop-active={isOver} data-status={col.key}>
         <div class="col-head">
           <div class="col-title">
             {@render Ring(col.pct, col.vis, 16)}
@@ -321,10 +321,28 @@
           </div>
           <div class="col-actions">
             <button class="icon-btn" type="button" title="Reorder" aria-label="Reorder">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="8" r="1.4"/><circle cx="12" cy="8" r="1.4"/><circle cx="19" cy="8" r="1.4"/><circle cx="5" cy="16" r="1.4"/><circle cx="12" cy="16" r="1.4"/><circle cx="19" cy="16" r="1.4"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"
+                ><circle cx="5" cy="8" r="1.4" /><circle cx="12" cy="8" r="1.4" /><circle
+                  cx="19"
+                  cy="8"
+                  r="1.4"
+                /><circle cx="5" cy="16" r="1.4" /><circle cx="12" cy="16" r="1.4" /><circle
+                  cx="19"
+                  cy="16"
+                  r="1.4"
+                /></svg
+              >
             </button>
             <button class="icon-btn" type="button" title="Add" aria-label="Add">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg
+              >
             </button>
           </div>
         </div>
@@ -340,7 +358,7 @@
               {@render TaskCard(t)}
             {/if}
           {/each}
-          {#if isOver && dragState && dragState.over && dragState.over.index >= items.filter((t) => !(dragState && dragState.cardId === t.id)).length}
+          {#if isOver && dragState?.over && dragState.over.index >= items.filter((t) => !(dragState && dragState.cardId === t.id)).length}
             <div class="card-placeholder" style="height: {dragState.h}px"></div>
           {/if}
           {#if items.length === 0 && !isOver}
@@ -349,7 +367,15 @@
         </div>
 
         <button class="add-task" type="button">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v8M8 12h8" /></svg
+          >
           Add task
         </button>
       </div>
@@ -376,21 +402,57 @@
   <span class="ring vis-{vis}" style="width: {size}px; height: {size}px;">
     <svg viewBox="0 0 {size} {size}" style="width:100%; height:100%; display:block">
       {#if vis === 'new'}
-        <circle {cx} {cy} {r} fill="none" stroke="currentColor" stroke-width={stroke} stroke-dasharray="2 2" stroke-linecap="round"/>
+        <circle
+          {cx}
+          {cy}
+          {r}
+          fill="none"
+          stroke="currentColor"
+          stroke-width={stroke}
+          stroke-dasharray="2 2"
+          stroke-linecap="round"
+        />
       {:else if vis === 'done'}
-        <circle {cx} {cy} {r} fill="currentColor" stroke="currentColor" stroke-width={stroke}/>
-        <path d="M {size * 0.28} {size * 0.52} L {size * 0.44} {size * 0.67} L {size * 0.74} {size * 0.36}" fill="none" stroke="#fff" stroke-width={stroke + 0.2} stroke-linecap="round" stroke-linejoin="round"/>
+        <circle {cx} {cy} {r} fill="currentColor" stroke="currentColor" stroke-width={stroke} />
+        <path
+          d="M {size * 0.28} {size * 0.52} L {size * 0.44} {size * 0.67} L {size * 0.74} {size *
+            0.36}"
+          fill="none"
+          stroke="#fff"
+          stroke-width={stroke + 0.2}
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
       {:else if vis === 'cancel'}
-        <circle {cx} {cy} {r} fill="none" stroke="currentColor" stroke-width={stroke} opacity="0.6"/>
-        <path d="M {size * 0.32} {size * 0.32} L {size * 0.68} {size * 0.68} M {size * 0.68} {size * 0.32} L {size * 0.32} {size * 0.68}" fill="none" stroke="currentColor" stroke-width={stroke} stroke-linecap="round" opacity="0.8"/>
+        <circle
+          {cx}
+          {cy}
+          {r}
+          fill="none"
+          stroke="currentColor"
+          stroke-width={stroke}
+          opacity="0.6"
+        />
+        <path
+          d="M {size * 0.32} {size * 0.32} L {size * 0.68} {size * 0.68} M {size * 0.68} {size *
+            0.32} L {size * 0.32} {size * 0.68}"
+          fill="none"
+          stroke="currentColor"
+          stroke-width={stroke}
+          stroke-linecap="round"
+          opacity="0.8"
+        />
       {:else}
         {@const ang = p * 2 * Math.PI}
         {@const x = cx + rInner * Math.sin(ang)}
         {@const y = cy - rInner * Math.cos(ang)}
         {@const large = p > 0.5 ? 1 : 0}
-        {@const slice = pct >= 0.999 ? `M ${cx} ${cy} m 0 -${rInner} a ${rInner} ${rInner} 0 1 1 -0.01 0 Z` : `M ${cx} ${cy} L ${cx} ${cy - rInner} A ${rInner} ${rInner} 0 ${large} 1 ${x} ${y} Z`}
-        <circle {cx} {cy} {r} fill="none" stroke="currentColor" stroke-width={stroke}/>
-        <path d={slice} fill="currentColor"/>
+        {@const slice =
+          pct >= 0.999
+            ? `M ${cx} ${cy} m 0 -${rInner} a ${rInner} ${rInner} 0 1 1 -0.01 0 Z`
+            : `M ${cx} ${cy} L ${cx} ${cy - rInner} A ${rInner} ${rInner} 0 ${large} 1 ${x} ${y} Z`}
+        <circle {cx} {cy} {r} fill="none" stroke="currentColor" stroke-width={stroke} />
+        <path d={slice} fill="currentColor" />
       {/if}
     </svg>
   </span>
@@ -412,7 +474,20 @@
   {@const prio = t.priority as TaskPriority}
   <div class="card-top">
     <span class="ticket vis-{vis}">
-      <svg class="link-ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      <svg
+        class="link-ic"
+        width="11"
+        height="11"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        ><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path
+          d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+        /></svg
+      >
       <span class="ticket-id">{shortId(t.id)}</span>
       {@render Ring(pctFromStatus(t.status as StatusKey), vis, 12)}
     </span>
@@ -422,7 +497,8 @@
   </div>
 
   <h3 class="card-title">
-    <a href="/clients/{t.customer_id}/tasks" onpointerdown={(e) => e.stopPropagation()}>{t.title}</a>
+    <a href="/clients/{t.customer_id}/tasks" onpointerdown={(e) => e.stopPropagation()}>{t.title}</a
+    >
   </h3>
 
   {#if t.description}
@@ -432,7 +508,22 @@
   <div class="bars-row">
     {#if t.due_at}
       <span class="due" class:warn={isOverdue(t)}>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line
+            x1="16"
+            y1="2"
+            x2="16"
+            y2="6"
+          /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg
+        >
         {dueLabel(t.due_at)}
       </span>
     {:else}
@@ -446,7 +537,9 @@
 
   <div class="card-foot">
     <div class="assignee">
-      <span class="av {avatarTone(t.assignee?.display_name)}">{avatarLetter(t.assignee?.display_name)}</span>
+      <span class="av {avatarTone(t.assignee?.display_name)}"
+        >{avatarLetter(t.assignee?.display_name)}</span
+      >
       <span class="assignee-name">{t.assignee?.display_name ?? 'Unassigned'}</span>
     </div>
   </div>
@@ -528,7 +621,9 @@
     border-radius: 999px;
     color: var(--kb-ink-2);
     text-decoration: none;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
     user-select: none;
   }
   .tab:hover {
@@ -577,10 +672,14 @@
     align-items: start;
   }
   @media (max-width: 1100px) {
-    .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .board {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   @media (max-width: 640px) {
-    .board { grid-template-columns: 1fr; }
+    .board {
+      grid-template-columns: 1fr;
+    }
   }
 
   /* ── Column ───────────────────────────────────────────────────────────── */
@@ -590,7 +689,9 @@
     border-radius: var(--kb-radius);
     padding: 0.5rem 0.5rem 0.625rem;
     position: relative;
-    transition: background 0.18s ease, border-color 0.18s ease;
+    transition:
+      background 0.18s ease,
+      border-color 0.18s ease;
     min-height: 8rem;
   }
   .col.drop-active {
@@ -658,10 +759,18 @@
     color: var(--kb-status-new);
     opacity: 0.85;
   }
-  .col-new .col-accent { color: var(--kb-status-new); }
-  .col-prog .col-accent { color: var(--kb-status-prog); }
-  .col-done .col-accent { color: var(--kb-status-done); }
-  .col-cancel .col-accent { color: var(--kb-status-cancel); }
+  .col-new .col-accent {
+    color: var(--kb-status-new);
+  }
+  .col-prog .col-accent {
+    color: var(--kb-status-prog);
+  }
+  .col-done .col-accent {
+    color: var(--kb-status-done);
+  }
+  .col-cancel .col-accent {
+    color: var(--kb-status-cancel);
+  }
 
   /* ── Ring (status indicator) ──────────────────────────────────────────── */
   .ring {
@@ -669,10 +778,18 @@
     flex-shrink: 0;
     line-height: 0;
   }
-  .ring.vis-new { color: var(--kb-status-new); }
-  .ring.vis-prog { color: var(--kb-status-prog); }
-  .ring.vis-done { color: var(--kb-status-done); }
-  .ring.vis-cancel { color: var(--kb-status-cancel); }
+  .ring.vis-new {
+    color: var(--kb-status-new);
+  }
+  .ring.vis-prog {
+    color: var(--kb-status-prog);
+  }
+  .ring.vis-done {
+    color: var(--kb-status-done);
+  }
+  .ring.vis-cancel {
+    color: var(--kb-status-cancel);
+  }
 
   /* ── Cards list ───────────────────────────────────────────────────────── */
   .cards {
@@ -700,17 +817,24 @@
     cursor: grab;
     user-select: none;
     touch-action: none;
-    transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    transition:
+      box-shadow 0.18s ease,
+      border-color 0.18s ease,
+      transform 0.18s ease;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
   .card:hover {
     border-color: var(--kb-border-strong);
-    box-shadow: 0 1px 2px oklch(0.5 0.02 270 / 0.06), 0 4px 14px oklch(0.5 0.02 270 / 0.05);
+    box-shadow:
+      0 1px 2px oklch(0.5 0.02 270 / 0.06),
+      0 4px 14px oklch(0.5 0.02 270 / 0.05);
   }
   .card.overdue {
-    box-shadow: inset 0 0 0 1px oklch(0.7 0.16 25 / 0.4), 0 1px 0 oklch(0.94 0.005 270 / 0.5);
+    box-shadow:
+      inset 0 0 0 1px oklch(0.7 0.16 25 / 0.4),
+      0 1px 0 oklch(0.94 0.005 270 / 0.5);
   }
   .card.is-dragging {
     cursor: grabbing;
@@ -841,21 +965,44 @@
     border-radius: 1px;
     background: oklch(0.92 0.005 270);
   }
-  .bars span:nth-child(1) { height: 4px; }
-  .bars span:nth-child(2) { height: 7px; }
-  .bars span:nth-child(3) { height: 10px; }
+  .bars span:nth-child(1) {
+    height: 4px;
+  }
+  .bars span:nth-child(2) {
+    height: 7px;
+  }
+  .bars span:nth-child(3) {
+    height: 10px;
+  }
   .prio-label {
     font-size: 0.6875rem;
     color: var(--kb-ink-3);
   }
-  .prio-low .bars span:nth-child(1) { background: var(--kb-prio-low); }
-  .prio-low .prio-label { color: var(--kb-prio-low); }
-  .prio-normal .bars span:nth-child(-n+2) { background: var(--kb-prio-med); }
-  .prio-normal .prio-label { color: var(--kb-prio-med); }
-  .prio-high .bars span { background: var(--kb-prio-high); }
-  .prio-high .prio-label { color: var(--kb-prio-high); }
-  .prio-urgent .bars span { background: var(--kb-prio-urgent); }
-  .prio-urgent .prio-label { color: var(--kb-prio-urgent); font-weight: 600; }
+  .prio-low .bars span:nth-child(1) {
+    background: var(--kb-prio-low);
+  }
+  .prio-low .prio-label {
+    color: var(--kb-prio-low);
+  }
+  .prio-normal .bars span:nth-child(-n + 2) {
+    background: var(--kb-prio-med);
+  }
+  .prio-normal .prio-label {
+    color: var(--kb-prio-med);
+  }
+  .prio-high .bars span {
+    background: var(--kb-prio-high);
+  }
+  .prio-high .prio-label {
+    color: var(--kb-prio-high);
+  }
+  .prio-urgent .bars span {
+    background: var(--kb-prio-urgent);
+  }
+  .prio-urgent .prio-label {
+    color: var(--kb-prio-urgent);
+    font-weight: 600;
+  }
 
   .card-foot {
     display: flex;
@@ -891,11 +1038,22 @@
     color: oklch(0.99 0 0);
     flex-shrink: 0;
   }
-  .av.a0 { background: var(--kb-av-0); color: var(--kb-ink-2); }
-  .av.a1 { background: var(--kb-av-1); }
-  .av.a2 { background: var(--kb-av-2); }
-  .av.a3 { background: var(--kb-av-3); }
-  .av.a4 { background: var(--kb-av-4); }
+  .av.a0 {
+    background: var(--kb-av-0);
+    color: var(--kb-ink-2);
+  }
+  .av.a1 {
+    background: var(--kb-av-1);
+  }
+  .av.a2 {
+    background: var(--kb-av-2);
+  }
+  .av.a3 {
+    background: var(--kb-av-3);
+  }
+  .av.a4 {
+    background: var(--kb-av-4);
+  }
 
   /* ── Add task ─────────────────────────────────────────────────────────── */
   .add-task {
@@ -912,7 +1070,10 @@
     color: var(--kb-ink-3);
     font-size: 0.75rem;
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
   }
   .add-task:hover {
     background: var(--kb-surface);

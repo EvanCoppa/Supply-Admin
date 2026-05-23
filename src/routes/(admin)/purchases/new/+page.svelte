@@ -20,9 +20,7 @@
   });
 
   const linkedOrder = $derived(
-    orderId
-      ? data.recentOrders.find((o) => o.id === orderId) ?? data.linkedOrder
-      : null
+    orderId ? (data.recentOrders.find((o) => o.id === orderId) ?? data.linkedOrder) : null
   );
 
   const distributionFee = $derived(
@@ -30,10 +28,7 @@
   );
   const total = $derived(
     Math.round(
-      ((Number(subtotal) || 0) +
-        (Number(freight) || 0) +
-        distributionFee +
-        (Number(tax) || 0)) *
+      ((Number(subtotal) || 0) + (Number(freight) || 0) + distributionFee + (Number(tax) || 0)) *
         100
     ) / 100
   );
@@ -85,7 +80,9 @@
         </label>
 
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-slate-600">For client order (optional)</span>
+          <span class="mb-1 block text-xs font-medium text-slate-600"
+            >For client order (optional)</span
+          >
           <select
             name="order_id"
             bind:value={orderId}
@@ -94,7 +91,9 @@
             <option value="">— not tied to a client order —</option>
             {#each data.recentOrders as o (o.id)}
               <option value={o.id}>
-                {o.customer?.business_name ?? o.id.slice(0, 8)} · {dateShort(o.placed_at)} · {currency(o.total)}
+                {o.customer?.business_name ?? o.id.slice(0, 8)} · {dateShort(o.placed_at)} · {currency(
+                  o.total
+                )}
               </option>
             {/each}
           </select>
@@ -120,7 +119,9 @@
         </div>
 
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-slate-600">Supplier invoice / PO ref</span>
+          <span class="mb-1 block text-xs font-medium text-slate-600"
+            >Supplier invoice / PO ref</span
+          >
           <input
             name="invoice_ref"
             class="w-full rounded border border-slate-300 px-2 py-1.5"
@@ -130,10 +131,7 @@
 
         <label class="block">
           <span class="mb-1 block text-xs font-medium text-slate-600">Notes</span>
-          <textarea
-            name="notes"
-            rows="3"
-            class="w-full rounded border border-slate-300 px-2 py-1.5"
+          <textarea name="notes" rows="3" class="w-full rounded border border-slate-300 px-2 py-1.5"
           ></textarea>
         </label>
       </div>
@@ -175,7 +173,8 @@
               bind:value={distributionFeePct}
               class="w-full rounded border border-slate-300 px-2 py-1.5"
             />
-            <span class="text-xs text-slate-500">Auto-fills from supplier; override if needed.</span>
+            <span class="text-xs text-slate-500">Auto-fills from supplier; override if needed.</span
+            >
           </label>
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Tax</span>

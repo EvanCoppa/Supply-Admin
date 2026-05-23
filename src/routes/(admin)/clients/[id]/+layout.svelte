@@ -42,10 +42,7 @@
 <section class="space-y-5">
   <header class="space-y-2">
     <Breadcrumbs
-      items={[
-        { label: 'Clients', href: '/clients' },
-        { label: data.client.business_name }
-      ]}
+      items={[{ label: 'Clients', href: '/clients' }, { label: data.client.business_name }]}
     />
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="text-2xl font-semibold">{data.client.business_name}</h1>
@@ -60,7 +57,10 @@
       >
         {data.client.status}
       </span>
-      <span class="rounded px-2 py-0.5 text-xs {lifecycleColor[data.client.lifecycle_stage] ?? 'bg-slate-100 text-slate-700'}">
+      <span
+        class="rounded px-2 py-0.5 text-xs {lifecycleColor[data.client.lifecycle_stage] ??
+          'bg-slate-100 text-slate-700'}"
+      >
         {data.client.lifecycle_stage.replace('_', ' ')}
       </span>
       {#each data.tags as tag}

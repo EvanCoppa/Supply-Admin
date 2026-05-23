@@ -29,9 +29,13 @@ export const actions: Actions = {
 
     try {
       const appUrl = publicEnv.PUBLIC_APP_URL || url.origin;
-      await createPaymentIntent(adminSupabase, invoice as Invoice, appUrl, { created_by_role: 'customer' });
+      await createPaymentIntent(adminSupabase, invoice as Invoice, appUrl, {
+        created_by_role: 'customer'
+      });
     } catch (err) {
-      return fail(400, { message: err instanceof Error ? err.message : 'Payment could not be started.' });
+      return fail(400, {
+        message: err instanceof Error ? err.message : 'Payment could not be started.'
+      });
     }
 
     return { saved: true, message: 'Payment request prepared.' };

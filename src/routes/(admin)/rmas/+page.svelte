@@ -22,14 +22,20 @@
     <p class="text-sm text-slate-500">{data.total} total returns.</p>
   </header>
 
-  <form method="GET" class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-3 text-sm">
+  <form
+    method="GET"
+    class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-3 text-sm"
+  >
     <select name="status" class="rounded border border-slate-300 px-2 py-1.5">
       <option value="">All statuses</option>
       {#each ['requested', 'approved', 'received', 'refunded', 'rejected', 'cancelled'] as s}
         <option value={s} selected={data.filters.status === s}>{s}</option>
       {/each}
     </select>
-    <button type="submit" class="rounded bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800">
+    <button
+      type="submit"
+      class="rounded bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800"
+    >
       Filter
     </button>
   </form>
@@ -54,7 +60,9 @@
           {#each data.rmas as r}
             <tr class="hover:bg-slate-50">
               <td class="px-3 py-2 font-mono text-xs">
-                <a class="text-sky-700 hover:underline" href="/clients/{r.customer_id}/rmas">{r.rma_number}</a>
+                <a class="text-sky-700 hover:underline" href="/clients/{r.customer_id}/rmas"
+                  >{r.rma_number}</a
+                >
               </td>
               <td class="px-3 py-2">
                 <a class="text-sky-700 hover:underline" href="/clients/{r.customer_id}">
@@ -62,7 +70,9 @@
                 </a>
               </td>
               <td class="px-3 py-2">
-                <span class="rounded px-1.5 py-0.5 text-xs {statusClass[r.status] ?? ''}">{r.status}</span>
+                <span class="rounded px-1.5 py-0.5 text-xs {statusClass[r.status] ?? ''}"
+                  >{r.status}</span
+                >
               </td>
               <td class="px-3 py-2 text-slate-600">{r.reason ?? '—'}</td>
               <td class="px-3 py-2 text-right">{currency(r.refund_amount)}</td>

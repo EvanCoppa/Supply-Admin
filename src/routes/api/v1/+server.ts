@@ -22,7 +22,10 @@ export const GET: RequestHandler = ({ url }) => {
       content_type: 'application/json',
       pagination: {
         style: 'cursor',
-        request_params: ['limit (1-100, default 24)', 'cursor (opaque string from previous response)'],
+        request_params: [
+          'limit (1-100, default 24)',
+          'cursor (opaque string from previous response)'
+        ],
         response_fields: ['items', 'next_cursor (null when end reached)']
       },
       errors: {
@@ -79,7 +82,8 @@ export const GET: RequestHandler = ({ url }) => {
         url: `${base}/orders`,
         description: 'Submits a purchase order on behalf of the authenticated customer.',
         request_body: {
-          idempotency_key: 'string (optional, max 128 chars) — resubmitting with the same key returns the original order',
+          idempotency_key:
+            'string (optional, max 128 chars) — resubmitting with the same key returns the original order',
           shipping_address: 'object | null (optional, free-form address snapshot)',
           items: [
             {
@@ -198,7 +202,8 @@ export const GET: RequestHandler = ({ url }) => {
           items: [
             {
               product: 'object (id, sku, name, manufacturer, category, unit_of_measure, pack_size)',
-              usage: 'object (order_count, total_quantity, total_spend, avg_daily_quantity, days_since_last_order, ...)',
+              usage:
+                'object (order_count, total_quantity, total_spend, avg_daily_quantity, days_since_last_order, ...)',
               recommendation: {
                 recommended_quantity: 'integer',
                 recommended_value: 'number',

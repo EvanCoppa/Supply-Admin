@@ -71,15 +71,15 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
       .in('status', ['issued', 'partially_paid', 'overdue']),
     supabase
       .from('customer_health')
-      .select('customer_id, business_name, lifecycle_stage, outstanding_balance, last_order_at, overdue_tasks')
+      .select(
+        'customer_id, business_name, lifecycle_stage, outstanding_balance, last_order_at, overdue_tasks'
+      )
       .in('lifecycle_stage', ['at_risk', 'churned'])
       .order('outstanding_balance', { ascending: false })
       .limit(8),
     supabase
       .from('inventory_ledger')
-      .select(
-        'id, delta, reason, notes, order_id, created_at, product:products(id, sku, name)'
-      )
+      .select('id, delta, reason, notes, order_id, created_at, product:products(id, sku, name)')
       .order('created_at', { ascending: false })
       .limit(8)
   ]);

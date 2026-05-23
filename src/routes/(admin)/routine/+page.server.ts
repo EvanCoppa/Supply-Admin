@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export type StepSlug =
@@ -26,6 +26,7 @@ function yesterdayIso(): string {
 }
 
 export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
+  if (!user) throw error(401, 'Not signed in.');
   const today = todayIso();
   const yesterday = yesterdayIso();
   const nowIso = new Date().toISOString();
@@ -42,16 +43,13 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
     supabase
       .from('daily_routine_completions')
       .select('step_slug, occurred_on, completed_at, notes')
-      .eq('user_id', user!.id)
+      .eq('user_id', user.id)
       .in('occurred_on', [today, yesterday]),
     supabase
       .from('orders')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'pending_payment'),
-    supabase
-      .from('orders')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'paid'),
+    supabase.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'paid'),
     supabase
       .from('purchases')
       .select('id', { count: 'exact', head: true })
@@ -72,14 +70,16 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
       .lt('due_at', nowIso)
   ]);
 
-  const completions = (completionsRes.data ?? []) as Array<{
+  const completions = (completionsRes.data ?? []) as {
     step_slug: StepSlug;
     occurred_on: string;
     completed_at: string;
     notes: string | null;
-  }>;
+  }[];
 
-  const todayDone = new Set(completions.filter((c) => c.occurred_on === today).map((c) => c.step_slug));
+  const todayDone = new Set(
+    completions.filter((c) => c.occurred_on === today).map((c) => c.step_slug)
+  );
   const yesterdayDone = new Set(
     completions.filter((c) => c.occurred_on === yesterday).map((c) => c.step_slug)
   );
@@ -102,6 +102,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
 
 export const actions: Actions = {
   toggle: async ({ request, locals: { supabase, user } }) => {
+    if (!user) return fail(401, { error: 'Not signed in.' });
     const fd = await request.formData();
     const slug = String(fd.get('slug') ?? '') as StepSlug;
     const done = String(fd.get('done') ?? '') === 'true';
@@ -109,21 +110,21 @@ export const actions: Actions = {
 
     const today = todayIso();
     if (done) {
-      const { error } = await supabase
+      const { error: delErr } = await supabase
         .from('daily_routine_completions')
         .delete()
-        .eq('user_id', user!.id)
+        .eq('user_id', user.id)
         .eq('occurred_on', today)
         .eq('step_slug', slug);
-      if (error) return fail(500, { error: error.message });
+      if (delErr) return fail(500, { error: delErr.message });
     } else {
-      const { error } = await supabase
+      const { error: upErr } = await supabase
         .from('daily_routine_completions')
         .upsert(
-          { user_id: user!.id, occurred_on: today, step_slug: slug },
+          { user_id: user.id, occurred_on: today, step_slug: slug },
           { onConflict: 'user_id,occurred_on,step_slug' }
         );
-      if (error) return fail(500, { error: error.message });
+      if (upErr) return fail(500, { error: upErr.message });
     }
     return { ok: true };
   }

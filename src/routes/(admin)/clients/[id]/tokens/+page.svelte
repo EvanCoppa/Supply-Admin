@@ -6,7 +6,7 @@
 
   let copied = $state(false);
   function copy(value: string) {
-    navigator.clipboard.writeText(value).then(() => {
+    void navigator.clipboard.writeText(value).then(() => {
       copied = true;
       setTimeout(() => (copied = false), 1500);
     });
@@ -28,9 +28,7 @@
 
   {#if form?.created}
     <div class="space-y-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm">
-      <p class="font-semibold text-amber-900">
-        Copy this token now — it will not be shown again.
-      </p>
+      <p class="font-semibold text-amber-900">Copy this token now — it will not be shown again.</p>
       <div class="flex items-center gap-2">
         <code class="flex-1 rounded border border-amber-300 bg-white px-2 py-1.5 font-mono text-xs"
           >{form.created.plaintext}</code
@@ -44,7 +42,12 @@
         </button>
       </div>
 
-      <form method="POST" action="?/pushToGuaranteeth" use:enhance class="flex flex-wrap items-end gap-2 border-t border-amber-300 pt-3">
+      <form
+        method="POST"
+        action="?/pushToGuaranteeth"
+        use:enhance
+        class="flex flex-wrap items-end gap-2 border-t border-amber-300 pt-3"
+      >
         <input type="hidden" name="plaintext" value={form.created.plaintext} />
         <label class="block flex-1 min-w-[200px]">
           <span class="mb-1 block text-xs font-medium text-amber-900">Guaranteeth org ID</span>
@@ -63,8 +66,8 @@
         </button>
       </form>
       <p class="text-xs text-amber-800">
-        Sends this token + the customer's external code to Guaranteeth so the org's
-        supply credentials get written without manual SQL.
+        Sends this token + the customer's external code to Guaranteeth so the org's supply
+        credentials get written without manual SQL.
       </p>
     </div>
   {/if}
@@ -110,9 +113,13 @@
               <td class="px-4 py-2 text-slate-500">{dateTime(t.last_used_at)}</td>
               <td class="px-4 py-2">
                 {#if t.revoked_at}
-                  <span class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">Revoked</span>
+                  <span class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600"
+                    >Revoked</span
+                  >
                 {:else}
-                  <span class="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">Active</span>
+                  <span class="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700"
+                    >Active</span
+                  >
                 {/if}
               </td>
               <td class="px-4 py-2 text-right">
