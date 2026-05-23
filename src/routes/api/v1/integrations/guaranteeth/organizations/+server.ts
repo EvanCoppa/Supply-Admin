@@ -16,7 +16,7 @@ type RegistrationPayload = {
 };
 
 function requireIntegrationSecret(request: Request) {
-  const expected = env.GUARANTEETH_INTEGRATION_SECRET;
+  const expected = env['GUARANTEETH_INTEGRATION_SECRET'];
   if (!expected) throw error(500, 'GUARANTEETH_INTEGRATION_SECRET must be set');
   const actual = readBearerToken(request);
   if (actual !== expected) throw error(401, 'Invalid integration secret');
