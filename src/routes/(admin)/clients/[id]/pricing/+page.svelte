@@ -271,7 +271,9 @@
               </td>
               <td class="px-4 py-2 text-xs text-slate-600">
                 {#if entry.changes}
-                  <code class="block overflow-x-auto whitespace-pre-wrap break-words text-[11px]">{JSON.stringify(entry.changes)}</code>
+                  <code class="block overflow-x-auto whitespace-pre-wrap break-words text-[11px]"
+                    >{JSON.stringify(entry.changes)}</code
+                  >
                 {:else}
                   —
                 {/if}

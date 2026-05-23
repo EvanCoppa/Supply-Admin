@@ -30,18 +30,12 @@
       value={data.filters.search}
       class="min-w-[200px] flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
     />
-    <select
-      name="status"
-      class="rounded border border-slate-300 px-2 py-1.5 text-sm"
-    >
+    <select name="status" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
       <option value="">All statuses</option>
       <option value="active" selected={data.filters.status === 'active'}>Active</option>
       <option value="archived" selected={data.filters.status === 'archived'}>Archived</option>
     </select>
-    <select
-      name="category"
-      class="rounded border border-slate-300 px-2 py-1.5 text-sm"
-    >
+    <select name="category" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
       <option value="">All categories</option>
       {#each data.categories as c}
         <option value={c.id} selected={c.id === data.filters.categoryId}>{c.name}</option>
@@ -75,8 +69,7 @@
         <tbody class="divide-y divide-slate-100">
           {#each data.products as p}
             {@const stock = p.inventory?.quantity_on_hand ?? null}
-            {@const low =
-              stock !== null && stock <= (p.inventory?.low_stock_threshold ?? 0)}
+            {@const low = stock !== null && stock <= (p.inventory?.low_stock_threshold ?? 0)}
             <tr class="hover:bg-slate-50">
               <td class="px-4 py-2">
                 {#if p.image_url}
@@ -102,11 +95,7 @@
               <td class="px-4 py-2 text-slate-600">{p.category?.name ?? '—'}</td>
               <td class="px-4 py-2 text-slate-600">{p.manufacturer ?? '—'}</td>
               <td class="px-4 py-2 text-right">{currency(p.base_price)}</td>
-              <td
-                class="px-4 py-2 text-right"
-                class:text-amber-700={low}
-                class:font-semibold={low}
-              >
+              <td class="px-4 py-2 text-right" class:text-amber-700={low} class:font-semibold={low}>
                 {stock ?? '—'}
               </td>
               <td class="px-4 py-2">

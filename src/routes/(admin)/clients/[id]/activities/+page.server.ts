@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { ActivityDirection, ActivityType, CustomerActivity, CustomerContact } from '$lib/types/db';
+import type { ActivityDirection, ActivityType, CustomerActivity } from '$lib/types/db';
 
 const TYPES: ActivityType[] = ['call', 'email', 'meeting', 'visit', 'sms', 'other'];
 const DIRECTIONS: ActivityDirection[] = ['inbound', 'outbound'];
@@ -25,13 +25,11 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
   ]);
 
   return {
-    activities: (actRes.data ?? []) as unknown as Array<
-      CustomerActivity & {
-        actor: { display_name: string | null } | null;
-        contact: { first_name: string | null; last_name: string | null } | null;
-      }
-    >,
-    contacts: (contactsRes.data ?? []) as Pick<CustomerContact, 'id' | 'first_name' | 'last_name'>[]
+    activities: (actRes.data ?? []) as unknown as (CustomerActivity & {
+      actor: { display_name: string | null } | null;
+      contact: { first_name: string | null; last_name: string | null } | null;
+    })[],
+    contacts: contactsRes.data ?? []
   };
 };
 

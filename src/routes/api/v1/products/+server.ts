@@ -46,7 +46,9 @@ export const GET: RequestHandler = async ({ request, url }) => {
 
   if (search) {
     const escaped = search.replaceAll('%', '\\%').replaceAll('_', '\\_');
-    query = query.or(`name.ilike.%${escaped}%,sku.ilike.%${escaped}%,description.ilike.%${escaped}%`);
+    query = query.or(
+      `name.ilike.%${escaped}%,sku.ilike.%${escaped}%,description.ilike.%${escaped}%`
+    );
   }
   if (categoryId) query = query.eq('category_id', categoryId);
 
@@ -80,10 +82,7 @@ export const GET: RequestHandler = async ({ request, url }) => {
       unit_of_measure: product.unit_of_measure,
       pack_size: product.pack_size,
       image_paths: product.image_paths ?? [],
-      image_url: getProductImagePublicUrl(
-        supabase,
-        getFirstProductImagePath(product.image_paths)
-      ),
+      image_url: getProductImagePublicUrl(supabase, getFirstProductImagePath(product.image_paths)),
       base_price: Number(product.base_price ?? 0),
       customer_price: await resolveCustomerPrice(supabase, customerId, product),
       can_buy: canBuyProduct(customer.catalog_access_mode, accessMap.get(product.id))

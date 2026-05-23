@@ -1,7 +1,7 @@
 import { error, fail } from '@sveltejs/kit';
 import { env as publicEnv } from '$env/dynamic/public';
 import type { Actions, PageServerLoad } from './$types';
-import type { Invoice, InvoiceStatus } from '$lib/types/db';
+import type { Invoice } from '$lib/types/db';
 import {
   invoicePaymentRecordSchema,
   invoiceSendSchema,
@@ -33,7 +33,9 @@ async function loadInvoice(supabase: App.Locals['supabase'], id: string) {
     .eq('id', id)
     .maybeSingle();
   if (invoiceError || !data) throw new Error(invoiceError?.message ?? 'Invoice not found.');
-  return data as Invoice & { customer: { id: string; business_name: string; email: string | null } | null };
+  return data as Invoice & {
+    customer: { id: string; business_name: string; email: string | null } | null;
+  };
 }
 
 export const actions: Actions = {
@@ -106,20 +108,24 @@ export const actions: Actions = {
   setStatus: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
     const parsed = parseForm(invoiceStatusSchema, form);
-    if (!parsed.success) return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    if (!parsed.success)
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
 
-    const status = parsed.data.status as InvoiceStatus;
+    const status = parsed.data.status;
     const patch: Record<string, unknown> = { status };
     if (status === 'paid') {
       const invoice = await loadInvoice(supabase, params.id).catch((err) => err);
       if (invoice instanceof Error) return fail(404, { message: invoice.message, fieldErrors: {} });
-      patch.amount_paid = invoice.total;
-      patch.paid_at = new Date().toISOString();
-      patch.payment_status = 'paid';
+      patch['amount_paid'] = invoice.total;
+      patch['paid_at'] = new Date().toISOString();
+      patch['payment_status'] = 'paid';
     }
-    if (status === 'issued') patch.issued_at = new Date().toISOString();
+    if (status === 'issued') patch['issued_at'] = new Date().toISOString();
 
-    const { error: updateError } = await supabase.from('invoices').update(patch).eq('id', params.id);
+    const { error: updateError } = await supabase
+      .from('invoices')
+      .update(patch)
+      .eq('id', params.id);
     if (updateError) return fail(400, { message: updateError.message, fieldErrors: {} });
     return { saved: true, message: 'Status updated.' };
   },
@@ -127,7 +133,8 @@ export const actions: Actions = {
   recordPayment: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
     const parsed = parseForm(invoicePaymentRecordSchema, form);
-    if (!parsed.success) return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    if (!parsed.success)
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
 
     const invoice = await loadInvoice(supabase, params.id).catch((err) => err);
     if (invoice instanceof Error) return fail(404, { message: invoice.message, fieldErrors: {} });
@@ -198,7 +205,8 @@ export const actions: Actions = {
 
     const form = await request.formData();
     const parsed = parseForm(invoiceSendSchema, form);
-    if (!parsed.success) return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    if (!parsed.success)
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
 
     if (invoice.status === 'draft') {
       const now = new Date();
@@ -213,8 +221,10 @@ export const actions: Actions = {
       invoice.due_at = dueAt;
     }
 
-    const recipient = parsed.data.recipient ?? invoice.billing_email ?? invoice.customer?.email ?? null;
-    if (!recipient) return fail(400, { message: 'Add a billing email before sending.', fieldErrors: {} });
+    const recipient =
+      parsed.data.recipient ?? invoice.billing_email ?? invoice.customer?.email ?? null;
+    if (!recipient)
+      return fail(400, { message: 'Add a billing email before sending.', fieldErrors: {} });
 
     const appUrl = publicEnv.PUBLIC_APP_URL || url.origin;
     const result = await sendInvoiceEmail(supabase, {

@@ -49,7 +49,9 @@
     if (serverForm?.imageDataUrl && !result) {
       result = {
         imageDataUrl: serverForm.imageDataUrl,
-        originalDataUrl: serverForm.originalDataUrl
+        ...(serverForm.originalDataUrl !== undefined
+          ? { originalDataUrl: serverForm.originalDataUrl }
+          : {})
       };
       currentState = 'result';
     } else if (serverForm?.message && !serverError) {
@@ -134,14 +136,18 @@
 <section class="mx-auto max-w-5xl space-y-6">
   <!-- Header -->
   <header class="flex flex-col items-center text-center">
-    <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-slate-900 to-slate-700 shadow-md">
+    <div
+      class="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-slate-900 to-slate-700 shadow-md"
+    >
       <WandSparkles class="h-6 w-6 text-white" />
     </div>
     <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Product Image Studio</h1>
     <p class="mt-1 max-w-xl text-sm text-slate-500">
       Upload a rough product photo and Gemini will return a clean, professional ecommerce shot.
     </p>
-    <div class="mt-3 inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+    <div
+      class="mt-3 inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700"
+    >
       <Sparkles class="h-3.5 w-3.5" />
       Powered by Gemini 2.5 Flash
     </div>
@@ -158,13 +164,13 @@
           class:bg-slate-900={active || done}
           class:text-white={active || done}
           class:bg-slate-200={!active && !done}
-          class:text-slate-500={!active && !done}
-        >{i + 1}</span>
+          class:text-slate-500={!active && !done}>{i + 1}</span
+        >
         <span
           class="ml-2 hidden font-medium sm:inline"
           class:text-slate-900={active}
-          class:text-slate-400={!active}
-        >{step.label}</span>
+          class:text-slate-400={!active}>{step.label}</span
+        >
         {#if i < STEPS.length - 1}
           <span class="mx-3 h-px flex-1 bg-slate-200"></span>
         {/if}
@@ -182,14 +188,15 @@
       return async ({ result: formResult, update }) => {
         await update({ reset: false });
         stopProgress();
-        if (formResult.type === 'success' && formResult.data?.imageDataUrl) {
+        if (formResult.type === 'success' && formResult.data?.['imageDataUrl']) {
+          const originalDataUrl = formResult.data['originalDataUrl'] as string | undefined;
           result = {
-            imageDataUrl: formResult.data.imageDataUrl as string,
-            originalDataUrl: formResult.data.originalDataUrl as string | undefined
+            imageDataUrl: formResult.data['imageDataUrl'] as string,
+            ...(originalDataUrl !== undefined ? { originalDataUrl } : {})
           };
           currentState = 'result';
         } else if (formResult.type === 'failure') {
-          serverError = (formResult.data?.message as string) ?? 'Generation failed.';
+          serverError = (formResult.data?.['message'] as string) ?? 'Generation failed.';
           currentState = 'error';
         } else if (formResult.type === 'error') {
           serverError = formResult.error?.message ?? 'Generation failed.';
@@ -215,13 +222,14 @@
         <div class="space-y-5">
           <ImageUploader onSelected={handleSelected} onError={handleUploadError} />
           {#if clientError}
-            <div class="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+            <div
+              class="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
+            >
               <X class="mt-0.5 h-4 w-4 flex-shrink-0" />
               <span>{clientError}</span>
             </div>
           {/if}
         </div>
-
       {:else if currentState === 'preview'}
         <div class="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div class="relative">
@@ -230,7 +238,9 @@
               alt="Source preview"
               class="aspect-square w-full rounded-xl border border-slate-200 bg-slate-50 object-contain shadow-sm"
             />
-            <span class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-md bg-slate-900/85 px-2 py-1 text-xs font-medium text-white backdrop-blur">
+            <span
+              class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-md bg-slate-900/85 px-2 py-1 text-xs font-medium text-white backdrop-blur"
+            >
               <Upload class="h-3.5 w-3.5" />
               Source photo
             </span>
@@ -257,7 +267,8 @@
               ></textarea>
             </label>
             <p class="mt-1.5 text-xs text-slate-500">
-              Tell Gemini anything specific about the product — angle, count, packaging, colors to preserve.
+              Tell Gemini anything specific about the product — angle, count, packaging, colors to
+              preserve.
             </p>
 
             <div class="mt-auto flex flex-wrap items-center gap-2 pt-5">
@@ -279,11 +290,12 @@
             </div>
           </div>
         </div>
-
       {:else if currentState === 'generating'}
         <div class="flex flex-col items-center justify-center space-y-7 py-12">
           <div class="relative">
-            <div class="h-20 w-20 animate-spin rounded-full border-4 border-slate-200 border-t-slate-900"></div>
+            <div
+              class="h-20 w-20 animate-spin rounded-full border-4 border-slate-200 border-t-slate-900"
+            ></div>
             <div class="absolute inset-0 flex items-center justify-center">
               <Sparkles class="h-7 w-7 animate-pulse text-slate-700" />
             </div>
@@ -300,7 +312,9 @@
           </div>
 
           <div class="text-center">
-            <p class="flex items-center justify-center gap-2 text-base font-semibold text-slate-900">
+            <p
+              class="flex items-center justify-center gap-2 text-base font-semibold text-slate-900"
+            >
               <LoaderCircle class="h-4 w-4 animate-spin" />
               Generating your studio shot…
             </p>
@@ -309,17 +323,20 @@
 
           <div class="grid w-full max-w-2xl grid-cols-2 gap-3 md:grid-cols-4">
             {#each ['White background', 'Soft shadow', 'Faithful to source', 'Square crop'] as feature}
-              <div class="flex items-center justify-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700">
+              <div
+                class="flex items-center justify-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700"
+              >
                 <CircleCheck class="h-3.5 w-3.5 text-sky-600" />
                 <span>{feature}</span>
               </div>
             {/each}
           </div>
         </div>
-
       {:else if currentState === 'error'}
         <div class="flex flex-col items-center justify-center space-y-5 py-12">
-          <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 ring-1 ring-red-200">
+          <div
+            class="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 ring-1 ring-red-200"
+          >
             <X class="h-7 w-7 text-red-600" />
           </div>
           <div class="max-w-md text-center">
@@ -344,18 +361,18 @@
             </button>
           </div>
         </div>
-
       {:else if currentState === 'result' && result}
         <div class="space-y-6">
-          <ImageCompare
-            before={result.originalDataUrl ?? beforeUrl}
-            after={result.imageDataUrl}
-          />
+          <ImageCompare before={result.originalDataUrl ?? beforeUrl} after={result.imageDataUrl} />
 
-          <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
+          <div
+            class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5"
+          >
             <div class="flex items-start gap-2 text-sm">
               <CircleCheck class="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
-              <span class="text-slate-700">Studio shot ready. Download or regenerate to try a different take.</span>
+              <span class="text-slate-700"
+                >Studio shot ready. Download or regenerate to try a different take.</span
+              >
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <a
@@ -392,13 +409,13 @@
   <!-- How it works -->
   {#if currentState === 'upload'}
     <div class="grid gap-3 sm:grid-cols-3">
-      {#each [
-        { n: 1, title: 'Upload your photo', body: 'Drag and drop a phone photo of the product — any angle, any lighting.' },
-        { n: 2, title: 'Add context', body: 'Optionally describe the product so Gemini preserves the key details.' },
-        { n: 3, title: 'Download the shot', body: 'Get a clean white-background ecommerce image, ready for the catalog.' }
-      ] as step}
+      {#each [{ n: 1, title: 'Upload your photo', body: 'Drag and drop a phone photo of the product — any angle, any lighting.' }, { n: 2, title: 'Add context', body: 'Optionally describe the product so Gemini preserves the key details.' }, { n: 3, title: 'Download the shot', body: 'Get a clean white-background ecommerce image, ready for the catalog.' }] as step}
         <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div class="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">{step.n}</div>
+          <div
+            class="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white"
+          >
+            {step.n}
+          </div>
           <p class="text-sm font-semibold text-slate-900">{step.title}</p>
           <p class="mt-1 text-xs text-slate-500">{step.body}</p>
         </div>

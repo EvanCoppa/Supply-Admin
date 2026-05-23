@@ -70,8 +70,6 @@
 </script>
 
 <div class="space-y-3">
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     role="button"
     tabindex="0"
@@ -88,13 +86,7 @@
     class:hover:border-sky-300={!dragging}
     class:hover:bg-white={!dragging}
   >
-    <input
-      bind:this={inputEl}
-      type="file"
-      {accept}
-      onchange={onChange}
-      class="hidden"
-    />
+    <input bind:this={inputEl} type="file" {accept} onchange={onChange} class="hidden" />
 
     <div
       class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm ring-1 transition-all group-hover:scale-105"
@@ -111,6 +103,8 @@
     <p class="text-sm font-semibold text-slate-900">
       {dragging ? 'Drop to upload' : 'Drag a photo here, or click to browse'}
     </p>
-    <p class="mt-1 text-xs text-slate-500">JPEG, PNG, or WebP — up to {Math.round(maxBytes / 1024 / 1024)} MB</p>
+    <p class="mt-1 text-xs text-slate-500">
+      JPEG, PNG, or WebP — up to {Math.round(maxBytes / 1024 / 1024)} MB
+    </p>
   </div>
 </div>

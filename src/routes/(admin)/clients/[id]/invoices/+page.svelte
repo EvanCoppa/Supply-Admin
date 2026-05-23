@@ -19,7 +19,9 @@
 
 <div class="space-y-5">
   {#if form?.message}
-    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">{form.message}</div>
+    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+      {form.message}
+    </div>
   {/if}
 
   <div class="flex items-center justify-between">
@@ -55,7 +57,11 @@
     >
       <label class="block sm:col-span-3">
         <span class="mb-1 block text-xs font-medium">Order</span>
-        <select name="order_id" required class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+        <select
+          name="order_id"
+          required
+          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        >
           <option value="">— Pick an order —</option>
           {#each data.orders as o}
             <option value={o.id}>
@@ -116,7 +122,9 @@
           {#each data.invoices as inv}
             <tr class="hover:bg-slate-50">
               <td class="px-3 py-2 font-mono text-xs">
-                <a class="text-sky-700 hover:underline" href="/invoices/{inv.id}">{inv.invoice_number}</a>
+                <a class="text-sky-700 hover:underline" href="/invoices/{inv.id}"
+                  >{inv.invoice_number}</a
+                >
               </td>
               <td class="px-3 py-2">
                 <form method="POST" action="?/setStatus" use:enhance class="inline">
@@ -141,7 +149,12 @@
               <td class="px-3 py-2 text-right text-slate-600">{dateShort(inv.due_at)}</td>
               <td class="px-3 py-2 text-right">
                 {#if inv.status !== 'paid' && inv.status !== 'void' && inv.status !== 'refunded'}
-                  <form method="POST" action="?/recordPayment" use:enhance class="inline-flex items-center gap-1">
+                  <form
+                    method="POST"
+                    action="?/recordPayment"
+                    use:enhance
+                    class="inline-flex items-center gap-1"
+                  >
                     <input type="hidden" name="id" value={inv.id} />
                     <input
                       type="number"

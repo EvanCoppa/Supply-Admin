@@ -30,10 +30,7 @@
       value={data.filters.search}
       class="min-w-[240px] flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
     />
-    <select
-      name="filter"
-      class="rounded border border-slate-300 px-2 py-1.5 text-sm"
-    >
+    <select name="filter" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
       <option value="">All items</option>
       <option value="low" selected={data.filters.filter === 'low'}>Low stock only</option>
       <option value="out" selected={data.filters.filter === 'out'}>Out of stock only</option>
@@ -74,11 +71,7 @@
                 </a>
               </td>
               <td class="px-4 py-2 text-slate-600">{row.product?.category?.name ?? '—'}</td>
-              <td
-                class="px-4 py-2 text-right"
-                class:text-amber-700={low}
-                class:font-semibold={low}
-              >
+              <td class="px-4 py-2 text-right" class:text-amber-700={low} class:font-semibold={low}>
                 {row.quantity_on_hand}
               </td>
               <td class="px-4 py-2 text-right text-slate-600">{row.quantity_reserved}</td>
@@ -104,7 +97,8 @@
       {#if data.page > 1}
         <a
           class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-100"
-          href="?{new URLSearchParams({ ...data.filters, page: String(data.page - 1) })}">
+          href="?{new URLSearchParams({ ...data.filters, page: String(data.page - 1) })}"
+        >
           Previous
         </a>
       {/if}
@@ -112,7 +106,8 @@
       {#if data.page < totalPages}
         <a
           class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-100"
-          href="?{new URLSearchParams({ ...data.filters, page: String(data.page + 1) })}">
+          href="?{new URLSearchParams({ ...data.filters, page: String(data.page + 1) })}"
+        >
           Next
         </a>
       {/if}

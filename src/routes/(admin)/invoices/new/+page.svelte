@@ -55,7 +55,12 @@
   );
   const lineDiscount = $derived(lines.reduce((sum, line) => sum + Number(line.discount || 0), 0));
   const tax = $derived(lines.reduce((sum, line) => sum + Number(line.tax || 0), 0));
-  const total = $derived(Math.max(0, subtotal - lineDiscount - Number(invoiceDiscount || 0) + tax + Number(shipping || 0)));
+  const total = $derived(
+    Math.max(
+      0,
+      subtotal - lineDiscount - Number(invoiceDiscount || 0) + tax + Number(shipping || 0)
+    )
+  );
 
   function addLine() {
     lines = [...lines, emptyLine()];
@@ -109,19 +114,26 @@
       <h1 class="text-2xl font-semibold">New invoice</h1>
       <p class="text-sm text-slate-500">Create a standalone invoice with custom line items.</p>
     </div>
-    <a class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100" href="/invoices">
+    <a
+      class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+      href="/invoices"
+    >
       Back to invoices
     </a>
   </header>
 
   {#if form?.message}
-    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">{form.message}</div>
+    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+      {form.message}
+    </div>
   {/if}
 
   <form method="POST" action="?/create" use:enhance class="space-y-5">
     <input type="hidden" name="line_items_json" value={lineItemsJson} />
 
-    <section class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-4">
+    <section
+      class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-4"
+    >
       <label class="block md:col-span-2">
         <span class="mb-1 block text-xs font-medium">Customer</span>
         <select
@@ -193,7 +205,11 @@
     <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
       <header class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
         <h2 class="font-semibold">Line items</h2>
-        <button type="button" class="rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-100" onclick={addLine}>
+        <button
+          type="button"
+          class="rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-100"
+          onclick={addLine}
+        >
           Add line
         </button>
       </header>
@@ -287,29 +303,53 @@
       <div class="space-y-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <label class="block">
           <span class="mb-1 block text-xs font-medium">Customer memo</span>
-          <textarea name="customer_memo" rows="3" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"></textarea>
+          <textarea
+            name="customer_memo"
+            rows="3"
+            class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+          ></textarea>
         </label>
         <label class="block">
           <span class="mb-1 block text-xs font-medium">Internal notes</span>
-          <textarea name="internal_notes" rows="3" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"></textarea>
+          <textarea
+            name="internal_notes"
+            rows="3"
+            class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+          ></textarea>
         </label>
       </div>
 
       <div class="rounded-lg border border-slate-200 bg-white p-5 text-sm shadow-sm">
         <dl class="space-y-2">
-          <div class="flex justify-between"><dt>Subtotal</dt><dd>{currency(subtotal)}</dd></div>
-          <div class="flex justify-between"><dt>Discount</dt><dd>{currency(lineDiscount + Number(invoiceDiscount || 0))}</dd></div>
-          <div class="flex justify-between"><dt>Tax</dt><dd>{currency(tax)}</dd></div>
-          <div class="flex justify-between"><dt>Shipping</dt><dd>{currency(shipping)}</dd></div>
+          <div class="flex justify-between">
+            <dt>Subtotal</dt>
+            <dd>{currency(subtotal)}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt>Discount</dt>
+            <dd>{currency(lineDiscount + Number(invoiceDiscount || 0))}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt>Tax</dt>
+            <dd>{currency(tax)}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt>Shipping</dt>
+            <dd>{currency(shipping)}</dd>
+          </div>
           <div class="flex justify-between border-t border-slate-200 pt-2 text-base font-semibold">
-            <dt>Total</dt><dd>{currency(total)}</dd>
+            <dt>Total</dt>
+            <dd>{currency(total)}</dd>
           </div>
         </dl>
         <label class="mt-4 flex items-center gap-2 text-sm">
           <input type="checkbox" name="issue_now" checked class="rounded border-slate-300" />
           Issue invoice now
         </label>
-        <button type="submit" class="mt-4 w-full rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">
+        <button
+          type="submit"
+          class="mt-4 w-full rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+        >
           Create invoice
         </button>
       </div>

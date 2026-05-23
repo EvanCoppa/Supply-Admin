@@ -11,12 +11,7 @@
 <section class="space-y-5">
   <header class="flex items-center justify-between">
     <div class="space-y-2">
-      <Breadcrumbs
-        items={[
-          { label: 'Catalog', href: '/catalog' },
-          { label: data.product.name }
-        ]}
-      />
+      <Breadcrumbs items={[{ label: 'Catalog', href: '/catalog' }, { label: data.product.name }]} />
       <h1 class="text-2xl font-semibold">{data.product.name}</h1>
       <p class="text-xs text-slate-500 font-mono">{data.product.sku}</p>
     </div>

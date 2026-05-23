@@ -12,10 +12,7 @@
 <section class="space-y-5">
   <header class="space-y-2">
     <Breadcrumbs
-      items={[
-        { label: 'Featured Groups', href: '/featured-groups' },
-        { label: g.name }
-      ]}
+      items={[{ label: 'Featured Groups', href: '/featured-groups' }, { label: g.name }]}
     />
     <h1 class="text-2xl font-semibold">{g.name}</h1>
   </header>
@@ -70,11 +67,7 @@
       <span class="text-xs text-slate-500">{data.productIds.length} selected</span>
     </div>
     <form method="POST" action="?/saveProducts" use:enhance class="space-y-3">
-      <ProductPicker
-        products={data.allProducts}
-        name="product_ids"
-        initial={data.productIds}
-      />
+      <ProductPicker products={data.allProducts} name="product_ids" initial={data.productIds} />
       <div class="flex justify-end">
         <button
           type="submit"

@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   ]);
   return {
     groups: groupsRes.data ?? [],
-    products: (productsRes.data ?? []) as Array<{ id: string; sku: string; name: string }>
+    products: productsRes.data ?? []
   };
 };
 

@@ -2,7 +2,6 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { parseForm, purchaseCreateSchema } from '$lib/schemas';
 
-type SupplierRow = { id: string; name: string; key: string; distribution_fee_pct: number };
 type OrderForLink = {
   id: string;
   total: number;
@@ -14,10 +13,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
   const orderId = url.searchParams.get('order') ?? '';
 
   const [suppliersRes, ordersRes, linkedOrderRes, existingCogsRes] = await Promise.all([
-    supabase
-      .from('suppliers')
-      .select('id, name, key, distribution_fee_pct')
-      .order('name'),
+    supabase.from('suppliers').select('id, name, key, distribution_fee_pct').order('name'),
     supabase
       .from('orders')
       .select('id, total, placed_at, customer:customers(business_name)')
@@ -36,7 +32,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
   ]);
 
   return {
-    suppliers: (suppliersRes.data ?? []) as SupplierRow[],
+    suppliers: suppliersRes.data ?? [],
     recentOrders: (ordersRes.data ?? []) as unknown as OrderForLink[],
     linkedOrder: linkedOrderRes.data as unknown as OrderForLink | null,
     existingCogs: Number((existingCogsRes.data as { cogs_total?: number } | null)?.cogs_total ?? 0),

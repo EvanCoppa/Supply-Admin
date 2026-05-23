@@ -49,7 +49,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
     ? await supabase.from('customers').select('id, business_name').in('id', customerIds)
     : { data: [] };
   const customerMap = new Map<string, string>(
-    ((customersRes.data ?? []) as Array<{ id: string; business_name: string }>).map((c) => [
+    ((customersRes.data ?? []) as { id: string; business_name: string }[]).map((c) => [
       c.id,
       c.business_name
     ])
@@ -63,13 +63,13 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   return {
     velocity,
     repeats: repeatsWithCustomer,
-    watchlist: (watchlistRes.data ?? []) as unknown as Array<{
+    watchlist: (watchlistRes.data ?? []) as unknown as {
       id: string;
       product_id: string;
       notes: string | null;
       created_at: string;
       product: { id: string; sku: string; name: string } | null;
-    }>
+    }[]
   };
 };
 
@@ -82,7 +82,10 @@ export const actions: Actions = {
 
     const { error } = await supabase
       .from('watchlist_items')
-      .upsert({ product_id: productId, notes, added_by: user?.id ?? null }, { onConflict: 'product_id' });
+      .upsert(
+        { product_id: productId, notes, added_by: user?.id ?? null },
+        { onConflict: 'product_id' }
+      );
     if (error) return fail(400, { message: error.message });
     return { saved: true };
   },

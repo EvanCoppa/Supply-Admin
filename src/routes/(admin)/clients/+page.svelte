@@ -60,7 +60,9 @@
       class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-2"
     >
       {#if form?.message}
-        <div class="sm:col-span-2 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+        <div
+          class="sm:col-span-2 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900"
+        >
           {form.message}
         </div>
       {/if}
@@ -203,7 +205,9 @@
                     {#if a.tag}
                       <span
                         class="rounded px-1.5 py-0.5 text-xs"
-                        style={a.tag.color ? `background-color:${a.tag.color}20; color:${a.tag.color}` : ''}
+                        style={a.tag.color
+                          ? `background-color:${a.tag.color}20; color:${a.tag.color}`
+                          : ''}
                         class:bg-slate-100={!a.tag.color}
                         class:text-slate-700={!a.tag.color}
                       >
@@ -240,7 +244,8 @@
       {#if data.page > 1}
         <a
           class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-100"
-          href="?{new URLSearchParams({ ...data.filters, page: String(data.page - 1) })}">
+          href="?{new URLSearchParams({ ...data.filters, page: String(data.page - 1) })}"
+        >
           Previous
         </a>
       {/if}
@@ -248,7 +253,8 @@
       {#if data.page < totalPages}
         <a
           class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-100"
-          href="?{new URLSearchParams({ ...data.filters, page: String(data.page + 1) })}">
+          href="?{new URLSearchParams({ ...data.filters, page: String(data.page + 1) })}"
+        >
           Next
         </a>
       {/if}

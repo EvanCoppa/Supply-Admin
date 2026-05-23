@@ -7,14 +7,14 @@
 
   interface Props {
     product?: ProductLike;
-    categories: Array<{ id: string; name: string }>;
+    categories: { id: string; name: string }[];
     submitLabel?: string;
     fieldErrors?: Record<string, string[]>;
   }
 
   let { product = {}, categories, submitLabel = 'Save', fieldErrors = {} }: Props = $props();
 
-  const imageError = $derived(fieldErrors.image?.[0]);
+  const imageError = $derived(fieldErrors['image']?.[0]);
 </script>
 
 <div class="grid gap-4 sm:grid-cols-2">
@@ -49,10 +49,7 @@
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Category</span>
-    <select
-      name="category_id"
-      class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-    >
+    <select name="category_id" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
       <option value="">— None —</option>
       {#each categories as c}
         <option value={c.id} selected={c.id === product.category_id}>{c.name}</option>
@@ -120,10 +117,7 @@
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Status</span>
-    <select
-      name="status"
-      class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-    >
+    <select name="status" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
       <option value="active" selected={product.status !== 'archived'}>Active</option>
       <option value="archived" selected={product.status === 'archived'}>Archived</option>
     </select>
@@ -141,7 +135,9 @@
     {#if imageError}
       <p id="product-image-error" class="mt-1 text-xs text-red-700">{imageError}</p>
     {:else}
-      <p id="product-image-help" class="mt-1 text-xs text-slate-500">JPEG, PNG, or WebP up to 10 MB.</p>
+      <p id="product-image-help" class="mt-1 text-xs text-slate-500">
+        JPEG, PNG, or WebP up to 10 MB.
+      </p>
     {/if}
   </label>
 </div>

@@ -89,10 +89,13 @@
                 </p>
                 <p class="text-xs text-slate-500">
                   {t.customer?.business_name ?? '—'}
-                  {#if t.due_at} · due {dateTime(t.due_at)}{/if}
+                  {#if t.due_at}
+                    · due {dateTime(t.due_at)}{/if}
                 </p>
               </div>
-              <span class="rounded px-1.5 py-0.5 text-xs {priorityClass[t.priority] ?? ''}">{t.priority}</span>
+              <span class="rounded px-1.5 py-0.5 text-xs {priorityClass[t.priority] ?? ''}"
+                >{t.priority}</span
+              >
             </li>
           {/each}
         </ul>
@@ -102,7 +105,9 @@
     <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
       <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
         <h2 class="font-semibold">At-risk & churned accounts</h2>
-        <a class="text-xs text-sky-700 hover:underline" href="/clients?lifecycle=at_risk">View all</a>
+        <a class="text-xs text-sky-700 hover:underline" href="/clients?lifecycle=at_risk"
+          >View all</a
+        >
       </div>
       {#if data.atRiskCustomers.length === 0}
         <p class="px-4 py-6 text-sm text-slate-500">No accounts flagged.</p>
@@ -193,7 +198,9 @@
               <tr class="hover:bg-slate-50">
                 <td class="px-4 py-2 font-mono text-xs">{row.product?.sku ?? '—'}</td>
                 <td class="px-4 py-2">{row.product?.name ?? '—'}</td>
-                <td class="px-4 py-2 text-right font-semibold text-amber-700">{row.quantity_on_hand}</td>
+                <td class="px-4 py-2 text-right font-semibold text-amber-700"
+                  >{row.quantity_on_hand}</td
+                >
                 <td class="px-4 py-2 text-right text-slate-500">{row.low_stock_threshold}</td>
               </tr>
             {/each}
@@ -217,7 +224,10 @@
             <div class="min-w-0 flex-1">
               <p class="truncate">
                 {#if entry.product}
-                  <a class="text-sky-700 hover:underline" href="/inventory/{entry.product.id}/ledger">
+                  <a
+                    class="text-sky-700 hover:underline"
+                    href="/inventory/{entry.product.id}/ledger"
+                  >
                     <span class="font-mono text-xs text-slate-500">{entry.product.sku}</span>
                     {entry.product.name}
                   </a>
@@ -228,7 +238,9 @@
               <p class="text-xs text-slate-500">
                 {entry.reason.replace('_', ' ')}
                 {#if entry.order_id}
-                  · <a class="hover:underline" href="/orders/{entry.order_id}">order {entry.order_id.slice(0, 8)}</a>
+                  · <a class="hover:underline" href="/orders/{entry.order_id}"
+                    >order {entry.order_id.slice(0, 8)}</a
+                  >
                 {/if}
                 {#if entry.notes}· {entry.notes}{/if}
                 · {dateTime(entry.created_at)}

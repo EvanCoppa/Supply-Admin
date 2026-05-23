@@ -9,7 +9,7 @@
   onMount(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       if (newSession?.expires_at !== session?.expires_at) {
-        invalidate('supabase:auth');
+        void invalidate('supabase:auth');
       }
     });
     return () => sub.subscription.unsubscribe();

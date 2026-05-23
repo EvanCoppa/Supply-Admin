@@ -89,10 +89,10 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 
   return {
     rules,
-    products: (productsRes.data ?? []) as Array<{ id: string; sku: string; name: string }>,
-    categories: (categoriesRes.data ?? []) as Array<{ id: string; name: string }>,
+    products: productsRes.data ?? [],
+    categories: categoriesRes.data ?? [],
     conflictingIds: [...conflictingIds],
-    auditLog: ((auditRes.data ?? []) as unknown as AuditEntry[])
+    auditLog: (auditRes.data ?? []) as unknown as AuditEntry[]
   };
 };
 
@@ -110,10 +110,8 @@ export const actions: Actions = {
       product_id: scope === 'product' ? parsed.data.product_id : null,
       category_id: scope === 'category' ? parsed.data.category_id : null,
       override_type,
-      absolute_price:
-        override_type === 'absolute_price' ? parsed.data.absolute_price : null,
-      percent_discount:
-        override_type === 'percent_discount' ? parsed.data.percent_discount : null,
+      absolute_price: override_type === 'absolute_price' ? parsed.data.absolute_price : null,
+      percent_discount: override_type === 'percent_discount' ? parsed.data.percent_discount : null,
       effective_start: parsed.data.effective_start,
       effective_end: parsed.data.effective_end
     };

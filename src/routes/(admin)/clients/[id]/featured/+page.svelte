@@ -34,6 +34,7 @@
     if (from < 0 || to < 0) return;
     const next = [...order];
     const [moved] = next.splice(from, 1);
+    if (!moved) return;
     next.splice(to, 0, moved);
     order = next;
   }
@@ -83,10 +84,7 @@
       use:enhance
       class="flex gap-2 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
     >
-      <select
-        name="product_id"
-        class="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
-      >
+      <select name="product_id" class="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm">
         <option value="">Add individual product…</option>
         {#each data.products as p}
           <option value={p.id}>{p.sku} · {p.name}</option>

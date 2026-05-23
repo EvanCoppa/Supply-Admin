@@ -35,7 +35,13 @@ export type InvoicePaymentIntentStatus =
   | 'failed'
   | 'cancelled'
   | 'expired';
-export type RmaStatus = 'requested' | 'approved' | 'received' | 'refunded' | 'rejected' | 'cancelled';
+export type RmaStatus =
+  | 'requested'
+  | 'approved'
+  | 'received'
+  | 'refunded'
+  | 'rejected'
+  | 'cancelled';
 export type ProductStatus = 'active' | 'archived';
 export type OrderStatus =
   | 'pending_payment'
@@ -46,12 +52,7 @@ export type OrderStatus =
   | 'cancelled'
   | 'refunded';
 export type OrderSource = 'storefront' | 'api';
-export type InventoryReason =
-  | 'order'
-  | 'cancellation'
-  | 'refund'
-  | 'manual_adjustment'
-  | 'receipt';
+export type InventoryReason = 'order' | 'cancellation' | 'refund' | 'manual_adjustment' | 'receipt';
 export type PricingScope = 'product' | 'category';
 export type PricingOverrideType = 'absolute_price' | 'percent_discount';
 export type PaymentStatus = 'succeeded' | 'failed' | 'refunded';

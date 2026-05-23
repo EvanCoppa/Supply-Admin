@@ -36,7 +36,11 @@
     </label>
     <label class="block">
       <span class="mb-1 block text-xs font-medium">City</span>
-      <input name="city" required class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+      <input
+        name="city"
+        required
+        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+      />
     </label>
     <label class="block">
       <span class="mb-1 block text-xs font-medium">Region</span>
@@ -80,7 +84,9 @@
 
   <div class="space-y-3">
     {#if data.addresses.length === 0}
-      <p class="rounded-lg border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+      <p
+        class="rounded-lg border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500"
+      >
         No addresses yet.
       </p>
     {:else}
@@ -92,12 +98,15 @@
             <div class="flex items-center gap-2">
               <span class="font-medium">{a.label ?? 'Address'}</span>
               {#if a.is_default_shipping}
-                <span class="rounded bg-sky-50 px-2 py-0.5 text-xs text-sky-700">Default shipping</span>
+                <span class="rounded bg-sky-50 px-2 py-0.5 text-xs text-sky-700"
+                  >Default shipping</span
+                >
               {/if}
             </div>
             <p>{a.line1}{a.line2 ? `, ${a.line2}` : ''}</p>
             <p class="text-slate-600">
-              {a.city}, {a.region} {a.postal_code} · {a.country}
+              {a.city}, {a.region}
+              {a.postal_code} · {a.country}
             </p>
           </div>
           <div class="flex gap-2">

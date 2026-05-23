@@ -1,10 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import {
-  invoiceCreateSchema,
-  parseForm,
-  parseInvoiceLineItems
-} from '$lib/schemas';
+import { invoiceCreateSchema, parseForm, parseInvoiceLineItems } from '$lib/schemas';
 import { createInvoiceWithLines, defaultDueDate } from '$lib/server/invoices';
 
 export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {

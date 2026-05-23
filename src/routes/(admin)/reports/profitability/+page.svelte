@@ -51,7 +51,8 @@
 
     {#if data.products.length === 0}
       <p class="text-sm text-slate-500">
-        No data yet. Once orders ship and purchases are logged with matching products, this fills in.
+        No data yet. Once orders ship and purchases are logged with matching products, this fills
+        in.
       </p>
     {:else}
       <table class="w-full text-sm">
@@ -77,10 +78,14 @@
               </td>
               <td class="px-2 py-2 text-right">{Number(p.qty_sold).toLocaleString()}</td>
               <td class="px-2 py-2 text-right">{currency(p.revenue)}</td>
-              <td class="px-2 py-2 text-right text-slate-500">{Number(p.qty_purchased).toLocaleString()}</td>
+              <td class="px-2 py-2 text-right text-slate-500"
+                >{Number(p.qty_purchased).toLocaleString()}</td
+              >
               <td class="px-2 py-2 text-right text-slate-500">{currency(p.cost)}</td>
               <td class="px-2 py-2 text-right font-medium">{currency(p.gross_profit)}</td>
-              <td class="px-2 py-2 text-right font-semibold {marginClass(p.margin)}">{pct(p.margin)}</td>
+              <td class="px-2 py-2 text-right font-semibold {marginClass(p.margin)}"
+                >{pct(p.margin)}</td
+              >
             </tr>
           {/each}
         </tbody>
@@ -111,9 +116,14 @@
             <td class="px-2 py-2 text-right text-slate-600">{s.orders_fulfilled}</td>
             <td class="px-2 py-2 text-right text-slate-500">{currency(s.total_subtotal)}</td>
             <td class="px-2 py-2 text-right text-slate-500">{currency(s.total_freight)}</td>
-            <td class="px-2 py-2 text-right text-slate-500">{currency(s.total_distribution_fee)}</td>
+            <td class="px-2 py-2 text-right text-slate-500">{currency(s.total_distribution_fee)}</td
+            >
             <td class="px-2 py-2 text-right font-medium">{currency(s.total_spend)}</td>
-            <td class="px-2 py-2 text-right {Number(s.outstanding_ap) > 0 ? 'text-red-700' : 'text-slate-400'}">
+            <td
+              class="px-2 py-2 text-right {Number(s.outstanding_ap) > 0
+                ? 'text-red-700'
+                : 'text-slate-400'}"
+            >
               {currency(s.outstanding_ap)}
             </td>
           </tr>

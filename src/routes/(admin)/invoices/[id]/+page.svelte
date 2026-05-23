@@ -64,8 +64,15 @@
   );
   const lineDiscount = $derived(lines.reduce((sum, line) => sum + Number(line.discount || 0), 0));
   const tax = $derived(lines.reduce((sum, line) => sum + Number(line.tax || 0), 0));
-  const total = $derived(Math.max(0, subtotal - lineDiscount - Number(invoiceDiscount || 0) + tax + Number(shipping || 0)));
-  const balance = $derived(Math.max(0, Number(data.invoice.total) - Number(data.invoice.amount_paid)));
+  const total = $derived(
+    Math.max(
+      0,
+      subtotal - lineDiscount - Number(invoiceDiscount || 0) + tax + Number(shipping || 0)
+    )
+  );
+  const balance = $derived(
+    Math.max(0, Number(data.invoice.total) - Number(data.invoice.amount_paid))
+  );
 
   const statusClass: Record<string, string> = {
     draft: 'bg-slate-100 text-slate-600',
@@ -78,7 +85,20 @@
   };
 
   function addLine() {
-    lines = [...lines, { order_line_item_id: null, product_id: null, product_sku_snapshot: null, product_name_snapshot: null, description: '', quantity: 1, unit_price: 0, discount: 0, tax: 0 }];
+    lines = [
+      ...lines,
+      {
+        order_line_item_id: null,
+        product_id: null,
+        product_sku_snapshot: null,
+        product_name_snapshot: null,
+        description: '',
+        quantity: 1,
+        unit_price: 0,
+        discount: 0,
+        tax: 0
+      }
+    ];
   }
 
   function removeLine(index: number) {
@@ -152,11 +172,16 @@
       </a>
       {#if editable}
         <form method="POST" action="?/issue" use:enhance>
-          <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100">Issue</button>
+          <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+            >Issue</button
+          >
         </form>
       {/if}
       <form method="POST" action="?/createPaymentIntent" use:enhance>
-        <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100" disabled={balance <= 0}>
+        <button
+          class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+          disabled={balance <= 0}
+        >
           Prepare payment link
         </button>
       </form>
@@ -182,12 +207,20 @@
       <form method="POST" action="?/saveDraft" use:enhance class="space-y-5">
         <input type="hidden" name="line_items_json" value={lineItemsJson} />
 
-        <section class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-4">
+        <section
+          class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-4"
+        >
           <label class="block">
             <span class="mb-1 block text-xs font-medium">Terms</span>
-            <select name="terms" disabled={!editable} class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+            <select
+              name="terms"
+              disabled={!editable}
+              class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+            >
               {#each ['due_on_receipt', 'net_15', 'net_30', 'net_60', 'prepaid'] as term}
-                <option value={term} selected={data.invoice.terms === term}>{term.replaceAll('_', ' ')}</option>
+                <option value={term} selected={data.invoice.terms === term}
+                  >{term.replaceAll('_', ' ')}</option
+                >
               {/each}
             </select>
           </label>
@@ -241,7 +274,11 @@
           <header class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
             <h2 class="font-semibold">Line items</h2>
             {#if editable}
-              <button type="button" class="rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-100" onclick={addLine}>
+              <button
+                type="button"
+                class="rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-100"
+                onclick={addLine}
+              >
                 Add line
               </button>
             {/if}
@@ -276,38 +313,68 @@
                     {/if}
                     <td class="px-3 py-2">
                       {#if editable}
-                        <input bind:value={line.description} required class="w-full rounded border border-slate-300 px-2 py-1 text-sm" />
+                        <input
+                          bind:value={line.description}
+                          required
+                          class="w-full rounded border border-slate-300 px-2 py-1 text-sm"
+                        />
                       {:else}
                         <div class="font-medium text-slate-900">{line.description}</div>
                         {#if line.product_sku_snapshot}
-                          <div class="font-mono text-xs text-slate-500">{line.product_sku_snapshot}</div>
+                          <div class="font-mono text-xs text-slate-500">
+                            {line.product_sku_snapshot}
+                          </div>
                         {/if}
                       {/if}
                     </td>
                     <td class="px-3 py-2 text-right">
                       {#if editable}
-                        <input bind:value={line.quantity} type="number" min="0.01" step="0.01" class="w-20 rounded border border-slate-300 px-2 py-1 text-right text-sm" />
+                        <input
+                          bind:value={line.quantity}
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          class="w-20 rounded border border-slate-300 px-2 py-1 text-right text-sm"
+                        />
                       {:else}
                         {line.quantity}
                       {/if}
                     </td>
                     <td class="px-3 py-2 text-right">
                       {#if editable}
-                        <input bind:value={line.unit_price} type="number" min="0" step="0.01" class="w-28 rounded border border-slate-300 px-2 py-1 text-right text-sm" />
+                        <input
+                          bind:value={line.unit_price}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          class="w-28 rounded border border-slate-300 px-2 py-1 text-right text-sm"
+                        />
                       {:else}
                         {currency(line.unit_price)}
                       {/if}
                     </td>
                     <td class="px-3 py-2 text-right">
                       {#if editable}
-                        <input bind:value={line.discount} type="number" min="0" step="0.01" class="w-24 rounded border border-slate-300 px-2 py-1 text-right text-sm" />
+                        <input
+                          bind:value={line.discount}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          class="w-24 rounded border border-slate-300 px-2 py-1 text-right text-sm"
+                        />
                       {:else}
                         {currency(line.discount)}
                       {/if}
                     </td>
                     <td class="px-3 py-2 text-right">
                       {#if editable}
-                        <input bind:value={line.tax} type="number" min="0" step="0.01" class="w-24 rounded border border-slate-300 px-2 py-1 text-right text-sm" />
+                        <input
+                          bind:value={line.tax}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          class="w-24 rounded border border-slate-300 px-2 py-1 text-right text-sm"
+                        />
                       {:else}
                         {currency(line.tax)}
                       {/if}
@@ -315,7 +382,11 @@
                     <td class="px-3 py-2 text-right font-medium">{currency(lineTotal(line))}</td>
                     <td class="px-3 py-2 text-right">
                       {#if editable && lines.length > 1}
-                        <button type="button" class="rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50" onclick={() => removeLine(i)}>
+                        <button
+                          type="button"
+                          class="rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
+                          onclick={() => removeLine(i)}
+                        >
                           Remove
                         </button>
                       {/if}
@@ -331,29 +402,67 @@
           <div class="space-y-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <label class="block">
               <span class="mb-1 block text-xs font-medium">Customer memo</span>
-              <textarea name="customer_memo" rows="3" disabled={!editable} class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">{data.invoice.customer_memo ?? ''}</textarea>
+              <textarea
+                name="customer_memo"
+                rows="3"
+                disabled={!editable}
+                class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+                >{data.invoice.customer_memo ?? ''}</textarea
+              >
             </label>
             <label class="block">
               <span class="mb-1 block text-xs font-medium">Internal notes</span>
-              <textarea name="internal_notes" rows="3" disabled={!editable} class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">{data.invoice.internal_notes ?? ''}</textarea>
+              <textarea
+                name="internal_notes"
+                rows="3"
+                disabled={!editable}
+                class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+                >{data.invoice.internal_notes ?? ''}</textarea
+              >
             </label>
             {#if editable}
-              <button class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800">Save draft</button>
+              <button
+                class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+                >Save draft</button
+              >
             {/if}
           </div>
 
           <div class="rounded-lg border border-slate-200 bg-white p-5 text-sm shadow-sm">
             <dl class="space-y-2">
-              <div class="flex justify-between"><dt>Subtotal</dt><dd>{currency(editable ? subtotal : data.invoice.subtotal)}</dd></div>
-              <div class="flex justify-between"><dt>Discount</dt><dd>{currency(editable ? lineDiscount + Number(invoiceDiscount || 0) : data.invoice.discount)}</dd></div>
-              <div class="flex justify-between"><dt>Tax</dt><dd>{currency(editable ? tax : data.invoice.tax)}</dd></div>
-              <div class="flex justify-between"><dt>Shipping</dt><dd>{currency(editable ? shipping : data.invoice.shipping)}</dd></div>
-              <div class="flex justify-between border-t border-slate-200 pt-2 text-base font-semibold">
-                <dt>Total</dt><dd>{currency(editable ? total : data.invoice.total)}</dd>
+              <div class="flex justify-between">
+                <dt>Subtotal</dt>
+                <dd>{currency(editable ? subtotal : data.invoice.subtotal)}</dd>
               </div>
-              <div class="flex justify-between"><dt>Paid</dt><dd>{currency(data.invoice.amount_paid)}</dd></div>
+              <div class="flex justify-between">
+                <dt>Discount</dt>
+                <dd>
+                  {currency(
+                    editable ? lineDiscount + Number(invoiceDiscount || 0) : data.invoice.discount
+                  )}
+                </dd>
+              </div>
+              <div class="flex justify-between">
+                <dt>Tax</dt>
+                <dd>{currency(editable ? tax : data.invoice.tax)}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt>Shipping</dt>
+                <dd>{currency(editable ? shipping : data.invoice.shipping)}</dd>
+              </div>
+              <div
+                class="flex justify-between border-t border-slate-200 pt-2 text-base font-semibold"
+              >
+                <dt>Total</dt>
+                <dd>{currency(editable ? total : data.invoice.total)}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt>Paid</dt>
+                <dd>{currency(data.invoice.amount_paid)}</dd>
+              </div>
               <div class="flex justify-between font-semibold" class:text-red-700={balance > 0}>
-                <dt>Balance</dt><dd>{currency(balance)}</dd>
+                <dt>Balance</dt>
+                <dd>{currency(balance)}</dd>
               </div>
             </dl>
           </div>
@@ -378,7 +487,9 @@
             <input type="checkbox" name="reminder" class="rounded border-slate-300" />
             Send as reminder
           </label>
-          <button class="w-full rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800">
+          <button
+            class="w-full rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+          >
             Send email
           </button>
         </form>
@@ -387,12 +498,17 @@
       <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <h2 class="font-semibold">Status</h2>
         <form method="POST" action="?/setStatus" use:enhance class="mt-3 flex gap-2">
-          <select name="status" class="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm">
+          <select
+            name="status"
+            class="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
+          >
             {#each ['draft', 'issued', 'paid', 'partially_paid', 'overdue', 'void', 'refunded'] as s}
               <option value={s} selected={data.invoice.status === s}>{s.replace('_', ' ')}</option>
             {/each}
           </select>
-          <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100">Save</button>
+          <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+            >Save</button
+          >
         </form>
         {#if balance > 0}
           <form method="POST" action="?/recordPayment" use:enhance class="mt-3 flex gap-2">
@@ -405,7 +521,9 @@
               placeholder="Amount"
               class="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
             />
-            <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100">Record</button>
+            <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+              >Record</button
+            >
           </form>
         {/if}
       </section>
@@ -413,8 +531,14 @@
       <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <h2 class="font-semibold">Payment</h2>
         <dl class="mt-3 space-y-2 text-sm">
-          <div class="flex justify-between"><dt>Status</dt><dd>{data.invoice.payment_status?.replace('_', ' ') ?? 'not started'}</dd></div>
-          <div class="flex justify-between"><dt>Link</dt><dd>{data.invoice.payment_url ? 'Prepared' : 'Not prepared'}</dd></div>
+          <div class="flex justify-between">
+            <dt>Status</dt>
+            <dd>{data.invoice.payment_status?.replace('_', ' ') ?? 'not started'}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt>Link</dt>
+            <dd>{data.invoice.payment_url ? 'Prepared' : 'Not prepared'}</dd>
+          </div>
         </dl>
         {#if data.paymentIntents.length}
           <div class="mt-3 divide-y divide-slate-100 text-sm">

@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     group,
     productIds: ids,
     currentProducts: current,
-    allProducts: (productsRes.data ?? []) as Array<{ id: string; sku: string; name: string }>,
+    allProducts: productsRes.data ?? [],
     availableProducts: (productsRes.data ?? []).filter((p) => !ids.includes(p.id))
   };
 };
@@ -128,7 +128,11 @@ export const actions: Actions = {
     const idx = ids.indexOf(product_id);
     const neighborIdx = direction === 'up' ? idx - 1 : idx + 1;
     if (idx < 0 || neighborIdx < 0 || neighborIdx >= ids.length) return { saved: true };
-    [ids[idx], ids[neighborIdx]] = [ids[neighborIdx], ids[idx]];
+    const cur = ids[idx];
+    const next = ids[neighborIdx];
+    if (cur === undefined || next === undefined) return { saved: true };
+    ids[idx] = next;
+    ids[neighborIdx] = cur;
 
     const { error } = await supabase
       .from('featured_groups')
