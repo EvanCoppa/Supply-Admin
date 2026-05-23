@@ -19,8 +19,10 @@ export default defineConfig({
         'src/**/+page.svelte',
         'src/app.html',
         'src/app.d.ts',
+        'src/hooks.server.ts',
         'src/lib/types/**',
-        'src/lib/components/**'
+        'src/lib/components/**',
+        'src/routes/**'
       ],
       // Hard gates on high-blast-radius code.
       thresholds: {

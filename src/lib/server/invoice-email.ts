@@ -83,7 +83,7 @@ export async function sendInvoiceEmail(supabase: SupabaseClient, input: SendInvo
     provider: 'resend'
   };
 
-  if (!env.RESEND_API_KEY || !env.INVOICE_FROM_EMAIL) {
+  if (!env['RESEND_API_KEY'] || !env['INVOICE_FROM_EMAIL']) {
     await supabase.from('invoice_email_events').insert({
       ...baseEvent,
       status: 'skipped',
@@ -99,11 +99,11 @@ export async function sendInvoiceEmail(supabase: SupabaseClient, input: SendInvo
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        Authorization: `Bearer ${env['RESEND_API_KEY']}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: env.INVOICE_FROM_EMAIL,
+        from: env['INVOICE_FROM_EMAIL'],
         to: input.recipient,
         subject,
         text: renderInvoiceText(input),

@@ -22,7 +22,7 @@ interface GenerateResult {
 
 export const actions: Actions = {
   default: async ({ request }) => {
-    const apiKey = env.GEMINI_API_KEY;
+    const apiKey = env['GEMINI_API_KEY'];
     if (!apiKey) {
       return fail(500, {
         message: 'GEMINI_API_KEY is not configured on the server.'
