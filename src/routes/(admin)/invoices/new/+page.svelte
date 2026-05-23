@@ -1,10 +1,16 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { currency } from '$lib/format';
+  import LineItemProductSearch, {
+    type LineProductHit
+  } from '$lib/components/LineItemProductSearch.svelte';
 
   let { data, form } = $props();
 
   type DraftLine = {
+    product_id: string | null;
+    product_sku_snapshot: string | null;
+    product_name_snapshot: string | null;
     description: string;
     quantity: number;
     unit_price: number;
@@ -14,14 +20,25 @@
 
   const todayPlus30 = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
+  function emptyLine(): DraftLine {
+    return {
+      product_id: null,
+      product_sku_snapshot: null,
+      product_name_snapshot: null,
+      description: '',
+      quantity: 1,
+      unit_price: 0,
+      discount: 0,
+      tax: 0
+    };
+  }
+
   let customerId = $state('');
   let billingEmail = $state('');
   let dueAt = $state(todayPlus30);
   let shipping = $state(0);
   let invoiceDiscount = $state(0);
-  let lines = $state<DraftLine[]>([
-    { description: '', quantity: 1, unit_price: 0, discount: 0, tax: 0 }
-  ]);
+  let lines = $state<DraftLine[]>([emptyLine()]);
   let initialized = $state(false);
 
   $effect(() => {
@@ -41,11 +58,33 @@
   const total = $derived(Math.max(0, subtotal - lineDiscount - Number(invoiceDiscount || 0) + tax + Number(shipping || 0)));
 
   function addLine() {
-    lines = [...lines, { description: '', quantity: 1, unit_price: 0, discount: 0, tax: 0 }];
+    lines = [...lines, emptyLine()];
   }
 
   function removeLine(index: number) {
     lines = lines.filter((_, i) => i !== index);
+  }
+
+  function applyProductToLine(index: number, product: LineProductHit) {
+    const next = [...lines];
+    const target = { ...next[index] };
+    target.product_id = product.id;
+    target.product_sku_snapshot = product.sku;
+    target.product_name_snapshot = product.name;
+    if (!target.description.trim()) {
+      const parts = [product.name];
+      if (product.description) parts.push(product.description);
+      target.description = parts.join(' — ');
+    }
+    target.unit_price = Number(product.base_price ?? 0);
+    next[index] = target;
+    lines = next;
+  }
+
+  function clearProductFromLine(index: number) {
+    const next = [...lines];
+    next[index] = { ...next[index], product_id: null, product_sku_snapshot: null, product_name_snapshot: null };
+    lines = next;
   }
 
   function maybeUseCustomerEmail() {
@@ -159,9 +198,10 @@
         </button>
       </header>
       <div class="overflow-x-auto">
-        <table class="w-full min-w-[860px] text-sm">
+        <table class="w-full min-w-[1000px] text-sm">
           <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
             <tr>
+              <th class="px-3 py-2 text-left font-medium">Item</th>
               <th class="px-3 py-2 text-left font-medium">Description</th>
               <th class="px-3 py-2 text-right font-medium">Qty</th>
               <th class="px-3 py-2 text-right font-medium">Unit price</th>
@@ -174,6 +214,13 @@
           <tbody class="divide-y divide-slate-100">
             {#each lines as line, i}
               <tr>
+                <td class="px-3 py-2 align-top">
+                  <LineItemProductSearch
+                    selectedSku={line.product_sku_snapshot}
+                    onSelect={(product) => applyProductToLine(i, product)}
+                    onClear={() => clearProductFromLine(i)}
+                  />
+                </td>
                 <td class="px-3 py-2">
                   <input
                     bind:value={line.description}

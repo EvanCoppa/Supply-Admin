@@ -27,7 +27,9 @@ export const GET: RequestHandler = async ({ url, locals: { supabase, profile } }
   const [productsRes, customersRes, ordersRes] = await Promise.all([
     supabase
       .from('products')
-      .select('id, sku, name, status')
+      .select(
+        'id, sku, name, status, description, manufacturer, unit_of_measure, pack_size, base_price'
+      )
       .or(`sku.ilike.${like},name.ilike.${like}`)
       .order('name')
       .limit(8),

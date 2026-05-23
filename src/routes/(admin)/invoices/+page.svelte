@@ -74,6 +74,7 @@
             <th class="px-3 py-2 text-right font-medium">Balance</th>
             <th class="px-3 py-2 text-right font-medium">Due</th>
             <th class="px-3 py-2 text-right font-medium">Issued</th>
+            <th class="px-3 py-2 text-right font-medium"></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
@@ -100,6 +101,16 @@
                 {dateShort(inv.due_at)}
               </td>
               <td class="px-3 py-2 text-right text-slate-500">{dateShort(inv.issued_at)}</td>
+              <td class="px-3 py-2 text-right">
+                <a
+                  class="rounded border border-slate-300 px-2 py-0.5 text-xs text-slate-700 hover:bg-slate-100"
+                  href="/invoices/{inv.id}/print"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Preview
+                </a>
+              </td>
             </tr>
           {/each}
         </tbody>

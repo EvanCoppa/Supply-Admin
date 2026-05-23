@@ -1,6 +1,9 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { currency, dateShort } from '$lib/format';
+  import LineItemProductSearch, {
+    type LineProductHit
+  } from '$lib/components/LineItemProductSearch.svelte';
 
   let { data, form } = $props();
 
@@ -90,6 +93,33 @@
         Number(line.tax || 0)
     );
   }
+
+  function applyProductToLine(index: number, product: LineProductHit) {
+    const next = [...lines];
+    const target = { ...next[index] };
+    target.product_id = product.id;
+    target.product_sku_snapshot = product.sku;
+    target.product_name_snapshot = product.name;
+    if (!target.description.trim()) {
+      const parts = [product.name];
+      if (product.description) parts.push(product.description);
+      target.description = parts.join(' — ');
+    }
+    target.unit_price = Number(product.base_price ?? 0);
+    next[index] = target;
+    lines = next;
+  }
+
+  function clearProductFromLine(index: number) {
+    const next = [...lines];
+    next[index] = {
+      ...next[index],
+      product_id: null,
+      product_sku_snapshot: null,
+      product_name_snapshot: null
+    };
+    lines = next;
+  }
 </script>
 
 <svelte:head><title>{data.invoice.invoice_number} · Supply Admin</title></svelte:head>
@@ -112,6 +142,14 @@
       </p>
     </div>
     <div class="flex flex-wrap gap-2">
+      <a
+        class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+        href="/invoices/{data.invoice.id}/print"
+        target="_blank"
+        rel="noopener"
+      >
+        Preview / Print
+      </a>
       {#if editable}
         <form method="POST" action="?/issue" use:enhance>
           <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100">Issue</button>
@@ -209,9 +247,12 @@
             {/if}
           </header>
           <div class="overflow-x-auto">
-            <table class="w-full min-w-[860px] text-sm">
+            <table class="w-full min-w-[1000px] text-sm">
               <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
                 <tr>
+                  {#if editable}
+                    <th class="px-3 py-2 text-left font-medium">Item</th>
+                  {/if}
                   <th class="px-3 py-2 text-left font-medium">Description</th>
                   <th class="px-3 py-2 text-right font-medium">Qty</th>
                   <th class="px-3 py-2 text-right font-medium">Unit price</th>
@@ -224,6 +265,15 @@
               <tbody class="divide-y divide-slate-100">
                 {#each lines as line, i}
                   <tr>
+                    {#if editable}
+                      <td class="px-3 py-2 align-top">
+                        <LineItemProductSearch
+                          selectedSku={line.product_sku_snapshot}
+                          onSelect={(product) => applyProductToLine(i, product)}
+                          onClear={() => clearProductFromLine(i)}
+                        />
+                      </td>
+                    {/if}
                     <td class="px-3 py-2">
                       {#if editable}
                         <input bind:value={line.description} required class="w-full rounded border border-slate-300 px-2 py-1 text-sm" />
