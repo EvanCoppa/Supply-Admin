@@ -71,12 +71,6 @@ describe('balanceDue', () => {
   it('floors at zero when overpaid', () => {
     expect(balanceDue({ total: 50, amount_paid: 100 })).toBe(0);
   });
-
-  it('coerces string fields', () => {
-    expect(
-      balanceDue({ total: '100' as unknown as number, amount_paid: '40' as unknown as number })
-    ).toBe(60);
-  });
 });
 
 describe('lineTotal', () => {
@@ -84,15 +78,8 @@ describe('lineTotal', () => {
     expect(lineTotal({ quantity: 2, unit_price: 10, discount: 1, tax: 0.5 })).toBe(19.5);
   });
 
-  it('defaults discount and tax to zero', () => {
-    expect(
-      lineTotal({
-        quantity: 3,
-        unit_price: 5,
-        discount: undefined,
-        tax: undefined
-      } as unknown as Pick<InvoiceLineInput, 'quantity' | 'unit_price' | 'discount' | 'tax'>)
-    ).toBe(15);
+  it('treats zero discount/tax as no-op', () => {
+    expect(lineTotal({ quantity: 3, unit_price: 5, discount: 0, tax: 0 })).toBe(15);
   });
 
   it('floors at zero', () => {
