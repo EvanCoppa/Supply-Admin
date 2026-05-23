@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { Invoice, InvoiceStatus, Order } from '$lib/types/db';
+import type { Invoice, InvoiceStatus } from '$lib/types/db';
 import { createInvoiceWithLines } from '$lib/server/invoices';
 import { invoiceFromOrderSchema, parseForm } from '$lib/schemas';
 
@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 
   return {
     invoices: (invRes.data ?? []) as Invoice[],
-    orders: (ordersRes.data ?? []) as Pick<Order, 'id' | 'total' | 'placed_at' | 'status'>[]
+    orders: ordersRes.data ?? []
   };
 };
 
@@ -39,7 +39,8 @@ export const actions: Actions = {
   createFromOrder: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
     const parsed = parseForm(invoiceFromOrderSchema, form);
-    if (!parsed.success) return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    if (!parsed.success)
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
 
     const [orderRes, lineItemsRes, customerRes] = await Promise.all([
       supabase
@@ -50,7 +51,9 @@ export const actions: Actions = {
         .maybeSingle(),
       supabase
         .from('order_line_items')
-        .select('id, product_id, product_sku_snapshot, product_name_snapshot, quantity, unit_price_snapshot')
+        .select(
+          'id, product_id, product_sku_snapshot, product_name_snapshot, quantity, unit_price_snapshot'
+        )
         .eq('order_id', parsed.data.order_id)
         .order('product_sku_snapshot'),
       supabase.from('customers').select('email').eq('id', params.id).maybeSingle()
@@ -120,8 +123,8 @@ export const actions: Actions = {
       return fail(400, { message: 'Invalid status.' });
     }
     const patch: Record<string, unknown> = { status };
-    if (status === 'paid') patch.paid_at = new Date().toISOString();
-    if (status === 'issued') patch.issued_at = new Date().toISOString();
+    if (status === 'paid') patch['paid_at'] = new Date().toISOString();
+    if (status === 'issued') patch['issued_at'] = new Date().toISOString();
 
     const { error } = await supabase
       .from('invoices')
@@ -149,8 +152,7 @@ export const actions: Actions = {
     if (invErr || !inv) return fail(400, { message: 'Invoice not found.' });
 
     const newPaid = Number(inv.amount_paid) + amount;
-    const nextStatus: InvoiceStatus =
-      newPaid >= Number(inv.total) ? 'paid' : 'partially_paid';
+    const nextStatus: InvoiceStatus = newPaid >= Number(inv.total) ? 'paid' : 'partially_paid';
 
     const { error } = await supabase
       .from('invoices')

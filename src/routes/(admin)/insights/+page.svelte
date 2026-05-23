@@ -17,7 +17,9 @@
 <section class="space-y-6">
   <header>
     <h1 class="text-2xl font-semibold">Demand insights</h1>
-    <p class="text-sm text-slate-500">Trending items and repeat-order patterns across all clients, last 30 days.</p>
+    <p class="text-sm text-slate-500">
+      Trending items and repeat-order patterns across all clients, last 30 days.
+    </p>
   </header>
 
   {#if form?.message}
@@ -54,13 +56,17 @@
                   </a>
                   <p class="font-mono text-[10px] text-slate-400">{v.sku ?? ''}</p>
                 </td>
-                <td class="px-2 py-2 text-right font-medium">{Number(v.total_qty).toLocaleString()}</td>
+                <td class="px-2 py-2 text-right font-medium"
+                  >{Number(v.total_qty).toLocaleString()}</td
+                >
                 <td class="px-2 py-2 text-right text-slate-600">{v.order_count}</td>
                 <td class="px-2 py-2 text-right text-slate-600">{v.unique_customers}</td>
                 <td class="px-2 py-2 text-right text-slate-600">{currency(v.revenue)}</td>
                 <td class="px-2 py-2 text-right">
                   {#if watchedIds.has(v.product_id)}
-                    <span class="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-800">★ watching</span>
+                    <span class="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-800"
+                      >★ watching</span
+                    >
                   {:else}
                     <form method="POST" action="?/watch" use:enhance class="inline">
                       <input type="hidden" name="product_id" value={v.product_id} />
@@ -131,14 +137,18 @@
     </h2>
     {#if data.watchlist.length === 0}
       <p class="text-sm text-slate-500">
-        Nothing on the watch list. Add items from the trending or repeat tables to flag them for stock-up consideration.
+        Nothing on the watch list. Add items from the trending or repeat tables to flag them for
+        stock-up consideration.
       </p>
     {:else}
       <ul class="divide-y divide-slate-100 text-sm">
         {#each data.watchlist as w (w.id)}
           <li class="flex items-center justify-between gap-3 py-2">
             <div>
-              <a class="font-medium text-sky-700 hover:underline" href="/inventory/{w.product?.id ?? w.product_id}">
+              <a
+                class="font-medium text-sky-700 hover:underline"
+                href="/inventory/{w.product?.id ?? w.product_id}"
+              >
                 {w.product?.name ?? '—'}
               </a>
               <p class="font-mono text-[10px] text-slate-400">{w.product?.sku ?? ''}</p>

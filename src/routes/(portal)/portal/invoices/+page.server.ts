@@ -1,5 +1,4 @@
 import type { PageServerLoad } from './$types';
-import type { Invoice } from '$lib/types/db';
 
 const PAGE_SIZE = 25;
 
@@ -12,9 +11,12 @@ export const load: PageServerLoad = async ({ locals: { profile, supabase }, url 
 
   let query = supabase
     .from('invoices')
-    .select('id, invoice_number, status, total, amount_paid, due_at, issued_at, sent_at, payment_url', {
-      count: 'exact'
-    })
+    .select(
+      'id, invoice_number, status, total, amount_paid, due_at, issued_at, sent_at, payment_url',
+      {
+        count: 'exact'
+      }
+    )
     .eq('customer_id', customerId)
     .neq('status', 'draft')
     .order('created_at', { ascending: false })
@@ -29,10 +31,7 @@ export const load: PageServerLoad = async ({ locals: { profile, supabase }, url 
   const { data, count } = await query;
 
   return {
-    invoices: (data ?? []) as Pick<
-      Invoice,
-      'id' | 'invoice_number' | 'status' | 'total' | 'amount_paid' | 'due_at' | 'issued_at' | 'sent_at' | 'payment_url'
-    >[],
+    invoices: data ?? [],
     total: count ?? 0,
     page,
     pageSize: PAGE_SIZE,

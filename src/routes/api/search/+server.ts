@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 const UUID_PREFIX_RE = /^[0-9a-f-]{4,}$/i;
 
 export const GET: RequestHandler = async ({ url, locals: { supabase, profile } }) => {
-  if (!profile || profile.role !== 'admin') {
+  if (profile?.role !== 'admin') {
     return json({ products: [], customers: [], orders: [] }, { status: 403 });
   }
 

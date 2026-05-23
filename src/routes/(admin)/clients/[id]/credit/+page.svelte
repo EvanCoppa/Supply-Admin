@@ -8,14 +8,20 @@
 
 <div class="space-y-5">
   {#if form?.message}
-    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">{form.message}</div>
+    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+      {form.message}
+    </div>
   {/if}
   {#if form?.saved}
-    <div class="rounded border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">Saved.</div>
+    <div class="rounded border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+      Saved.
+    </div>
   {/if}
 
   {#if c}
-    <div class="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm sm:grid-cols-4">
+    <div
+      class="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm sm:grid-cols-4"
+    >
       <div>
         <p class="text-xs uppercase tracking-wider text-slate-500">Credit limit</p>
         <p class="font-semibold">{currency(c.credit_limit)}</p>
@@ -79,8 +85,8 @@
         name="hold_reason"
         rows="2"
         class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        placeholder="Only shown internally"
-      >{c?.hold_reason ?? ''}</textarea>
+        placeholder="Only shown internally">{c?.hold_reason ?? ''}</textarea
+      >
     </label>
     <div class="sm:col-span-2 flex justify-end">
       <button

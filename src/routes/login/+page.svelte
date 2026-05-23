@@ -8,7 +8,7 @@
       ? 'Your account does not have admin access. Please sign in with an admin account.'
       : data.errorCode === 'not_customer'
         ? 'Your account is not linked to a customer portal.'
-      : null
+        : null
   );
 </script>
 
@@ -25,7 +25,9 @@
     </div>
 
     {#if bannerFromError}
-      <div class="mb-4 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+      <div
+        class="mb-4 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+      >
         {bannerFromError}
       </div>
     {/if}

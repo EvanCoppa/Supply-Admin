@@ -12,7 +12,7 @@ export const load: LayoutServerLoad = async ({ locals: { profile } }) => {
     .eq('id', profile.customer_id)
     .maybeSingle();
 
-  if (!customer || customer.status !== 'active') throw redirect(303, '/login?error=not_customer');
+  if (customer?.status !== 'active') throw redirect(303, '/login?error=not_customer');
 
   return { customer };
 };

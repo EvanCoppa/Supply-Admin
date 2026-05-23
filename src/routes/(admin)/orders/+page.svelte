@@ -15,10 +15,7 @@
   </header>
 
   <form method="GET" class="grid gap-2 rounded border border-slate-200 bg-white p-3 sm:grid-cols-6">
-    <select
-      name="status"
-      class="rounded border border-slate-300 px-2 py-1.5 text-sm sm:col-span-1"
-    >
+    <select name="status" class="rounded border border-slate-300 px-2 py-1.5 text-sm sm:col-span-1">
       <option value="">All statuses</option>
       {#each data.statuses as s}
         <option value={s} selected={data.filters.status === s}>{s}</option>
@@ -33,10 +30,7 @@
         <option value={c.id} selected={data.filters.customerId === c.id}>{c.business_name}</option>
       {/each}
     </select>
-    <select
-      name="source"
-      class="rounded border border-slate-300 px-2 py-1.5 text-sm sm:col-span-1"
-    >
+    <select name="source" class="rounded border border-slate-300 px-2 py-1.5 text-sm sm:col-span-1">
       <option value="">Any source</option>
       <option value="storefront" selected={data.filters.source === 'storefront'}>Storefront</option>
       <option value="api" selected={data.filters.source === 'api'}>API</option>
@@ -107,7 +101,8 @@
       {#if data.page > 1}
         <a
           class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-100"
-          href="?{new URLSearchParams({ ...data.filters, page: String(data.page - 1) })}">
+          href="?{new URLSearchParams({ ...data.filters, page: String(data.page - 1) })}"
+        >
           Previous
         </a>
       {/if}
@@ -115,7 +110,8 @@
       {#if data.page < totalPages}
         <a
           class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-100"
-          href="?{new URLSearchParams({ ...data.filters, page: String(data.page + 1) })}">
+          href="?{new URLSearchParams({ ...data.filters, page: String(data.page + 1) })}"
+        >
           Next
         </a>
       {/if}

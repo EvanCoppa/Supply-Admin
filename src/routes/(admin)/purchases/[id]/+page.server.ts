@@ -1,10 +1,6 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import {
-  parseForm,
-  purchaseMarkPaidSchema,
-  purchaseUpdateSchema
-} from '$lib/schemas';
+import { parseForm, purchaseMarkPaidSchema, purchaseUpdateSchema } from '$lib/schemas';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
   const [purchaseRes, suppliersRes] = await Promise.all([
@@ -21,8 +17,23 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
   if (purchaseRes.error || !purchaseRes.data) throw error(404, 'Purchase not found');
 
   return {
-    purchase: purchaseRes.data as Record<string, unknown> & {
+    purchase: purchaseRes.data as {
       id: string;
+      supplier_id: string | null;
+      order_id: string | null;
+      ordered_at: string | null;
+      received_at: string | null;
+      subtotal: number;
+      freight: number;
+      distribution_fee_pct: number;
+      distribution_fee: number;
+      tax: number;
+      total: number;
+      status: string;
+      payment_status: string;
+      due_date: string | null;
+      invoice_ref: string | null;
+      notes: string | null;
       supplier: { id: string; name: string; key: string; distribution_fee_pct: number } | null;
       order: {
         id: string;
@@ -31,12 +42,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         customer: { id: string; business_name: string } | null;
       } | null;
     },
-    suppliers: (suppliersRes.data ?? []) as Array<{
-      id: string;
-      name: string;
-      key: string;
-      distribution_fee_pct: number;
-    }>
+    suppliers: suppliersRes.data ?? []
   };
 };
 
@@ -50,19 +56,20 @@ export const actions: Actions = {
 
     const d = parsed.data;
     const update: Record<string, unknown> = {};
-    if (d.supplier_id !== undefined) update.supplier_id = d.supplier_id;
-    if (d.order_id !== undefined) update.order_id = d.order_id ?? null;
-    if (d.ordered_at !== undefined) update.ordered_at = d.ordered_at ?? null;
-    if (d.received_at !== undefined) update.received_at = d.received_at ?? null;
-    if (d.subtotal !== undefined) update.subtotal = d.subtotal;
-    if (d.freight !== undefined) update.freight = d.freight;
-    if (d.distribution_fee_pct !== undefined) update.distribution_fee_pct = d.distribution_fee_pct;
-    if (d.tax !== undefined) update.tax = d.tax;
-    if (d.status !== undefined) update.status = d.status;
-    if (d.payment_status !== undefined) update.payment_status = d.payment_status;
-    if (d.due_date !== undefined) update.due_date = d.due_date ?? null;
-    if (d.invoice_ref !== undefined) update.invoice_ref = d.invoice_ref ?? null;
-    if (d.notes !== undefined) update.notes = d.notes ?? null;
+    if (d.supplier_id !== undefined) update['supplier_id'] = d.supplier_id;
+    if (d.order_id !== undefined) update['order_id'] = d.order_id ?? null;
+    if (d.ordered_at !== undefined) update['ordered_at'] = d.ordered_at ?? null;
+    if (d.received_at !== undefined) update['received_at'] = d.received_at ?? null;
+    if (d.subtotal !== undefined) update['subtotal'] = d.subtotal;
+    if (d.freight !== undefined) update['freight'] = d.freight;
+    if (d.distribution_fee_pct !== undefined)
+      update['distribution_fee_pct'] = d.distribution_fee_pct;
+    if (d.tax !== undefined) update['tax'] = d.tax;
+    if (d.status !== undefined) update['status'] = d.status;
+    if (d.payment_status !== undefined) update['payment_status'] = d.payment_status;
+    if (d.due_date !== undefined) update['due_date'] = d.due_date ?? null;
+    if (d.invoice_ref !== undefined) update['invoice_ref'] = d.invoice_ref ?? null;
+    if (d.notes !== undefined) update['notes'] = d.notes ?? null;
 
     const { error: updateErr } = await supabase
       .from('purchases')
@@ -85,7 +92,8 @@ export const actions: Actions = {
   markPaid: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
     const parsed = parseForm(purchaseMarkPaidSchema, form);
-    if (!parsed.success) return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
+    if (!parsed.success)
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
 
     const paidOn = parsed.data.paid_on
       ? new Date(parsed.data.paid_on).toISOString()
@@ -96,7 +104,8 @@ export const actions: Actions = {
       .select('total, supplier:suppliers(name)')
       .eq('id', params.id)
       .maybeSingle();
-    if (fetchErr || !purchase) return fail(404, { message: 'Purchase not found.', fieldErrors: {} });
+    if (fetchErr || !purchase)
+      return fail(404, { message: 'Purchase not found.', fieldErrors: {} });
 
     const { error: updateErr } = await supabase
       .from('purchases')
@@ -104,7 +113,8 @@ export const actions: Actions = {
       .eq('id', params.id);
     if (updateErr) return fail(400, { message: updateErr.message, fieldErrors: {} });
 
-    const supplierName = (purchase.supplier as unknown as { name?: string } | null)?.name ?? 'supplier';
+    const supplierName =
+      (purchase.supplier as unknown as { name?: string } | null)?.name ?? 'supplier';
     await supabase.from('cash_entries').insert({
       occurred_on: paidOn.slice(0, 10),
       direction: 'out',

@@ -45,7 +45,9 @@
       />
     </label>
     <label class="block">
-      <span class="mb-1 block text-sm font-medium">Display name <span class="text-slate-400">(optional)</span></span>
+      <span class="mb-1 block text-sm font-medium"
+        >Display name <span class="text-slate-400">(optional)</span></span
+      >
       <input
         name="display_name"
         autocomplete="off"
@@ -61,7 +63,9 @@
       </button>
     </div>
     <p class="text-xs text-slate-500 sm:col-span-3">
-      Sends a Supabase invite email and creates a <code class="rounded bg-slate-100 px-1">user_profiles</code>
+      Sends a Supabase invite email and creates a <code class="rounded bg-slate-100 px-1"
+        >user_profiles</code
+      >
       row with <code class="rounded bg-slate-100 px-1">role = 'admin'</code>.
     </p>
   </form>
@@ -88,7 +92,9 @@
               <td class="px-4 py-2">
                 {a.display_name ?? '—'}
                 {#if isSelf}
-                  <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">you</span>
+                  <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600"
+                    >you</span
+                  >
                 {/if}
               </td>
               <td class="px-4 py-2 font-mono text-xs text-slate-500">{a.id}</td>
@@ -96,12 +102,14 @@
                 {#if isDeactivated}
                   <span
                     class="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-medium text-slate-700"
-                    title={`Deactivated ${dateShort(a.deactivated_at!)}`}
+                    title={`Deactivated ${dateShort(a.deactivated_at)}`}
                   >
                     Deactivated
                   </span>
                 {:else}
-                  <span class="rounded bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-800">
+                  <span
+                    class="rounded bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-800"
+                  >
                     Active
                   </span>
                 {/if}
@@ -114,7 +122,11 @@
                     <button
                       type="submit"
                       onclick={(e) => {
-                        if (!confirm(`Deactivate ${a.display_name ?? 'this admin'}? They will no longer be able to sign in.`))
+                        if (
+                          !confirm(
+                            `Deactivate ${a.display_name ?? 'this admin'}? They will no longer be able to sign in.`
+                          )
+                        )
                           e.preventDefault();
                       }}
                       class="rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50"

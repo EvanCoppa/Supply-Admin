@@ -43,17 +43,21 @@ export function balanceDue(invoice: Pick<Invoice, 'total' | 'amount_paid'>) {
   return Math.max(0, roundMoney(Number(invoice.total) - Number(invoice.amount_paid)));
 }
 
-export function lineTotal(line: Pick<InvoiceLineInput, 'quantity' | 'unit_price' | 'discount' | 'tax'>) {
+export function lineTotal(
+  line: Pick<InvoiceLineInput, 'quantity' | 'unit_price' | 'discount' | 'tax'>
+) {
   const base = Number(line.quantity) * Number(line.unit_price);
   return Math.max(0, roundMoney(base - Number(line.discount ?? 0) + Number(line.tax ?? 0)));
 }
 
 export function calculateInvoiceTotals(
-  lines: Array<Pick<InvoiceLineInput, 'quantity' | 'unit_price' | 'discount' | 'tax'>>,
+  lines: Pick<InvoiceLineInput, 'quantity' | 'unit_price' | 'discount' | 'tax'>[],
   shipping = 0,
   headerDiscount = 0
 ): InvoiceTotals {
-  const subtotal = roundMoney(lines.reduce((sum, line) => sum + Number(line.quantity) * Number(line.unit_price), 0));
+  const subtotal = roundMoney(
+    lines.reduce((sum, line) => sum + Number(line.quantity) * Number(line.unit_price), 0)
+  );
   const lineDiscount = roundMoney(lines.reduce((sum, line) => sum + Number(line.discount ?? 0), 0));
   const tax = roundMoney(lines.reduce((sum, line) => sum + Number(line.tax ?? 0), 0));
   const discount = roundMoney(Number(headerDiscount ?? 0));
@@ -84,7 +88,10 @@ export function normalizeInvoiceLines(lines: InvoiceLineInput[]) {
   }));
 }
 
-export function statusAfterPayment(invoice: Pick<Invoice, 'total'>, amountPaid: number): InvoiceStatus {
+export function statusAfterPayment(
+  invoice: Pick<Invoice, 'total'>,
+  amountPaid: number
+): InvoiceStatus {
   return amountPaid >= Number(invoice.total) ? 'paid' : 'partially_paid';
 }
 
@@ -95,7 +102,11 @@ export async function createInvoiceWithLines(
   options: { shipping?: number; discount?: number } = {}
 ) {
   const normalizedLines = normalizeInvoiceLines(lines);
-  const totals = calculateInvoiceTotals(normalizedLines, options.shipping ?? invoice.shipping ?? 0, options.discount ?? 0);
+  const totals = calculateInvoiceTotals(
+    normalizedLines,
+    options.shipping ?? invoice.shipping ?? 0,
+    options.discount ?? 0
+  );
 
   const { data: created, error: invoiceError } = await supabase
     .from('invoices')
@@ -135,9 +146,16 @@ export async function replaceInvoiceLines(
   options: { shipping?: number; discount?: number }
 ) {
   const normalizedLines = normalizeInvoiceLines(lines);
-  const totals = calculateInvoiceTotals(normalizedLines, options.shipping ?? 0, options.discount ?? 0);
+  const totals = calculateInvoiceTotals(
+    normalizedLines,
+    options.shipping ?? 0,
+    options.discount ?? 0
+  );
 
-  const { error: deleteError } = await supabase.from('invoice_line_items').delete().eq('invoice_id', invoiceId);
+  const { error: deleteError } = await supabase
+    .from('invoice_line_items')
+    .delete()
+    .eq('invoice_id', invoiceId);
   if (deleteError) throw new Error(deleteError.message);
 
   const { error: insertError } = await supabase.from('invoice_line_items').insert(
@@ -198,7 +216,12 @@ export async function loadInvoiceBundle(
 
   return {
     invoice: invoiceRes.data as Invoice & {
-      customer: { id: string; business_name: string; email: string | null; primary_contact_name: string | null } | null;
+      customer: {
+        id: string;
+        business_name: string;
+        email: string | null;
+        primary_contact_name: string | null;
+      } | null;
     },
     lines: (linesRes.data ?? []) as InvoiceLineItem[],
     emailEvents: emailRes.data ?? [],

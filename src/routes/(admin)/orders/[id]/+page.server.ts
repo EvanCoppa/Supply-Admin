@@ -79,8 +79,7 @@ export const actions: Actions = {
       .select('status')
       .eq('id', params.id)
       .maybeSingle();
-    if (!order)
-      return fail(404, { message: 'Order not found.', fieldErrors: {}, code: undefined });
+    if (!order) return fail(404, { message: 'Order not found.', fieldErrors: {}, code: undefined });
 
     const allowed = ALLOWED_TRANSITIONS[order.status] ?? [];
     if (!allowed.includes(to)) {
@@ -92,8 +91,7 @@ export const actions: Actions = {
     }
 
     const { error } = await supabase.from('orders').update({ status: to }).eq('id', params.id);
-    if (error)
-      return fail(400, { message: error.message, fieldErrors: {}, code: undefined });
+    if (error) return fail(400, { message: error.message, fieldErrors: {}, code: undefined });
     return { saved: true, message: undefined, code: undefined };
   },
 

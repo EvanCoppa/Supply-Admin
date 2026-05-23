@@ -52,26 +52,24 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, user } }) 
   ]);
 
   return {
-    tasks: (tasksRes.data ?? []) as unknown as Array<
-      Pick<
-        CustomerTask,
-        | 'id'
-        | 'customer_id'
-        | 'assigned_to'
-        | 'title'
-        | 'description'
-        | 'status'
-        | 'priority'
-        | 'due_at'
-        | 'created_at'
-      > & {
-        customer: { business_name: string } | null;
-        assignee: { display_name: string | null } | null;
-      }
-    >,
+    tasks: (tasksRes.data ?? []) as unknown as (Pick<
+      CustomerTask,
+      | 'id'
+      | 'customer_id'
+      | 'assigned_to'
+      | 'title'
+      | 'description'
+      | 'status'
+      | 'priority'
+      | 'due_at'
+      | 'created_at'
+    > & {
+      customer: { business_name: string } | null;
+      assignee: { display_name: string | null } | null;
+    })[],
     total: tasksRes.count ?? 0,
     limit: TASK_LIMIT,
-    admins: (adminsRes.data ?? []) as Array<{ id: string; display_name: string | null }>,
+    admins: adminsRes.data ?? [],
     filters: { view, priority: priorityParam, assignee, customer }
   };
 };

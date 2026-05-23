@@ -28,7 +28,11 @@
   >
     <label class="block">
       <span class="mb-1 block text-sm font-medium">Name</span>
-      <input name="name" required class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+      <input
+        name="name"
+        required
+        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+      />
     </label>
     <label class="block">
       <span class="mb-1 block text-sm font-medium">Parent</span>
@@ -78,7 +82,7 @@
               <td class="px-4 py-2">{c.name}</td>
               <td class="px-4 py-2 font-mono text-xs text-slate-500">{c.slug}</td>
               <td class="px-4 py-2 text-slate-600">
-                {c.parent_id ? parentMap.get(c.parent_id) ?? '—' : '—'}
+                {c.parent_id ? (parentMap.get(c.parent_id) ?? '—') : '—'}
               </td>
               <td class="px-4 py-2 text-right">{c.display_order}</td>
               <td class="px-4 py-2 text-right">

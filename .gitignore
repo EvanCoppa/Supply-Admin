@@ -12,3 +12,15 @@ package
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vercel
+
+# test + coverage output
+coverage
+playwright-report
+test-results
+.playwright
+
+# editor
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

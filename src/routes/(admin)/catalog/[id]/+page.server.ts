@@ -82,10 +82,7 @@ export const actions: Actions = {
 
     const payload = newImagePath ? { ...parsed.data, image_paths: [newImagePath] } : parsed.data;
 
-    const { error } = await supabase
-      .from('products')
-      .update(payload)
-      .eq('id', params.id);
+    const { error } = await supabase.from('products').update(payload).eq('id', params.id);
     if (error) {
       if (storage && newImagePath) await deleteProductImage(storage, newImagePath);
       return fail(400, { message: error.message, fieldErrors: {} });

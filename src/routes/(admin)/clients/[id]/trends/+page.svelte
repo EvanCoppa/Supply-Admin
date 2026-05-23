@@ -12,13 +12,14 @@
       return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit', timeZone: 'UTC' });
     })
   );
-  const maxMonthlyOrders = $derived(
-    Math.max(1, ...data.orderFrequency.map((m) => m.orders))
-  );
+  const maxMonthlyOrders = $derived(Math.max(1, ...data.orderFrequency.map((m) => m.orders)));
   const maxQty = $derived(Math.max(1, ...data.topByQuantity.map((p) => p.quantity)));
   const maxRev = $derived(Math.max(1, ...data.topByRevenue.map((p) => p.revenue)));
   const categoryTotal = $derived(
-    Math.max(1, data.categoryMix.reduce((acc, c) => acc + c.revenue, 0))
+    Math.max(
+      1,
+      data.categoryMix.reduce((acc, c) => acc + c.revenue, 0)
+    )
   );
 
   const hasOrders = $derived(data.summary.total_orders > 0);
@@ -33,7 +34,7 @@
     const next = Math.max(1, Math.min(365, Number(lapsedDaysInput) || 90));
     const url = new URL(page.url);
     url.searchParams.set('lapsedDays', String(next));
-    goto(url.pathname + url.search, { keepFocus: true, noScroll: true });
+    void goto(url.pathname + url.search, { keepFocus: true, noScroll: true });
   }
 
   function downloadCsv(filename: string, rows: (string | number)[][]) {
@@ -296,7 +297,9 @@
 
     <!-- Lapsed items -->
     <section class="rounded-lg border border-slate-200 bg-white shadow-sm">
-      <header class="flex flex-wrap items-baseline justify-between gap-3 border-b border-slate-100 px-4 py-3">
+      <header
+        class="flex flex-wrap items-baseline justify-between gap-3 border-b border-slate-100 px-4 py-3"
+      >
         <div>
           <h2 class="text-base font-semibold text-slate-900">Lapsed items</h2>
           <p class="text-xs text-slate-500">
@@ -334,9 +337,7 @@
         </div>
       </header>
       {#if data.lapsedItems.length === 0}
-        <p class="px-4 py-10 text-center text-sm text-slate-500">
-          No lapsed items in this window.
-        </p>
+        <p class="px-4 py-10 text-center text-sm text-slate-500">No lapsed items in this window.</p>
       {:else}
         <table class="w-full text-sm">
           <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">

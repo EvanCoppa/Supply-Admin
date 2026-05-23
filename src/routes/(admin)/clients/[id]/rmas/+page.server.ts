@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { Order, Rma, RmaStatus } from '$lib/types/db';
+import type { Rma, RmaStatus } from '$lib/types/db';
 
 const STATUSES: RmaStatus[] = [
   'requested',
@@ -30,10 +30,17 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
   ]);
 
   return {
-    rmas: (rmaRes.data ?? []) as unknown as Array<
-      Rma & { items: Array<{ id: string; quantity: number; unit_refund: number; product_id: string; reason: string | null; restock: boolean }> }
-    >,
-    orders: (ordersRes.data ?? []) as Pick<Order, 'id' | 'placed_at' | 'total' | 'status'>[]
+    rmas: (rmaRes.data ?? []) as unknown as (Rma & {
+      items: {
+        id: string;
+        quantity: number;
+        unit_refund: number;
+        product_id: string;
+        reason: string | null;
+        restock: boolean;
+      }[];
+    })[],
+    orders: ordersRes.data ?? []
   };
 };
 

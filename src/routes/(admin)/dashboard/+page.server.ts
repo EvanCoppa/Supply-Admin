@@ -98,7 +98,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   let cogsToday = 0;
   let revenueMtd = 0;
   let cogsMtd = 0;
-  const lowMarginOrders: Array<OrderRow & { cogs: number; margin: number }> = [];
+  const lowMarginOrders: (OrderRow & { cogs: number; margin: number })[] = [];
 
   const orders = (ordersMtd.data ?? []) as unknown as OrderRow[];
   for (const o of orders) {
@@ -118,7 +118,10 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   }
   lowMarginOrders.sort((a, b) => a.margin - b.margin);
 
-  const supplierTotals = new Map<string, { name: string; key: string; total: number; orders: number }>();
+  const supplierTotals = new Map<
+    string,
+    { name: string; key: string; total: number; orders: number }
+  >();
   for (const p of (purchases30d.data ?? []) as unknown as PurchaseRow[]) {
     const key = p.supplier?.key ?? 'unknown';
     const entry = supplierTotals.get(key) ?? {
@@ -136,16 +139,17 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 
   let cashIn = 0;
   let cashOut = 0;
-  for (const c of (cashToday.data ?? []) as Array<{ direction: string; amount: number }>) {
+  for (const c of (cashToday.data ?? []) as { direction: string; amount: number }[]) {
     if (c.direction === 'in') cashIn += Number(c.amount);
     else cashOut += Number(c.amount);
   }
 
   const outstandingAr = (
-    (outstandingInvoices.data ?? []) as Array<{ total: number; amount_paid: number }>
+    (outstandingInvoices.data ?? []) as { total: number; amount_paid: number }[]
   ).reduce((a, r) => a + Number(r.total) - Number(r.amount_paid), 0);
 
-  const outstandingApRows = (outstandingPurchases.data ?? []) as unknown as OutstandingPurchaseRow[];
+  const outstandingApRows = (outstandingPurchases.data ??
+    []) as unknown as OutstandingPurchaseRow[];
   const outstandingAp = outstandingApRows.reduce((a, r) => a + Number(r.total), 0);
   const medplusPendingRows = outstandingApRows.filter((p) => p.supplier?.key === 'medplus');
   const medplusPendingTotal = medplusPendingRows.reduce((a, r) => a + Number(r.total), 0);
@@ -183,14 +187,6 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
     supplierGrandTotal,
     lowMarginOrders: lowMarginOrders.slice(0, 5),
     dueSoonPurchases: dueSoonRows.slice(0, 5),
-    trendingItems: (trendingItems.data ?? []) as Array<{
-      product_id: string;
-      sku: string | null;
-      name: string | null;
-      total_qty: number;
-      unique_customers: number;
-      order_count: number;
-      revenue: number;
-    }>
+    trendingItems: trendingItems.data ?? []
   };
 };

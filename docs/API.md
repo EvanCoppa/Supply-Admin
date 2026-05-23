@@ -29,13 +29,13 @@ Cursor-based. Request with `limit` (1-100, default 24) and `cursor` (opaque stri
 
 HTTP status + JSON body `{ "message": string }`.
 
-| Status | Meaning |
-| ------ | ------- |
-| 400 | Invalid request payload or query parameter |
-| 401 | Missing or invalid bearer token |
-| 403 | Token valid but resource is not accessible to this customer |
-| 404 | Resource does not exist or is not visible to this customer |
-| 500 | Server error — safe to retry with backoff |
+| Status | Meaning                                                     |
+| ------ | ----------------------------------------------------------- |
+| 400    | Invalid request payload or query parameter                  |
+| 401    | Missing or invalid bearer token                             |
+| 403    | Token valid but resource is not accessible to this customer |
+| 404    | Resource does not exist or is not visible to this customer  |
+| 500    | Server error — safe to retry with backoff                   |
 
 ## Endpoints
 
@@ -45,12 +45,12 @@ Returns the catalog visible to the authenticated customer, with customer-specifi
 
 **Query params**
 
-| Param | Description |
-| --- | --- |
-| `limit` | integer, 1-100, default 24 |
-| `cursor` | opaque string from prior response |
-| `q` | search by name, sku, or description |
-| `category_id` | filter to a single category |
+| Param         | Description                         |
+| ------------- | ----------------------------------- |
+| `limit`       | integer, 1-100, default 24          |
+| `cursor`      | opaque string from prior response   |
+| `q`           | search by name, sku, or description |
+| `category_id` | filter to a single category         |
 
 **Response**
 
@@ -86,9 +86,7 @@ Submits a purchase order on behalf of the authenticated customer.
 {
   "idempotency_key": "string (optional, max 128 chars)",
   "shipping_address": { "...": "free-form snapshot, optional" },
-  "items": [
-    { "product_id": "uuid", "quantity": 1 }
-  ]
+  "items": [{ "product_id": "uuid", "quantity": 1 }]
 }
 ```
 
@@ -129,11 +127,11 @@ Lists invoices issued to the authenticated customer, newest first.
 
 **Query params**
 
-| Param | Description |
-| --- | --- |
-| `limit` | integer, 1-100, default 24 |
-| `cursor` | opaque string from prior response |
-| `status` | `draft` \| `issued` \| `paid` \| `partially_paid` \| `overdue` \| `void` \| `refunded` |
+| Param            | Description                                                                            |
+| ---------------- | -------------------------------------------------------------------------------------- |
+| `limit`          | integer, 1-100, default 24                                                             |
+| `cursor`         | opaque string from prior response                                                      |
+| `status`         | `draft` \| `issued` \| `paid` \| `partially_paid` \| `overdue` \| `void` \| `refunded` |
 | `payment_status` | `not_started` \| `intent_created` \| `processing` \| `paid` \| `failed` \| `cancelled` |
 
 **Response**
@@ -228,13 +226,13 @@ Recommends what the customer is likely to need to reorder, derived from their pu
 
 **Query params**
 
-| Param | Description |
-| --- | --- |
-| `lookback_days` | integer, 30-730, default 180 — order history window |
-| `horizon_days` | integer, 7-180, default 30 — how far ahead to project demand |
-| `limit` | integer, 1-100, default 25 |
-| `include_unavailable` | boolean, default true — include items currently out of stock |
-| `include_not_due` | boolean, default false — include items not yet due for reorder |
+| Param                 | Description                                                    |
+| --------------------- | -------------------------------------------------------------- |
+| `lookback_days`       | integer, 30-730, default 180 — order history window            |
+| `horizon_days`        | integer, 7-180, default 30 — how far ahead to project demand   |
+| `limit`               | integer, 1-100, default 25                                     |
+| `include_unavailable` | boolean, default true — include items currently out of stock   |
+| `include_not_due`     | boolean, default false — include items not yet due for reorder |
 
 **Response**
 

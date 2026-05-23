@@ -1,30 +1,5 @@
 import type { PageServerLoad } from './$types';
 
-type ProductRow = {
-  product_id: string;
-  sku: string;
-  name: string;
-  qty_sold: number;
-  revenue: number;
-  qty_purchased: number;
-  cost: number;
-  gross_profit: number;
-  margin: number | null;
-};
-
-type SupplierRow = {
-  supplier_id: string;
-  name: string;
-  key: string;
-  purchase_count: number;
-  total_spend: number;
-  total_subtotal: number;
-  total_freight: number;
-  total_distribution_fee: number;
-  outstanding_ap: number;
-  orders_fulfilled: number;
-};
-
 const SORTS = {
   margin_asc: { col: 'margin', asc: true },
   margin_desc: { col: 'margin', asc: false },
@@ -41,9 +16,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
   const [productsRes, suppliersRes] = await Promise.all([
     supabase
       .from('v_product_profitability')
-      .select(
-        'product_id, sku, name, qty_sold, revenue, qty_purchased, cost, gross_profit, margin'
-      )
+      .select('product_id, sku, name, qty_sold, revenue, qty_purchased, cost, gross_profit, margin')
       .order(col, { ascending: asc, nullsFirst: false })
       .limit(50),
     supabase
@@ -55,8 +28,8 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
   ]);
 
   return {
-    products: (productsRes.data ?? []) as ProductRow[],
-    suppliers: (suppliersRes.data ?? []) as SupplierRow[],
+    products: productsRes.data ?? [],
+    suppliers: suppliersRes.data ?? [],
     sort
   };
 };

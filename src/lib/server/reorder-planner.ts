@@ -155,9 +155,7 @@ export async function getReorderPlan(
   options: ReorderPlannerOptions
 ): Promise<ReorderPlan> {
   const generatedAt = new Date();
-  const windowStart = new Date(
-    generatedAt.getTime() - options.lookbackDays * 24 * 60 * 60 * 1000
-  );
+  const windowStart = new Date(generatedAt.getTime() - options.lookbackDays * 24 * 60 * 60 * 1000);
 
   const [customer, accessMap, lineItemsRes] = await Promise.all([
     getCatalogCustomer(supabase, customerId),
@@ -228,9 +226,7 @@ export async function getReorderPlan(
     return options.includeNotDue || item.recommendation.recommended_quantity > 0;
   });
 
-  const sortedItems = filteredItems
-    .sort(compareRecommendations)
-    .slice(0, options.limit);
+  const sortedItems = filteredItems.sort(compareRecommendations).slice(0, options.limit);
 
   const items = await Promise.all(
     sortedItems.map(async (item) => {
@@ -243,9 +239,7 @@ export async function getReorderPlan(
         customer_price: customerPrice,
         recommendation: {
           ...item.recommendation,
-          recommended_value: roundMoney(
-            customerPrice * item.recommendation.recommended_quantity
-          )
+          recommended_value: roundMoney(customerPrice * item.recommendation.recommended_quantity)
         }
       };
     })
@@ -428,12 +422,7 @@ function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-function readBoundedInt(
-  raw: string | null,
-  fallback: number,
-  min: number,
-  max: number
-): number {
+function readBoundedInt(raw: string | null, fallback: number, min: number, max: number): number {
   const value = Number(raw);
   if (!Number.isFinite(value)) return fallback;
   return Math.max(min, Math.min(max, Math.floor(value)));

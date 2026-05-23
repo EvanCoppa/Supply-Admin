@@ -32,9 +32,7 @@
       .filter((p) => !excludeSet.has(p.id) && !selected.includes(p.id))
       .filter(
         (p) =>
-          term === '' ||
-          p.sku.toLowerCase().includes(term) ||
-          p.name.toLowerCase().includes(term)
+          term === '' || p.sku.toLowerCase().includes(term) || p.name.toLowerCase().includes(term)
       )
       .slice(0, 50);
   });
@@ -53,7 +51,11 @@
     const j = i + direction;
     if (i < 0 || j < 0 || j >= selected.length) return;
     const next = [...selected];
-    [next[i], next[j]] = [next[j], next[i]];
+    const a = next[i];
+    const b = next[j];
+    if (a === undefined || b === undefined) return;
+    next[i] = b;
+    next[j] = a;
     selected = next;
   }
 </script>
@@ -83,15 +85,15 @@
                 aria-label="Move up"
                 onclick={() => move(id, -1)}
                 class="rounded border border-slate-300 px-1.5 py-0.5 text-xs hover:bg-slate-100"
-                disabled={i === 0}
-              >↑</button>
+                disabled={i === 0}>↑</button
+              >
               <button
                 type="button"
                 aria-label="Move down"
                 onclick={() => move(id, 1)}
                 class="rounded border border-slate-300 px-1.5 py-0.5 text-xs hover:bg-slate-100"
-                disabled={i === selected.length - 1}
-              >↓</button>
+                disabled={i === selected.length - 1}>↓</button
+              >
               <button
                 type="button"
                 onclick={() => remove(id)}

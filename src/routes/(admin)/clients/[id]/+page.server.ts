@@ -1,6 +1,5 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { CustomerTag, Territory } from '$lib/types/db';
 import { customerUpdateSchema, parseForm } from '$lib/schemas';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
@@ -12,18 +11,15 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
       .order('display_name'),
     supabase.from('territories').select('id, name').order('name'),
     supabase.from('customer_tags').select('id, name, color').order('name'),
-    supabase
-      .from('customer_tag_assignments')
-      .select('tag_id')
-      .eq('customer_id', params.id)
+    supabase.from('customer_tag_assignments').select('tag_id').eq('customer_id', params.id)
   ]);
 
   const assignedTagIds = new Set((assignedTagsRes.data ?? []).map((r) => r.tag_id));
 
   return {
-    admins: (adminsRes.data ?? []) as Array<{ id: string; display_name: string | null }>,
-    territories: (territoriesRes.data ?? []) as Pick<Territory, 'id' | 'name'>[],
-    tagOptions: (tagsRes.data ?? []) as CustomerTag[],
+    admins: adminsRes.data ?? [],
+    territories: territoriesRes.data ?? [],
+    tagOptions: tagsRes.data ?? [],
     assignedTagIds: [...assignedTagIds]
   };
 };
@@ -38,10 +34,7 @@ export const actions: Actions = {
 
     const { tag_id: tagIds, ...payload } = parsed.data;
 
-    const { error } = await supabase
-      .from('customers')
-      .update(payload)
-      .eq('id', params.id);
+    const { error } = await supabase.from('customers').update(payload).eq('id', params.id);
     if (error) return fail(400, { message: error.message, fieldErrors: {} });
 
     const delRes = await supabase

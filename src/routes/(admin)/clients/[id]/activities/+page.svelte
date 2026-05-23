@@ -48,7 +48,11 @@
     >
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Type</span>
-        <select name="type" required class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+        <select
+          name="type"
+          required
+          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        >
           <option value="call">Call</option>
           <option value="email">Email</option>
           <option value="meeting">Meeting</option>
@@ -79,7 +83,10 @@
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Contact</span>
-        <select name="contact_id" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+        <select
+          name="contact_id"
+          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        >
           <option value="">—</option>
           {#each data.contacts as ct}
             <option value={ct.id}>
@@ -90,7 +97,11 @@
       </label>
       <label class="block sm:col-span-3">
         <span class="mb-1 block text-xs font-medium">Notes</span>
-        <textarea name="body" rows="3" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"></textarea>
+        <textarea
+          name="body"
+          rows="3"
+          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        ></textarea>
       </label>
       <div class="sm:col-span-3 flex justify-end">
         <button
@@ -104,7 +115,9 @@
   {/if}
 
   {#if data.activities.length === 0}
-    <p class="rounded border border-dashed border-slate-300 bg-white px-4 py-10 text-center text-sm text-slate-500">
+    <p
+      class="rounded border border-dashed border-slate-300 bg-white px-4 py-10 text-center text-sm text-slate-500"
+    >
       No activities logged yet.
     </p>
   {:else}
@@ -117,9 +130,13 @@
               <div class="min-w-0 flex-1">
                 <p class="text-sm font-medium">
                   {a.subject ?? a.type}
-                  <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">{a.type}</span>
+                  <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600"
+                    >{a.type}</span
+                  >
                   {#if a.direction}
-                    <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">{a.direction}</span>
+                    <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600"
+                      >{a.direction}</span
+                    >
                   {/if}
                 </p>
                 {#if a.body}

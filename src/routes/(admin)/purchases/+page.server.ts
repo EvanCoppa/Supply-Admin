@@ -23,7 +23,9 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
   if (supplierId) query = query.eq('supplier_id', supplierId);
   if (PURCHASE_STATUSES.includes(status as (typeof PURCHASE_STATUSES)[number]))
     query = query.eq('status', status);
-  if (PURCHASE_PAYMENT_STATUSES.includes(paymentStatus as (typeof PURCHASE_PAYMENT_STATUSES)[number]))
+  if (
+    PURCHASE_PAYMENT_STATUSES.includes(paymentStatus as (typeof PURCHASE_PAYMENT_STATUSES)[number])
+  )
     query = query.eq('payment_status', paymentStatus);
 
   const [purchasesRes, suppliersRes] = await Promise.all([
@@ -54,7 +56,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     total: purchasesRes.count ?? 0,
     page,
     pageSize: PAGE_SIZE,
-    suppliers: (suppliersRes.data ?? []) as Array<{ id: string; name: string; key: string }>,
+    suppliers: suppliersRes.data ?? [],
     statuses: PURCHASE_STATUSES,
     paymentStatuses: PURCHASE_PAYMENT_STATUSES,
     filters: { supplierId, status, paymentStatus }

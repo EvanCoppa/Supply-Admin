@@ -41,10 +41,7 @@ type CategoryAgg = {
 };
 
 export const load: PageServerLoad = async ({ params, locals: { supabase }, url }) => {
-  const lapsedDays = Math.max(
-    1,
-    Math.min(365, Number(url.searchParams.get('lapsedDays') ?? '90'))
-  );
+  const lapsedDays = Math.max(1, Math.min(365, Number(url.searchParams.get('lapsedDays') ?? '90')));
 
   const now = new Date();
   const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
@@ -64,7 +61,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
     .in('order.status', REVENUE_STATUSES);
 
   const lineItems = ((lineItemsRes.data ?? []) as unknown as LineItemRow[]).filter(
-    (li) => li.order !== null
+    (li): li is LineItemRow & { order: NonNullable<LineItemRow['order']> } => li.order !== null
   );
 
   // Order frequency: orders per month for the last 12 months.
@@ -76,12 +73,12 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
     monthBuckets.set(monthKey(d), { orderIds: new Set(), revenue: 0 });
   }
   for (const li of lineItems) {
-    const placed = new Date(li.order!.placed_at);
+    const placed = new Date(li.order.placed_at);
     if (placed < frequencyStart) continue;
     const key = monthKey(placed);
     const bucket = monthBuckets.get(key);
     if (!bucket) continue;
-    bucket.orderIds.add(li.order!.id);
+    bucket.orderIds.add(li.order.id);
     bucket.revenue += Number(li.line_total);
   }
   const orderFrequency = Array.from(monthBuckets.entries()).map(([key, b]) => ({
@@ -100,8 +97,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
   let lastOrderAt: string | null = null;
 
   for (const li of lineItems) {
-    const placedAt = li.order!.placed_at;
-    orderIds.add(li.order!.id);
+    const placedAt = li.order.placed_at;
+    orderIds.add(li.order.id);
     if (!firstOrderAt || placedAt < firstOrderAt) firstOrderAt = placedAt;
     if (!lastOrderAt || placedAt > lastOrderAt) lastOrderAt = placedAt;
 

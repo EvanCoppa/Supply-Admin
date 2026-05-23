@@ -109,7 +109,7 @@ function rowsToObjects(rows: string[][]): CsvRow[] {
       if (header) row[header] = dataRow[index] ?? '';
     });
     if (firstHeaderIsName && headers[0]) {
-      row.name = dataRow[0] ?? '';
+      row['name'] = dataRow[0] ?? '';
     }
     return row;
   });
@@ -262,7 +262,9 @@ export const actions: Actions = {
     const productPayload = products.map((product) => ({
       sku: product.sku,
       name: product.name,
-      category_id: product.category ? categoryMap.get(product.category.toLowerCase()) ?? null : null,
+      category_id: product.category
+        ? (categoryMap.get(product.category.toLowerCase()) ?? null)
+        : null,
       base_price: product.price.value,
       price_needs_review: product.price.needsReview,
       source_system: 'smile_inventory_csv',
@@ -282,7 +284,9 @@ export const actions: Actions = {
       return fail(400, { message: upsertedProducts.error.message });
     }
 
-    const productIdBySku = new Map((upsertedProducts.data ?? []).map((product) => [product.sku, product.id]));
+    const productIdBySku = new Map(
+      (upsertedProducts.data ?? []).map((product) => [product.sku, product.id])
+    );
     const inventoryPayload = products
       .map((product) => {
         const productId = productIdBySku.get(product.sku);
@@ -293,8 +297,11 @@ export const actions: Actions = {
           low_stock_threshold: product.lowStockThreshold ?? 0
         };
       })
-      .filter((row): row is { product_id: string; quantity_on_hand: number; low_stock_threshold: number } =>
-        Boolean(row)
+      .filter(
+        (
+          row
+        ): row is { product_id: string; quantity_on_hand: number; low_stock_threshold: number } =>
+          Boolean(row)
       );
 
     const inventoryUpsert = await supabase.from('inventory').upsert(inventoryPayload);

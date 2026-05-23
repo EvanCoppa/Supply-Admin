@@ -30,7 +30,14 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 
   type Row = Pick<
     Rma,
-    'id' | 'customer_id' | 'rma_number' | 'status' | 'reason' | 'refund_amount' | 'restocking_fee' | 'created_at'
+    | 'id'
+    | 'customer_id'
+    | 'rma_number'
+    | 'status'
+    | 'reason'
+    | 'refund_amount'
+    | 'restocking_fee'
+    | 'created_at'
   > & { customer: { business_name: string } | null };
 
   return {

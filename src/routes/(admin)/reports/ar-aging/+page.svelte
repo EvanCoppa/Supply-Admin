@@ -9,7 +9,10 @@
     expanded[id] = !expanded[id];
   }
 
-  function bucketClass(amount: number, bucket: 'current' | 'd1_30' | 'd31_60' | 'd61_90' | 'd90_plus'): string {
+  function bucketClass(
+    amount: number,
+    bucket: 'current' | 'd1_30' | 'd31_60' | 'd61_90' | 'd90_plus'
+  ): string {
     if (amount === 0) return 'text-slate-300';
     if (bucket === 'current') return 'text-slate-700';
     if (bucket === 'd1_30') return 'text-amber-700';
@@ -19,11 +22,36 @@
   }
 
   const summary = $derived([
-    { key: 'current', label: 'Current', tone: 'bg-slate-50 border-slate-200', amount: data.totals.current },
-    { key: 'd1_30', label: '1–30 days', tone: 'bg-amber-50 border-amber-200', amount: data.totals.d1_30 },
-    { key: 'd31_60', label: '31–60 days', tone: 'bg-orange-50 border-orange-200', amount: data.totals.d31_60 },
-    { key: 'd61_90', label: '61–90 days', tone: 'bg-red-50 border-red-200', amount: data.totals.d61_90 },
-    { key: 'd90_plus', label: '90+ days', tone: 'bg-red-100 border-red-300', amount: data.totals.d90_plus }
+    {
+      key: 'current',
+      label: 'Current',
+      tone: 'bg-slate-50 border-slate-200',
+      amount: data.totals.current
+    },
+    {
+      key: 'd1_30',
+      label: '1–30 days',
+      tone: 'bg-amber-50 border-amber-200',
+      amount: data.totals.d1_30
+    },
+    {
+      key: 'd31_60',
+      label: '31–60 days',
+      tone: 'bg-orange-50 border-orange-200',
+      amount: data.totals.d31_60
+    },
+    {
+      key: 'd61_90',
+      label: '61–90 days',
+      tone: 'bg-red-50 border-red-200',
+      amount: data.totals.d61_90
+    },
+    {
+      key: 'd90_plus',
+      label: '90+ days',
+      tone: 'bg-red-100 border-red-300',
+      amount: data.totals.d90_plus
+    }
   ] as const);
 
   function invoicesForCustomer(customerId: string) {
@@ -84,18 +112,36 @@
                 <span class="mr-2 inline-block w-3 text-xs text-slate-400">
                   {expanded[c.customer_id] ? '▾' : '▸'}
                 </span>
-                <a class="text-sky-700 hover:underline" href="/clients/{c.customer_id}" onclick={(e) => e.stopPropagation()}>
+                <a
+                  class="text-sky-700 hover:underline"
+                  href="/clients/{c.customer_id}"
+                  onclick={(e) => e.stopPropagation()}
+                >
                   {c.customer_name}
                 </a>
                 <span class="ml-2 text-xs text-slate-400">{c.invoice_count} inv</span>
               </td>
-              <td class="px-2 py-2 text-right {bucketClass(c.current, 'current')}">{currency(c.current)}</td>
-              <td class="px-2 py-2 text-right {bucketClass(c.d1_30, 'd1_30')}">{currency(c.d1_30)}</td>
-              <td class="px-2 py-2 text-right {bucketClass(c.d31_60, 'd31_60')}">{currency(c.d31_60)}</td>
-              <td class="px-2 py-2 text-right {bucketClass(c.d61_90, 'd61_90')}">{currency(c.d61_90)}</td>
-              <td class="px-2 py-2 text-right {bucketClass(c.d90_plus, 'd90_plus')}">{currency(c.d90_plus)}</td>
+              <td class="px-2 py-2 text-right {bucketClass(c.current, 'current')}"
+                >{currency(c.current)}</td
+              >
+              <td class="px-2 py-2 text-right {bucketClass(c.d1_30, 'd1_30')}"
+                >{currency(c.d1_30)}</td
+              >
+              <td class="px-2 py-2 text-right {bucketClass(c.d31_60, 'd31_60')}"
+                >{currency(c.d31_60)}</td
+              >
+              <td class="px-2 py-2 text-right {bucketClass(c.d61_90, 'd61_90')}"
+                >{currency(c.d61_90)}</td
+              >
+              <td class="px-2 py-2 text-right {bucketClass(c.d90_plus, 'd90_plus')}"
+                >{currency(c.d90_plus)}</td
+              >
               <td class="px-2 py-2 text-right font-semibold">{currency(c.total)}</td>
-              <td class="px-2 py-2 text-right text-xs {c.oldest_days > 60 ? 'text-red-700' : 'text-slate-500'}">
+              <td
+                class="px-2 py-2 text-right text-xs {c.oldest_days > 60
+                  ? 'text-red-700'
+                  : 'text-slate-500'}"
+              >
                 {c.oldest_days > 0 ? `${c.oldest_days}d` : '—'}
               </td>
             </tr>
@@ -119,17 +165,30 @@
                       {#each invoicesForCustomer(c.customer_id) as inv (inv.invoice_id)}
                         <tr>
                           <td class="px-2 py-1">
-                            <a class="text-sky-700 hover:underline" href="/invoices/{inv.invoice_id}">
+                            <a
+                              class="text-sky-700 hover:underline"
+                              href="/invoices/{inv.invoice_id}"
+                            >
                               {inv.invoice_number}
                             </a>
                           </td>
                           <td class="px-2 py-1 text-slate-600">{dateShort(inv.issued_at)}</td>
                           <td class="px-2 py-1 text-slate-600">{dateShort(inv.due_at)}</td>
                           <td class="px-2 py-1 text-right text-slate-500">{currency(inv.total)}</td>
-                          <td class="px-2 py-1 text-right text-slate-500">{currency(inv.amount_paid)}</td>
+                          <td class="px-2 py-1 text-right text-slate-500"
+                            >{currency(inv.amount_paid)}</td
+                          >
                           <td class="px-2 py-1 text-right font-medium">{currency(inv.balance)}</td>
-                          <td class="px-2 py-1 text-right {(inv.days_past_due ?? 0) > 60 ? 'text-red-700' : 'text-slate-600'}">
-                            {inv.days_past_due == null ? 'no due date' : inv.days_past_due === 0 ? '—' : `${inv.days_past_due}d`}
+                          <td
+                            class="px-2 py-1 text-right {(inv.days_past_due ?? 0) > 60
+                              ? 'text-red-700'
+                              : 'text-slate-600'}"
+                          >
+                            {inv.days_past_due == null
+                              ? 'no due date'
+                              : inv.days_past_due === 0
+                                ? '—'
+                                : `${inv.days_past_due}d`}
                           </td>
                         </tr>
                       {/each}

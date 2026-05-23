@@ -30,8 +30,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 
   return {
     items: (itemsRes.data ?? []) as unknown as Item[],
-    products: (productsRes.data ?? []) as Array<{ id: string; sku: string; name: string }>,
-    groups: (groupsRes.data ?? []) as Array<{ id: string; name: string }>
+    products: productsRes.data ?? [],
+    groups: groupsRes.data ?? []
   };
 };
 
@@ -131,6 +131,7 @@ export const actions: Actions = {
 
     const a = items[idx];
     const b = items[neighborIdx];
+    if (!a || !b) return { saved: true };
     await supabase
       .from('customer_featured_items')
       .update({ display_order: b.display_order })

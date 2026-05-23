@@ -21,7 +21,9 @@ function invoiceSubject(invoice: Invoice, kind: EmailKind) {
 
 function renderInvoiceText(input: SendInvoiceEmailInput) {
   const name = input.invoice.customer?.business_name ?? 'Customer';
-  const due = input.invoice.due_at ? new Date(input.invoice.due_at).toLocaleDateString('en-US') : 'on receipt';
+  const due = input.invoice.due_at
+    ? new Date(input.invoice.due_at).toLocaleDateString('en-US')
+    : 'on receipt';
   return [
     `${name},`,
     '',
@@ -39,7 +41,9 @@ function renderInvoiceText(input: SendInvoiceEmailInput) {
 
 function renderInvoiceHtml(input: SendInvoiceEmailInput) {
   const amount = currency.format(balanceDue(input.invoice));
-  const due = input.invoice.due_at ? new Date(input.invoice.due_at).toLocaleDateString('en-US') : 'on receipt';
+  const due = input.invoice.due_at
+    ? new Date(input.invoice.due_at).toLocaleDateString('en-US')
+    : 'on receipt';
   const memo = input.invoice.customer_memo
     ? `<p style="margin:16px 0 0;color:#334155">${escapeHtml(input.invoice.customer_memo)}</p>`
     : '';
@@ -106,7 +110,11 @@ export async function sendInvoiceEmail(supabase: SupabaseClient, input: SendInvo
         html: renderInvoiceHtml(input)
       })
     });
-    const body = (await res.json().catch(() => ({}))) as { id?: string; message?: string; error?: string };
+    const body = (await res.json().catch(() => ({}))) as {
+      id?: string;
+      message?: string;
+      error?: string;
+    };
     providerMessageId = body.id ?? null;
     if (!res.ok) errorMessage = body.message ?? body.error ?? 'Resend send failed.';
   } catch (err) {
@@ -129,5 +137,7 @@ export async function sendInvoiceEmail(supabase: SupabaseClient, input: SendInvo
     await supabase.from('invoices').update(patch).eq('id', input.invoice.id);
   }
 
-  return sent ? { ok: true, message: 'Invoice email sent.' } : { ok: false, message: errorMessage ?? 'Send failed.' };
+  return sent
+    ? { ok: true, message: 'Invoice email sent.' }
+    : { ok: false, message: errorMessage ?? 'Send failed.' };
 }

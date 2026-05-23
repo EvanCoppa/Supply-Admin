@@ -14,7 +14,9 @@
   </header>
 
   {#if form?.message}
-    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">{form.message}</div>
+    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+      {form.message}
+    </div>
   {/if}
 
   <form
@@ -25,7 +27,11 @@
   >
     <label class="block">
       <span class="mb-1 block text-xs font-medium">Name</span>
-      <input name="name" required class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+      <input
+        name="name"
+        required
+        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+      />
     </label>
     <label class="block">
       <span class="mb-1 block text-xs font-medium">Color (hex)</span>
@@ -113,7 +119,10 @@
                     class:text-slate-700={!tag.color}
                   >
                     {#if tag.color}
-                      <span class="inline-block h-2 w-2 rounded-full" style="background-color:{tag.color}"></span>
+                      <span
+                        class="inline-block h-2 w-2 rounded-full"
+                        style="background-color:{tag.color}"
+                      ></span>
                     {/if}
                     {tag.name}
                   </span>

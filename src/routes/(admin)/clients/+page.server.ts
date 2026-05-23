@@ -83,7 +83,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     created_at: string;
     sales_rep: { display_name: string | null } | null;
     territory: { name: string } | null;
-    tag_assignments: Array<{ tag: Pick<CustomerTag, 'id' | 'name' | 'color'> | null }>;
+    tag_assignments: { tag: Pick<CustomerTag, 'id' | 'name' | 'color'> | null }[];
   };
 
   return {
@@ -92,8 +92,8 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     page,
     pageSize: PAGE_SIZE,
     filters: { search, status, lifecycle, territory, tag },
-    territories: (territoriesRes.data ?? []) as Pick<Territory, 'id' | 'name'>[],
-    tagOptions: (tagsRes.data ?? []) as CustomerTag[]
+    territories: territoriesRes.data ?? [],
+    tagOptions: tagsRes.data ?? []
   };
 };
 
@@ -110,11 +110,7 @@ export const actions: Actions = {
       payload.external_code = deriveExternalCode(payload.business_name);
     }
 
-    const { data, error } = await supabase
-      .from('customers')
-      .insert(payload)
-      .select('id')
-      .single();
+    const { data, error } = await supabase.from('customers').insert(payload).select('id').single();
 
     if (error) return fail(400, { message: error.message, fieldErrors: {} });
     throw redirect(303, `/clients/${data.id}`);

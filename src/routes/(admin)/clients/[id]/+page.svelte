@@ -14,7 +14,9 @@
   </div>
 {/if}
 {#if form?.saved}
-  <div class="mb-3 rounded border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+  <div
+    class="mb-3 rounded border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-900"
+  >
     Saved.
   </div>
 {/if}
@@ -37,10 +39,7 @@
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Status</span>
-    <select
-      name="status"
-      class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-    >
+    <select name="status" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
       <option value="active" selected={c.status === 'active'}>Active</option>
       <option value="suspended" selected={c.status === 'suspended'}>Suspended</option>
       <option value="archived" selected={c.status === 'archived'}>Archived</option>
@@ -61,10 +60,7 @@
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Territory</span>
-    <select
-      name="territory_id"
-      class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-    >
+    <select name="territory_id" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
       <option value="">— None —</option>
       {#each data.territories as t}
         <option value={t.id} selected={t.id === c.territory_id}>{t.name}</option>
@@ -81,8 +77,8 @@
       class="w-full rounded border border-slate-300 px-2 py-1.5 font-mono text-sm"
     />
     <span class="mt-1 block text-xs text-slate-500">
-      Share with external apps (e.g. Guaranteeth) so they can identify this customer.
-      Pair with an active API token from the API Tokens tab.
+      Share with external apps (e.g. Guaranteeth) so they can identify this customer. Pair with an
+      active API token from the API Tokens tab.
     </span>
   </label>
   <label class="block">
@@ -130,7 +126,9 @@
   <div class="sm:col-span-2">
     <span class="mb-1 block text-sm font-medium">Tags</span>
     {#if data.tagOptions.length === 0}
-      <p class="text-xs text-slate-500">No tags yet. <a class="text-sky-700 hover:underline" href="/tags">Create one →</a></p>
+      <p class="text-xs text-slate-500">
+        No tags yet. <a class="text-sky-700 hover:underline" href="/tags">Create one →</a>
+      </p>
     {:else}
       <div class="flex flex-wrap gap-2">
         {#each data.tagOptions as tag}
@@ -149,7 +147,8 @@
               class="hidden"
             />
             {#if tag.color}
-              <span class="inline-block h-2 w-2 rounded-full" style="background-color:{tag.color}"></span>
+              <span class="inline-block h-2 w-2 rounded-full" style="background-color:{tag.color}"
+              ></span>
             {/if}
             {tag.name}
           </label>

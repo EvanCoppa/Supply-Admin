@@ -85,7 +85,7 @@
     open = false;
     q = '';
     reset();
-    goto(hit.href);
+    void goto(hit.href);
   }
 
   function onKeydown(e: KeyboardEvent) {
@@ -131,8 +131,11 @@
   });
 
   function groupHeader(i: number): string | null {
-    if (i === 0) return hits[0].group;
-    return hits[i].group !== hits[i - 1].group ? hits[i].group : null;
+    const cur = hits[i];
+    if (!cur) return null;
+    const prev = hits[i - 1];
+    if (i === 0 || !prev) return cur.group;
+    return cur.group !== prev.group ? cur.group : null;
   }
 </script>
 

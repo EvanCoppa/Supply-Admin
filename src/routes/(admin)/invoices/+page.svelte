@@ -31,12 +31,18 @@
       <h1 class="text-2xl font-semibold">Invoices</h1>
       <p class="text-sm text-slate-500">{data.total} total</p>
     </div>
-    <a class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800" href="/invoices/new">
+    <a
+      class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+      href="/invoices/new"
+    >
       New invoice
     </a>
   </header>
 
-  <form method="GET" class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-3 text-sm">
+  <form
+    method="GET"
+    class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-3 text-sm"
+  >
     <input
       type="search"
       name="q"
@@ -46,16 +52,23 @@
     />
     <select name="status" class="rounded border border-slate-300 px-2 py-1.5">
       <option value="">All statuses</option>
-      <option value="outstanding" selected={data.filters.status === 'outstanding'}>Outstanding</option>
+      <option value="outstanding" selected={data.filters.status === 'outstanding'}
+        >Outstanding</option
+      >
       <option value="draft" selected={data.filters.status === 'draft'}>Draft</option>
       <option value="issued" selected={data.filters.status === 'issued'}>Issued</option>
       <option value="paid" selected={data.filters.status === 'paid'}>Paid</option>
-      <option value="partially_paid" selected={data.filters.status === 'partially_paid'}>Partially paid</option>
+      <option value="partially_paid" selected={data.filters.status === 'partially_paid'}
+        >Partially paid</option
+      >
       <option value="overdue" selected={data.filters.status === 'overdue'}>Overdue</option>
       <option value="void" selected={data.filters.status === 'void'}>Void</option>
       <option value="refunded" selected={data.filters.status === 'refunded'}>Refunded</option>
     </select>
-    <button type="submit" class="rounded bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800">
+    <button
+      type="submit"
+      class="rounded bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800"
+    >
       Filter
     </button>
   </form>
@@ -90,7 +103,9 @@
                 </a>
               </td>
               <td class="px-3 py-2">
-                <span class="rounded px-1.5 py-0.5 text-xs {statusClass[inv.status] ?? ''}">{inv.status}</span>
+                <span class="rounded px-1.5 py-0.5 text-xs {statusClass[inv.status] ?? ''}"
+                  >{inv.status}</span
+                >
               </td>
               <td class="px-3 py-2 text-right">{currency(inv.total)}</td>
               <td class="px-3 py-2 text-right font-medium">

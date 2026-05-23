@@ -47,7 +47,9 @@
     </a>
   </header>
 
-  <form class="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-3 text-sm">
+  <form
+    class="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-3 text-sm"
+  >
     <label class="block">
       <span class="mb-1 block text-xs font-medium text-slate-600">Supplier</span>
       <select
@@ -124,10 +126,14 @@
               {/if}
             </td>
             <td class="px-3 py-2">
-              <span class="rounded px-2 py-0.5 text-xs {statusClass[p.status] ?? ''}">{p.status}</span>
+              <span class="rounded px-2 py-0.5 text-xs {statusClass[p.status] ?? ''}"
+                >{p.status}</span
+              >
             </td>
             <td class="px-3 py-2">
-              <span class="rounded px-2 py-0.5 text-xs {paymentClass[p.payment_status] ?? ''}">{p.payment_status}</span>
+              <span class="rounded px-2 py-0.5 text-xs {paymentClass[p.payment_status] ?? ''}"
+                >{p.payment_status}</span
+              >
             </td>
             <td class="px-3 py-2 text-right">{currency(p.subtotal)}</td>
             <td class="px-3 py-2 text-right font-medium">{currency(p.total)}</td>
@@ -136,7 +142,9 @@
         {:else}
           <tr>
             <td class="px-3 py-10 text-center text-sm text-slate-500" colspan="8">
-              No purchases yet. <a class="text-sky-700 hover:underline" href="/purchases/new">Log the first one →</a>
+              No purchases yet. <a class="text-sky-700 hover:underline" href="/purchases/new"
+                >Log the first one →</a
+              >
             </td>
           </tr>
         {/each}
@@ -149,10 +157,16 @@
       <span>Page {data.page} of {lastPage} · {data.total} purchases</span>
       <div class="flex gap-2">
         {#if data.page > 1}
-          <a class="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100" href={buildHref({ page: data.page - 1 })}>Prev</a>
+          <a
+            class="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100"
+            href={buildHref({ page: data.page - 1 })}>Prev</a
+          >
         {/if}
         {#if data.page < lastPage}
-          <a class="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100" href={buildHref({ page: data.page + 1 })}>Next</a>
+          <a
+            class="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100"
+            href={buildHref({ page: data.page + 1 })}>Next</a
+          >
         {/if}
       </div>
     </div>

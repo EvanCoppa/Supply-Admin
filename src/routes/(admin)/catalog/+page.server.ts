@@ -60,7 +60,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     total: productsRes.count ?? 0,
     page,
     pageSize: PAGE_SIZE,
-    categories: (categoriesRes.data ?? []) as Array<{ id: string; name: string }>,
+    categories: categoriesRes.data ?? [],
     filters: { search, status, categoryId }
   };
 };

@@ -30,7 +30,9 @@
         <option value="open" selected={data.filters.status === 'open'}>Open</option>
         <option value="paid" selected={data.filters.status === 'paid'}>Paid</option>
       </select>
-      <button class="rounded bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800">Filter</button>
+      <button class="rounded bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800"
+        >Filter</button
+      >
     </form>
   </header>
 
@@ -76,13 +78,19 @@
   {#if totalPages > 1}
     <nav class="flex justify-end gap-2 text-sm">
       {#if data.page > 1}
-        <a class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-100" href="?page={data.page - 1}&status={data.filters.status}">
+        <a
+          class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-100"
+          href="?page={data.page - 1}&status={data.filters.status}"
+        >
           Previous
         </a>
       {/if}
       <span class="px-2 py-1 text-slate-500">Page {data.page} of {totalPages}</span>
       {#if data.page < totalPages}
-        <a class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-100" href="?page={data.page + 1}&status={data.filters.status}">
+        <a
+          class="rounded border border-slate-300 px-3 py-1 hover:bg-slate-100"
+          href="?page={data.page + 1}&status={data.filters.status}"
+        >
           Next
         </a>
       {/if}
