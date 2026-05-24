@@ -86,6 +86,7 @@
             <th class="px-4 py-2 text-left font-medium">Order</th>
             <th class="px-4 py-2 text-left font-medium">Customer</th>
             <th class="px-4 py-2 text-left font-medium">Status</th>
+            <th class="px-4 py-2 text-left font-medium">Payment Method</th>
             <th class="px-4 py-2 text-right font-medium">Total</th>
             <th class="px-4 py-2 text-left font-medium">Source</th>
             <th class="px-4 py-2 text-right font-medium">Placed</th>
@@ -105,6 +106,7 @@
                 </a>
               </td>
               <td class="px-4 py-2"><OrderStatusBadge status={o.status} /></td>
+              <td class="px-4 py-2 text-sm capitalize">{o.payment_method?.replace(/_/g, ' ') ?? '—'}</td>
               <td class="px-4 py-2 text-right">{currency(o.total)}</td>
               <td class="px-4 py-2">{o.source}</td>
               <td class="px-4 py-2 text-right text-slate-500">{dateTime(o.placed_at)}</td>

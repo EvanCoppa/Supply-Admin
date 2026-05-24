@@ -97,6 +97,7 @@
           <th class="px-3 py-2 text-left font-medium">For order</th>
           <th class="px-3 py-2 text-left font-medium">Status</th>
           <th class="px-3 py-2 text-left font-medium">Payment</th>
+          <th class="px-3 py-2 text-left font-medium">Payment Method</th>
           <th class="px-3 py-2 text-right font-medium">Subtotal</th>
           <th class="px-3 py-2 text-right font-medium">Total</th>
           <th class="px-3 py-2 text-left font-medium">Due</th>
@@ -128,13 +129,14 @@
                 >{p.payment_status}</span
               >
             </td>
+            <td class="px-3 py-2 text-sm capitalize">{p.payment_method?.replace(/_/g, ' ') ?? '—'}</td>
             <td class="px-3 py-2 text-right">{currency(p.subtotal)}</td>
             <td class="px-3 py-2 text-right font-medium">{currency(p.total)}</td>
             <td class="px-3 py-2 text-slate-500">{dateShort(p.due_date)}</td>
           </tr>
         {:else}
           <tr>
-            <td class="px-3 py-10 text-center text-sm text-slate-500" colspan="8">
+            <td class="px-3 py-10 text-center text-sm text-slate-500" colspan="9">
               No purchases yet. <a class="text-sky-700 hover:underline" href="/purchases/new"
                 >Log the first one →</a
               >
