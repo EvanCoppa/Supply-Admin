@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currency } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data } = $props();
 
@@ -30,7 +31,7 @@
       <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500">Products</h2>
       <form class="flex items-center gap-2 text-xs">
         <label for="sort" class="text-slate-600">Sort by</label>
-        <select
+        <Select
           id="sort"
           name="sort"
           value={data.sort}
@@ -39,13 +40,12 @@
             sp.set('sort', (e.currentTarget as HTMLSelectElement).value);
             window.location.search = sp.toString();
           }}
-          class="rounded border border-slate-300 px-2 py-1"
         >
           <option value="gp_desc">Highest GP</option>
           <option value="margin_desc">Highest margin</option>
           <option value="margin_asc">Lowest margin</option>
           <option value="revenue_desc">Highest revenue</option>
-        </select>
+        </Select>
       </form>
     </div>
 

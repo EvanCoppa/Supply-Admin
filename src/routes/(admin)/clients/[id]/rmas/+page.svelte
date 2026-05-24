@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { currency, dateShort } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -48,18 +49,14 @@
     >
       <label class="block sm:col-span-3">
         <span class="mb-1 block text-xs font-medium">Order</span>
-        <select
-          name="order_id"
-          required
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="order_id" required class="w-full">
           <option value="">— Pick an order —</option>
           {#each data.orders as o}
             <option value={o.id}>
               {dateShort(o.placed_at)} · {currency(o.total)} · {o.status}
             </option>
           {/each}
-        </select>
+        </Select>
       </label>
       <label class="block sm:col-span-3">
         <span class="mb-1 block text-xs font-medium">Reason</span>
@@ -69,7 +66,7 @@
         <span class="mb-1 block text-xs font-medium">Refund amount</span>
         <input
           type="number"
-          step="0.01"
+          step="1"
           min="0"
           name="refund_amount"
           value="0"
@@ -80,7 +77,7 @@
         <span class="mb-1 block text-xs font-medium">Restocking fee</span>
         <input
           type="number"
-          step="0.01"
+          step="1"
           min="0"
           name="restocking_fee"
           value="0"

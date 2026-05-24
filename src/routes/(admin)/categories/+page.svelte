@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -36,12 +37,12 @@
     </label>
     <label class="block">
       <span class="mb-1 block text-sm font-medium">Parent</span>
-      <select name="parent_id" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+      <Select name="parent_id" class="w-full">
         <option value="">— Top level —</option>
         {#each data.categories as c}
           <option value={c.id}>{c.name}</option>
         {/each}
-      </select>
+      </Select>
     </label>
     <label class="block">
       <span class="mb-1 block text-sm font-medium">Display order</span>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
   import type { TaskStatus, TaskPriority } from '$lib/types/db';
+  import Select from '$lib/components/Select.svelte';
 
   let { data } = $props();
 
@@ -290,21 +291,21 @@
 
   <form method="GET" class="kb-filters">
     <input type="hidden" name="view" value={data.filters.view} />
-    <select name="priority" aria-label="Priority filter">
+    <Select name="priority" aria-label="Priority filter">
       <option value="">Any priority</option>
       <option value="urgent" selected={data.filters.priority === 'urgent'}>Urgent</option>
       <option value="high" selected={data.filters.priority === 'high'}>High</option>
       <option value="normal" selected={data.filters.priority === 'normal'}>Normal</option>
       <option value="low" selected={data.filters.priority === 'low'}>Low</option>
-    </select>
-    <select name="assignee" aria-label="Assignee filter">
+    </Select>
+    <Select name="assignee" aria-label="Assignee filter">
       <option value="">Any assignee</option>
       {#each data.admins as a}
         <option value={a.id} selected={data.filters.assignee === a.id}>
           {a.display_name ?? a.id.slice(0, 8)}
         </option>
       {/each}
-    </select>
+    </Select>
     <button type="submit">Apply</button>
   </form>
 
@@ -642,23 +643,16 @@
     gap: 0.5rem;
     margin-bottom: 1rem;
   }
-  .kb-filters select,
   .kb-filters button {
     height: 32px;
     border-radius: var(--kb-radius-sm);
-    border: 1px solid var(--kb-border-strong);
-    background: var(--kb-surface);
-    padding: 0 0.65rem;
-    font-size: 0.8125rem;
-    color: var(--kb-ink-1);
-    cursor: pointer;
-  }
-  .kb-filters button {
     background: var(--kb-ink-1);
     color: oklch(0.99 0 0);
+    font-size: 0.8125rem;
     font-weight: 500;
-    border-color: transparent;
+    border: 1px solid transparent;
     padding: 0 0.85rem;
+    cursor: pointer;
   }
   .kb-filters button:hover {
     background: oklch(0.28 0.01 270);

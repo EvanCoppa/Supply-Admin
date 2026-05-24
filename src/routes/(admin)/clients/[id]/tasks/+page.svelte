@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { dateTime } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -70,24 +71,21 @@
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Assignee</span>
-        <select
-          name="assigned_to"
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="assigned_to" class="w-full">
           <option value="">— Unassigned —</option>
           {#each data.admins as a}
             <option value={a.id}>{a.display_name ?? a.id.slice(0, 8)}</option>
           {/each}
-        </select>
+        </Select>
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Priority</span>
-        <select name="priority" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+        <Select name="priority" class="w-full">
           <option value="low">Low</option>
           <option value="normal" selected>Normal</option>
           <option value="high">High</option>
           <option value="urgent">Urgent</option>
-        </select>
+        </Select>
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Due</span>
@@ -133,10 +131,10 @@
               <td class="px-3 py-2">
                 <form method="POST" action="?/setStatus" use:enhance class="inline">
                   <input type="hidden" name="id" value={t.id} />
-                  <select
+                  <Select
                     name="status"
-                    class="rounded border border-slate-300 px-1 py-0.5 text-xs"
-                    onchange={(e) => (e.currentTarget.form as HTMLFormElement).requestSubmit()}
+                    onchange={(e) =>
+                      ((e.currentTarget as HTMLSelectElement).form as HTMLFormElement).requestSubmit()}
                   >
                     <option value="open" selected={t.status === 'open'}>Open</option>
                     <option value="in_progress" selected={t.status === 'in_progress'}
@@ -144,7 +142,7 @@
                     >
                     <option value="done" selected={t.status === 'done'}>Done</option>
                     <option value="cancelled" selected={t.status === 'cancelled'}>Cancelled</option>
-                  </select>
+                  </Select>
                 </form>
               </td>
               <td class="px-3 py-2">

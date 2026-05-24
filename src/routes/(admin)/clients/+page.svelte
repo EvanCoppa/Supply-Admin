@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { dateShort } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -132,32 +133,32 @@
       value={data.filters.search}
       class="min-w-[240px] flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
     />
-    <select name="status" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
+    <Select name="status">
       <option value="">All statuses</option>
       <option value="active" selected={data.filters.status === 'active'}>Active</option>
       <option value="suspended" selected={data.filters.status === 'suspended'}>Suspended</option>
       <option value="archived" selected={data.filters.status === 'archived'}>Archived</option>
-    </select>
-    <select name="lifecycle" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
+    </Select>
+    <Select name="lifecycle">
       <option value="">Any lifecycle</option>
       <option value="lead" selected={data.filters.lifecycle === 'lead'}>Lead</option>
       <option value="prospect" selected={data.filters.lifecycle === 'prospect'}>Prospect</option>
       <option value="active" selected={data.filters.lifecycle === 'active'}>Active</option>
       <option value="at_risk" selected={data.filters.lifecycle === 'at_risk'}>At risk</option>
       <option value="churned" selected={data.filters.lifecycle === 'churned'}>Churned</option>
-    </select>
-    <select name="territory" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
+    </Select>
+    <Select name="territory">
       <option value="">Any territory</option>
       {#each data.territories as t}
         <option value={t.id} selected={data.filters.territory === t.id}>{t.name}</option>
       {/each}
-    </select>
-    <select name="tag" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
+    </Select>
+    <Select name="tag">
       <option value="">Any tag</option>
       {#each data.tagOptions as tg}
         <option value={tg.id} selected={data.filters.tag === tg.id}>{tg.name}</option>
       {/each}
-    </select>
+    </Select>
     <button
       type="submit"
       class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"

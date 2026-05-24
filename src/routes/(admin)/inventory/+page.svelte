@@ -1,5 +1,6 @@
 <script lang="ts">
   import { dateTime } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data } = $props();
 
@@ -30,11 +31,11 @@
       value={data.filters.search}
       class="min-w-[240px] flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
     />
-    <select name="filter" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
+    <Select name="filter">
       <option value="">All items</option>
       <option value="low" selected={data.filters.filter === 'low'}>Low stock only</option>
       <option value="out" selected={data.filters.filter === 'out'}>Out of stock only</option>
-    </select>
+    </Select>
     <button
       type="submit"
       class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { invalidateAll } from '$app/navigation';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -84,12 +85,12 @@
       use:enhance
       class="flex gap-2 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
     >
-      <select name="product_id" class="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm">
+      <Select name="product_id" class="flex-1">
         <option value="">Add individual product…</option>
         {#each data.products as p}
           <option value={p.id}>{p.sku} · {p.name}</option>
         {/each}
-      </select>
+      </Select>
       <button
         type="submit"
         class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
@@ -104,12 +105,12 @@
       use:enhance
       class="flex gap-2 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
     >
-      <select name="group_id" class="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm">
+      <Select name="group_id" class="flex-1">
         <option value="">Add featured group…</option>
         {#each data.groups as g}
           <option value={g.id}>{g.name}</option>
         {/each}
-      </select>
+      </Select>
       <button
         type="submit"
         class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
@@ -131,49 +132,67 @@
         No featured items yet. Add a product or group above.
       </p>
     {:else}
-      <ul class="divide-y divide-slate-100 text-sm">
-        {#each order as item, i (item.id)}
-          <li
-            draggable="true"
-            ondragstart={(e) => onDragStart(e, item.id)}
-            ondragover={(e) => onDragOver(e, item.id)}
-            ondrop={onDrop}
-            ondragend={() => (dragId = null)}
-            class="flex items-center gap-3 px-4 py-2"
-            class:bg-sky-50={dragId === item.id}
-            class:opacity-60={dragId === item.id}
-          >
-            <span
-              class="cursor-grab select-none text-slate-400"
-              aria-hidden="true"
-              title="Drag to reorder"
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+          <tr>
+            <th class="w-10 px-3 py-2 text-left font-medium"></th>
+            <th class="w-12 px-3 py-2 text-left font-medium">#</th>
+            <th class="w-24 px-3 py-2 text-left font-medium">Type</th>
+            <th class="w-28 px-3 py-2 text-left font-medium">SKU</th>
+            <th class="px-3 py-2 text-left font-medium">Name</th>
+            <th class="px-3 py-2 text-right font-medium"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {#each order as item, i (item.id)}
+            <tr
+              draggable="true"
+              ondragstart={(e) => onDragStart(e, item.id)}
+              ondragover={(e) => onDragOver(e, item.id)}
+              ondrop={onDrop}
+              ondragend={() => (dragId = null)}
+              class="hover:bg-slate-50"
+              class:bg-sky-50={dragId === item.id}
+              class:opacity-60={dragId === item.id}
             >
-              ⋮⋮
-            </span>
-            <span class="w-8 font-mono text-xs text-slate-500">{i + 1}</span>
-            <span class="w-16 text-xs uppercase tracking-wider text-slate-500">
-              {item.product_id ? 'Product' : 'Group'}
-            </span>
-            <div class="min-w-0 flex-1 truncate">
-              {#if item.product_id}
-                <span class="font-mono text-xs text-slate-500">{item.product?.sku ?? ''}</span>
-                {item.product?.name ?? '—'}
-              {:else}
-                {item.group?.name ?? '—'}
-              {/if}
-            </div>
-            <form method="POST" action="?/remove" use:enhance>
-              <input type="hidden" name="id" value={item.id} />
-              <button
-                type="submit"
-                class="rounded border border-red-300 px-2 py-0.5 text-xs text-red-700 hover:bg-red-50"
-              >
-                Remove
-              </button>
-            </form>
-          </li>
-        {/each}
-      </ul>
+              <td class="px-3 py-2">
+                <span
+                  class="cursor-grab select-none text-slate-400"
+                  aria-hidden="true"
+                  title="Drag to reorder"
+                >
+                  ⋮⋮
+                </span>
+              </td>
+              <td class="px-3 py-2 font-mono text-xs text-slate-500">{i + 1}</td>
+              <td class="px-3 py-2 text-xs uppercase tracking-wider text-slate-500">
+                {item.product_id ? 'Product' : 'Group'}
+              </td>
+              <td class="px-3 py-2 font-mono text-xs text-slate-500">
+                {item.product_id ? (item.product?.sku ?? '') : ''}
+              </td>
+              <td class="px-3 py-2">
+                {#if item.product_id}
+                  {item.product?.name ?? '—'}
+                {:else}
+                  {item.group?.name ?? '—'}
+                {/if}
+              </td>
+              <td class="px-3 py-2 text-right">
+                <form method="POST" action="?/remove" use:enhance class="inline">
+                  <input type="hidden" name="id" value={item.id} />
+                  <button
+                    type="submit"
+                    class="rounded border border-red-300 px-2 py-0.5 text-xs text-red-700 hover:bg-red-50"
+                  >
+                    Remove
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
     {/if}
   </div>
 </div>

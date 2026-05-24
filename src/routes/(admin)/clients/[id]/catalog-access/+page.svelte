@@ -5,6 +5,7 @@
   import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
   import Search from '@lucide/svelte/icons/search';
   import ShoppingCart from '@lucide/svelte/icons/shopping-cart';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -118,17 +119,14 @@
       </div>
       <label class="block">
         <span class="mb-1 block text-sm font-medium text-slate-700">Mode</span>
-        <select
-          name="catalog_access_mode"
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="catalog_access_mode" class="w-full">
           <option value="allowlist" selected={data.mode === 'allowlist'}>
             Assigned products only
           </option>
           <option value="all_active" selected={data.mode === 'all_active'}>
             All active except hidden
           </option>
-        </select>
+        </Select>
       </label>
       <button
         type="submit"
@@ -154,65 +152,49 @@
 
       <label class="block">
         <span class="mb-1 block text-sm font-medium text-slate-700">Apply to</span>
-        <select
-          name="scope"
-          bind:value={bulkScope}
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="scope" bind:value={bulkScope} class="w-full">
           <option value="filtered">Current filtered results ({data.total})</option>
           <option value="selected">Selected rows ({selectedIds.length})</option>
           <option value="category">A category</option>
           <option value="group">A featured group</option>
           <option value="all">All active products ({data.summary.total})</option>
-        </select>
+        </Select>
       </label>
 
       <label class="block">
         <span class="mb-1 block text-sm font-medium text-slate-700">Action</span>
-        <select
-          name="operation"
-          bind:value={bulkOperation}
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="operation" bind:value={bulkOperation} class="w-full">
           <option value="allow">{operationLabels.allow}</option>
           <option value="buyable">{operationLabels.buyable}</option>
           <option value="view_only">{operationLabels.view_only}</option>
           <option value="hide">{operationLabels.hide}</option>
           <option value="clear">{operationLabels.clear}</option>
-        </select>
+        </Select>
       </label>
 
       {#if bulkScope === 'category'}
         <label class="block">
           <span class="mb-1 block text-sm font-medium text-slate-700">Category</span>
-          <select
-            name="bulk_category_id"
-            bind:value={bulkCategoryId}
-            class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-          >
+          <Select name="bulk_category_id" bind:value={bulkCategoryId} class="w-full">
             {#each data.categories as category}
               <option value={category.id}>
                 {category.name} ({category.total})
               </option>
             {/each}
-          </select>
+          </Select>
         </label>
       {/if}
 
       {#if bulkScope === 'group'}
         <label class="block">
           <span class="mb-1 block text-sm font-medium text-slate-700">Featured group</span>
-          <select
-            name="bulk_group_id"
-            bind:value={bulkGroupId}
-            class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-          >
+          <Select name="bulk_group_id" bind:value={bulkGroupId} class="w-full">
             {#each data.groups as group}
               <option value={group.id}>
                 {group.name} ({group.total})
               </option>
             {/each}
-          </select>
+          </Select>
         </label>
       {/if}
 
@@ -342,22 +324,22 @@
         class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
       />
     </label>
-    <select name="category" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
+    <Select name="category">
       <option value="">All categories</option>
       {#each data.categories as category}
         <option value={category.id} selected={data.filters.categoryId === category.id}>
           {category.name}
         </option>
       {/each}
-    </select>
-    <select name="group" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
+    </Select>
+    <Select name="group">
       <option value="">All groups</option>
       {#each data.groups as group}
         <option value={group.id} selected={data.filters.groupId === group.id}>
           {group.name}
         </option>
       {/each}
-    </select>
+    </Select>
     <button
       class="inline-flex items-center justify-center gap-2 rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
     >

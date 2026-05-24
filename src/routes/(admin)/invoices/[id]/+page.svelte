@@ -4,6 +4,7 @@
   import LineItemProductSearch, {
     type LineProductHit
   } from '$lib/components/LineItemProductSearch.svelte';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -212,17 +213,13 @@
         >
           <label class="block">
             <span class="mb-1 block text-xs font-medium">Terms</span>
-            <select
-              name="terms"
-              disabled={!editable}
-              class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-            >
+            <Select name="terms" disabled={!editable} class="w-full">
               {#each ['due_on_receipt', 'net_15', 'net_30', 'net_60', 'prepaid'] as term}
                 <option value={term} selected={data.invoice.terms === term}
                   >{term.replaceAll('_', ' ')}</option
                 >
               {/each}
-            </select>
+            </Select>
           </label>
           <label class="block">
             <span class="mb-1 block text-xs font-medium">Due date</span>
@@ -250,7 +247,7 @@
               name="shipping"
               type="number"
               min="0"
-              step="0.01"
+              step="1"
               bind:value={shipping}
               disabled={!editable}
               class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
@@ -262,7 +259,7 @@
               name="discount"
               type="number"
               min="0"
-              step="0.01"
+              step="1"
               bind:value={invoiceDiscount}
               disabled={!editable}
               class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
@@ -346,7 +343,7 @@
                           bind:value={line.unit_price}
                           type="number"
                           min="0"
-                          step="0.01"
+                          step="1"
                           class="w-28 rounded border border-slate-300 px-2 py-1 text-right text-sm"
                         />
                       {:else}
@@ -359,7 +356,7 @@
                           bind:value={line.discount}
                           type="number"
                           min="0"
-                          step="0.01"
+                          step="1"
                           class="w-24 rounded border border-slate-300 px-2 py-1 text-right text-sm"
                         />
                       {:else}
@@ -372,7 +369,7 @@
                           bind:value={line.tax}
                           type="number"
                           min="0"
-                          step="0.01"
+                          step="1"
                           class="w-24 rounded border border-slate-300 px-2 py-1 text-right text-sm"
                         />
                       {:else}
@@ -498,26 +495,24 @@
       <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <h2 class="font-semibold">Status</h2>
         <form method="POST" action="?/setStatus" use:enhance class="mt-3 flex gap-2">
-          <select
-            name="status"
-            class="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
-          >
+          <Select name="status" class="min-w-0 flex-1">
             {#each ['draft', 'issued', 'paid', 'partially_paid', 'overdue', 'void', 'refunded'] as s}
               <option value={s} selected={data.invoice.status === s}>{s.replace('_', ' ')}</option>
             {/each}
-          </select>
+          </Select>
           <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
             >Save</button
           >
         </form>
         {#if balance > 0}
+          <h2 class="mt-5 font-semibold">Record payment</h2>
           <form method="POST" action="?/recordPayment" use:enhance class="mt-3 flex gap-2">
             <input
               name="amount"
               type="number"
-              min="0.01"
+              min="1"
               max={balance}
-              step="0.01"
+              step="1"
               placeholder="Amount"
               class="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
             />

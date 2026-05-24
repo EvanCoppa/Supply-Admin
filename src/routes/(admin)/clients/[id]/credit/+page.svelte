@@ -57,7 +57,7 @@
       <span class="mb-1 block text-sm font-medium">Credit limit (USD)</span>
       <input
         type="number"
-        step="0.01"
+        step="1"
         min="0"
         name="credit_limit"
         value={c?.credit_limit ?? 0}

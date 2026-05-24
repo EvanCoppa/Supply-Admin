@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currency, dateShort } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data } = $props();
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
@@ -25,11 +26,11 @@
       <p class="text-sm text-slate-500">{data.total} invoice{data.total === 1 ? '' : 's'}</p>
     </div>
     <form method="GET" class="flex gap-2 text-sm">
-      <select name="status" class="rounded border border-slate-300 px-2 py-1.5">
+      <Select name="status">
         <option value="">All</option>
         <option value="open" selected={data.filters.status === 'open'}>Open</option>
         <option value="paid" selected={data.filters.status === 'paid'}>Paid</option>
-      </select>
+      </Select>
       <button class="rounded bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800"
         >Filter</button
       >

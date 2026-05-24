@@ -1,6 +1,7 @@
 <script lang="ts">
   import { currency, dateTime } from '$lib/format';
   import OrderStatusBadge from '$lib/components/OrderStatusBadge.svelte';
+  import Select from '$lib/components/Select.svelte';
 
   let { data } = $props();
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
@@ -34,26 +35,23 @@
   </header>
 
   <form method="GET" class="grid gap-2 rounded border border-slate-200 bg-white p-3 sm:grid-cols-6">
-    <select name="status" class="rounded border border-slate-300 px-2 py-1.5 text-sm sm:col-span-1">
+    <Select name="status" class="sm:col-span-1">
       <option value="">All statuses</option>
       {#each data.statuses as s}
         <option value={s} selected={data.filters.status === s}>{s}</option>
       {/each}
-    </select>
-    <select
-      name="customer"
-      class="rounded border border-slate-300 px-2 py-1.5 text-sm sm:col-span-2"
-    >
+    </Select>
+    <Select name="customer" class="sm:col-span-2">
       <option value="">All clients</option>
       {#each data.customers as c}
         <option value={c.id} selected={data.filters.customerId === c.id}>{c.business_name}</option>
       {/each}
-    </select>
-    <select name="source" class="rounded border border-slate-300 px-2 py-1.5 text-sm sm:col-span-1">
+    </Select>
+    <Select name="source" class="sm:col-span-1">
       <option value="">Any source</option>
       <option value="storefront" selected={data.filters.source === 'storefront'}>Storefront</option>
       <option value="api" selected={data.filters.source === 'api'}>API</option>
-    </select>
+    </Select>
     <input
       type="date"
       name="from"

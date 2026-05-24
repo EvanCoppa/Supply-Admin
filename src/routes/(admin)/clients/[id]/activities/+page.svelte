@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { dateTime } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -48,26 +49,22 @@
     >
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Type</span>
-        <select
-          name="type"
-          required
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="type" required class="w-full">
           <option value="call">Call</option>
           <option value="email">Email</option>
           <option value="meeting">Meeting</option>
           <option value="visit">Visit</option>
           <option value="sms">SMS</option>
           <option value="other">Other</option>
-        </select>
+        </Select>
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Direction</span>
-        <select name="direction" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+        <Select name="direction" class="w-full">
           <option value="">—</option>
           <option value="inbound">Inbound</option>
           <option value="outbound">Outbound</option>
-        </select>
+        </Select>
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">When</span>
@@ -83,17 +80,14 @@
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Contact</span>
-        <select
-          name="contact_id"
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="contact_id" class="w-full">
           <option value="">—</option>
           {#each data.contacts as ct}
             <option value={ct.id}>
               {[ct.first_name, ct.last_name].filter(Boolean).join(' ') || ct.id.slice(0, 6)}
             </option>
           {/each}
-        </select>
+        </Select>
       </label>
       <label class="block sm:col-span-3">
         <span class="mb-1 block text-xs font-medium">Notes</span>

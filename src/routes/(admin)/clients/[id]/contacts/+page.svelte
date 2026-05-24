@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -91,14 +92,14 @@
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Role</span>
-        <select name="role" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+        <Select name="role" class="w-full">
           <option value="">—</option>
           <option value="primary">Primary</option>
           <option value="billing">Billing</option>
           <option value="shipping">Shipping</option>
           <option value="clinical">Clinical</option>
           <option value="other">Other</option>
-        </select>
+        </Select>
       </label>
       <label class="block sm:col-span-2">
         <span class="mb-1 block text-xs font-medium">Notes</span>
@@ -189,15 +190,12 @@
                 </label>
                 <label class="block">
                   <span class="mb-1 block text-xs font-medium">Role</span>
-                  <select
-                    name="role"
-                    class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-                  >
+                  <Select name="role" class="w-full">
                     <option value="" selected={!ct.role}>—</option>
                     {#each ['primary', 'billing', 'shipping', 'clinical', 'other'] as r}
                       <option value={r} selected={ct.role === r}>{r}</option>
                     {/each}
-                  </select>
+                  </Select>
                 </label>
                 <label class="block sm:col-span-2">
                   <span class="mb-1 block text-xs font-medium">Notes</span>

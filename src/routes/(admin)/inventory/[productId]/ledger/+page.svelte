@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import { dateTime } from '$lib/format';
   import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 </script>
@@ -67,15 +68,11 @@
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Reason</span>
-        <select
-          name="reason"
-          required
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="reason" required class="w-full">
           {#each data.reasons as r}
             <option value={r}>{r}</option>
           {/each}
-        </select>
+        </Select>
       </label>
       <label class="block sm:col-span-2">
         <span class="mb-1 block text-xs font-medium">Notes</span>

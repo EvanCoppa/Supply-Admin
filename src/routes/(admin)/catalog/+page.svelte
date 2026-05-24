@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currency } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data } = $props();
 
@@ -38,17 +39,17 @@
       value={data.filters.search}
       class="min-w-[200px] flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
     />
-    <select name="status" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
+    <Select name="status">
       <option value="">All statuses</option>
       <option value="active" selected={data.filters.status === 'active'}>Active</option>
       <option value="archived" selected={data.filters.status === 'archived'}>Archived</option>
-    </select>
-    <select name="category" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
+    </Select>
+    <Select name="category">
       <option value="">All categories</option>
       {#each data.categories as c}
         <option value={c.id} selected={c.id === data.filters.categoryId}>{c.name}</option>
       {/each}
-    </select>
+    </Select>
     <button
       type="submit"
       class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"

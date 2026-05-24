@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import type { DailyRoutineBadgeKind, DailyRoutineStep } from '$lib/types/db';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -94,11 +95,11 @@
     </label>
     <label class="block sm:col-span-2">
       <span class="mb-1 block text-sm font-medium">Badge</span>
-      <select name="badge_kind" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+      <Select name="badge_kind" class="w-full">
         {#each BADGE_OPTIONS as opt}
           <option value={opt.value}>{opt.label}</option>
         {/each}
-      </select>
+      </Select>
     </label>
     <div class="flex items-end sm:col-span-6">
       <button
@@ -169,16 +170,13 @@
                 </label>
                 <label class="block sm:col-span-2">
                   <span class="mb-1 block text-xs font-medium text-slate-500">Badge</span>
-                  <select
-                    name="badge_kind"
-                    class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-                  >
+                  <Select name="badge_kind" class="w-full">
                     {#each BADGE_OPTIONS as opt}
                       <option value={opt.value} selected={(step.badge_kind ?? '') === opt.value}>
                         {opt.label}
                       </option>
                     {/each}
-                  </select>
+                  </Select>
                 </label>
                 <div class="flex items-end gap-2 sm:col-span-6">
                   <button

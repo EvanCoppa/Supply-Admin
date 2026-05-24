@@ -436,12 +436,12 @@
             <span class="mb-1 block text-xs font-medium">Refund amount</span>
             <input
               type="number"
-              step="0.01"
-              min="0.01"
+              step="1"
+              min="1"
               max={orderTotal}
               name="amount"
               bind:value={refundAmount}
-              placeholder="0.00"
+              placeholder="0"
               required
               class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
             />

@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import { currency, dateShort } from '$lib/format';
   import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -67,27 +68,18 @@
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm space-y-3 text-sm">
         <label class="block">
           <span class="mb-1 block text-xs font-medium text-slate-600">Supplier</span>
-          <select
-            name="supplier_id"
-            bind:value={supplierId}
-            required
-            class="w-full rounded border border-slate-300 px-2 py-1.5"
-          >
+          <Select name="supplier_id" bind:value={supplierId} required class="w-full">
             {#each data.suppliers as s (s.id)}
               <option value={s.id}>{s.name}</option>
             {/each}
-          </select>
+          </Select>
         </label>
 
         <label class="block">
           <span class="mb-1 block text-xs font-medium text-slate-600"
             >For client order (optional)</span
           >
-          <select
-            name="order_id"
-            bind:value={orderId}
-            class="w-full rounded border border-slate-300 px-2 py-1.5"
-          >
+          <Select name="order_id" bind:value={orderId} class="w-full">
             <option value="">— not tied to a client order —</option>
             {#each data.recentOrders as o (o.id)}
               <option value={o.id}>
@@ -96,7 +88,7 @@
                 )}
               </option>
             {/each}
-          </select>
+          </Select>
         </label>
 
         <div class="grid gap-3 sm:grid-cols-2">
@@ -143,7 +135,7 @@
             <span class="mb-1 block text-xs font-medium text-slate-600">Subtotal</span>
             <input
               type="number"
-              step="0.01"
+              step="1"
               min="0"
               name="subtotal"
               bind:value={subtotal}
@@ -155,7 +147,7 @@
             <span class="mb-1 block text-xs font-medium text-slate-600">Freight / shipping</span>
             <input
               type="number"
-              step="0.01"
+              step="1"
               min="0"
               name="freight"
               bind:value={freight}
@@ -180,7 +172,7 @@
             <span class="mb-1 block text-xs font-medium text-slate-600">Tax</span>
             <input
               type="number"
-              step="0.01"
+              step="1"
               min="0"
               name="tax"
               bind:value={tax}
@@ -206,23 +198,20 @@
         <div class="grid gap-3 sm:grid-cols-3">
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Status</span>
-            <select name="status" class="w-full rounded border border-slate-300 px-2 py-1.5">
+            <Select name="status" class="w-full">
               <option value="draft">draft</option>
               <option value="ordered" selected>ordered</option>
               <option value="received">received</option>
               <option value="cancelled">cancelled</option>
-            </select>
+            </Select>
           </label>
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Payment status</span>
-            <select
-              name="payment_status"
-              class="w-full rounded border border-slate-300 px-2 py-1.5"
-            >
+            <Select name="payment_status" class="w-full">
               <option value="unpaid" selected>unpaid</option>
               <option value="partial">partial</option>
               <option value="paid">paid</option>
-            </select>
+            </Select>
           </label>
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Due date</span>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { currency, dateShort } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -57,28 +58,24 @@
     >
       <label class="block sm:col-span-3">
         <span class="mb-1 block text-xs font-medium">Order</span>
-        <select
-          name="order_id"
-          required
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="order_id" required class="w-full">
           <option value="">— Pick an order —</option>
           {#each data.orders as o}
             <option value={o.id}>
               {dateShort(o.placed_at)} · {currency(o.total)} · {o.status}
             </option>
           {/each}
-        </select>
+        </Select>
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Terms</span>
-        <select name="terms" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+        <Select name="terms" class="w-full">
           <option value="due_on_receipt">Due on receipt</option>
           <option value="net_15">Net 15</option>
           <option value="net_30" selected>Net 30</option>
           <option value="net_60">Net 60</option>
           <option value="prepaid">Prepaid</option>
-        </select>
+        </Select>
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Due in (days)</span>
@@ -158,8 +155,8 @@
                     <input type="hidden" name="id" value={inv.id} />
                     <input
                       type="number"
-                      step="0.01"
-                      min="0.01"
+                      step="1"
+                      min="1"
                       name="amount"
                       placeholder="Amount"
                       class="w-20 rounded border border-slate-300 px-1 py-0.5 text-xs"

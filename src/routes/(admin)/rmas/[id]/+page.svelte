@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import { currency, dateTime } from '$lib/format';
   import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
   let r = $derived(data.rma);
@@ -157,7 +158,7 @@
           <span class="mb-1 block text-xs font-medium">Refund amount</span>
           <input
             type="number"
-            step="0.01"
+            step="1"
             min="0"
             name="refund_amount"
             value={Number(r.refund_amount)}
@@ -168,7 +169,7 @@
           <span class="mb-1 block text-xs font-medium">Restocking fee</span>
           <input
             type="number"
-            step="0.01"
+            step="1"
             min="0"
             name="restocking_fee"
             value={Number(r.restocking_fee)}
@@ -218,18 +219,14 @@
           >
             <label class="block sm:col-span-3">
               <span class="mb-1 block text-xs font-medium">Order line</span>
-              <select
-                name="order_line_item_id"
-                required
-                class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-              >
+              <Select name="order_line_item_id" required class="w-full">
                 <option value="">— Pick a line —</option>
                 {#each data.orderLineItems as li}
                   <option value={li.id}>
                     {li.product_sku_snapshot} · {li.product_name_snapshot} · qty {li.quantity}
                   </option>
                 {/each}
-              </select>
+              </Select>
             </label>
             <label class="block">
               <span class="mb-1 block text-xs font-medium">Quantity</span>
@@ -247,7 +244,7 @@
               <span class="mb-1 block text-xs font-medium">Unit refund</span>
               <input
                 type="number"
-                step="0.01"
+                step="1"
                 min="0"
                 name="unit_refund"
                 value="0"

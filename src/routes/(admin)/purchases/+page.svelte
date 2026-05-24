@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currency, dateShort } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data } = $props();
 
@@ -52,42 +53,30 @@
   >
     <label class="block">
       <span class="mb-1 block text-xs font-medium text-slate-600">Supplier</span>
-      <select
-        name="supplier"
-        value={data.filters.supplierId}
-        class="rounded border border-slate-300 px-2 py-1"
-      >
+      <Select name="supplier" value={data.filters.supplierId}>
         <option value="">All</option>
         {#each data.suppliers as s}
           <option value={s.id}>{s.name}</option>
         {/each}
-      </select>
+      </Select>
     </label>
     <label class="block">
       <span class="mb-1 block text-xs font-medium text-slate-600">Status</span>
-      <select
-        name="status"
-        value={data.filters.status}
-        class="rounded border border-slate-300 px-2 py-1"
-      >
+      <Select name="status" value={data.filters.status}>
         <option value="">All</option>
         {#each data.statuses as s}
           <option value={s}>{s}</option>
         {/each}
-      </select>
+      </Select>
     </label>
     <label class="block">
       <span class="mb-1 block text-xs font-medium text-slate-600">Payment</span>
-      <select
-        name="payment_status"
-        value={data.filters.paymentStatus}
-        class="rounded border border-slate-300 px-2 py-1"
-      >
+      <Select name="payment_status" value={data.filters.paymentStatus}>
         <option value="">All</option>
         {#each data.paymentStatuses as s}
           <option value={s}>{s}</option>
         {/each}
-      </select>
+      </Select>
     </label>
     <button class="rounded bg-slate-900 px-3 py-1.5 text-xs font-medium text-white" type="submit">
       Apply

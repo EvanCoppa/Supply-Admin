@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Product } from '$lib/types/db';
+  import Select from '$lib/components/Select.svelte';
 
   type ProductLike = Partial<{
     [K in keyof Product]: Product[K] | null;
@@ -49,12 +50,12 @@
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Category</span>
-    <select name="category_id" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+    <Select name="category_id" class="w-full">
       <option value="">— None —</option>
       {#each categories as c}
         <option value={c.id} selected={c.id === product.category_id}>{c.name}</option>
       {/each}
-    </select>
+    </Select>
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Manufacturer</span>
@@ -89,7 +90,7 @@
     <input
       type="number"
       name="base_price"
-      step="0.01"
+      step="1"
       min="0"
       required
       value={product.base_price ?? ''}
@@ -117,10 +118,10 @@
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Status</span>
-    <select name="status" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+    <Select name="status" class="w-full">
       <option value="active" selected={product.status !== 'archived'}>Active</option>
       <option value="archived" selected={product.status === 'archived'}>Archived</option>
-    </select>
+    </Select>
   </label>
   <label class="block sm:col-span-2">
     <span class="mb-1 block text-sm font-medium">Preview image</span>

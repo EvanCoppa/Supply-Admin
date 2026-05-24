@@ -4,6 +4,7 @@
   import LineItemProductSearch, {
     type LineProductHit
   } from '$lib/components/LineItemProductSearch.svelte';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -136,28 +137,28 @@
     >
       <label class="block md:col-span-2">
         <span class="mb-1 block text-xs font-medium">Customer</span>
-        <select
+        <Select
           name="customer_id"
           required
           bind:value={customerId}
           onchange={maybeUseCustomerEmail}
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+          class="w-full"
         >
           <option value="">Pick a customer</option>
           {#each data.customers as customer}
             <option value={customer.id}>{customer.business_name}</option>
           {/each}
-        </select>
+        </Select>
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Terms</span>
-        <select name="terms" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+        <Select name="terms" class="w-full">
           <option value="due_on_receipt">Due on receipt</option>
           <option value="net_15">Net 15</option>
           <option value="net_30" selected>Net 30</option>
           <option value="net_60">Net 60</option>
           <option value="prepaid">Prepaid</option>
-        </select>
+        </Select>
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Due date</span>
@@ -184,7 +185,7 @@
           name="shipping"
           type="number"
           min="0"
-          step="0.01"
+          step="1"
           bind:value={shipping}
           class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
         />
@@ -195,7 +196,7 @@
           name="discount"
           type="number"
           min="0"
-          step="0.01"
+          step="1"
           bind:value={invoiceDiscount}
           class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
         />
@@ -258,7 +259,7 @@
                     bind:value={line.unit_price}
                     type="number"
                     min="0"
-                    step="0.01"
+                    step="1"
                     class="w-28 rounded border border-slate-300 px-2 py-1 text-right text-sm"
                   />
                 </td>
@@ -267,7 +268,7 @@
                     bind:value={line.discount}
                     type="number"
                     min="0"
-                    step="0.01"
+                    step="1"
                     class="w-24 rounded border border-slate-300 px-2 py-1 text-right text-sm"
                   />
                 </td>
@@ -276,7 +277,7 @@
                     bind:value={line.tax}
                     type="number"
                     min="0"
-                    step="0.01"
+                    step="1"
                     class="w-24 rounded border border-slate-300 px-2 py-1 text-right text-sm"
                   />
                 </td>

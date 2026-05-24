@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currency, dateShort } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data } = $props();
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
@@ -34,12 +35,12 @@
     method="GET"
     class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-3 text-sm"
   >
-    <select name="status" class="rounded border border-slate-300 px-2 py-1.5">
+    <Select name="status">
       <option value="">All statuses</option>
       {#each ['requested', 'approved', 'received', 'refunded', 'rejected', 'cancelled'] as s}
         <option value={s} selected={data.filters.status === s}>{s}</option>
       {/each}
-    </select>
+    </Select>
     <button
       type="submit"
       class="rounded bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800"

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currency, dateShort } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data } = $props();
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
@@ -50,7 +51,7 @@
       value={data.filters.q}
       class="min-w-[240px] flex-1 rounded border border-slate-300 px-2 py-1.5"
     />
-    <select name="status" class="rounded border border-slate-300 px-2 py-1.5">
+    <Select name="status">
       <option value="">All statuses</option>
       <option value="outstanding" selected={data.filters.status === 'outstanding'}
         >Outstanding</option
@@ -64,7 +65,7 @@
       <option value="overdue" selected={data.filters.status === 'overdue'}>Overdue</option>
       <option value="void" selected={data.filters.status === 'void'}>Void</option>
       <option value="refunded" selected={data.filters.status === 'refunded'}>Refunded</option>
-    </select>
+    </Select>
     <button
       type="submit"
       class="rounded bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800"

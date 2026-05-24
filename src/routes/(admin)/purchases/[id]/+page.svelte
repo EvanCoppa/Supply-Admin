@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import { currency, dateShort, dateTime } from '$lib/format';
   import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
   const p = $derived(data.purchase);
@@ -70,15 +71,11 @@
 
         <label class="block">
           <span class="mb-1 block text-xs font-medium text-slate-600">Supplier</span>
-          <select
-            name="supplier_id"
-            value={String(p.supplier_id)}
-            class="w-full rounded border border-slate-300 px-2 py-1.5"
-          >
+          <Select name="supplier_id" value={String(p.supplier_id)} class="w-full">
             {#each data.suppliers as s (s.id)}
               <option value={s.id}>{s.name}</option>
             {/each}
-          </select>
+          </Select>
         </label>
 
         <div class="grid gap-3 sm:grid-cols-2">
@@ -128,7 +125,7 @@
             <span class="mb-1 block text-xs font-medium text-slate-600">Subtotal</span>
             <input
               type="number"
-              step="0.01"
+              step="1"
               min="0"
               name="subtotal"
               value={String(p.subtotal ?? 0)}
@@ -139,7 +136,7 @@
             <span class="mb-1 block text-xs font-medium text-slate-600">Freight</span>
             <input
               type="number"
-              step="0.01"
+              step="1"
               min="0"
               name="freight"
               value={String(p.freight ?? 0)}
@@ -162,7 +159,7 @@
             <span class="mb-1 block text-xs font-medium text-slate-600">Tax</span>
             <input
               type="number"
-              step="0.01"
+              step="1"
               min="0"
               name="tax"
               value={String(p.tax ?? 0)}
@@ -188,28 +185,20 @@
         <div class="grid gap-3 sm:grid-cols-3">
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Status</span>
-            <select
-              name="status"
-              value={String(p.status)}
-              class="w-full rounded border border-slate-300 px-2 py-1.5"
-            >
+            <Select name="status" value={String(p.status)} class="w-full">
               <option value="draft">draft</option>
               <option value="ordered">ordered</option>
               <option value="received">received</option>
               <option value="cancelled">cancelled</option>
-            </select>
+            </Select>
           </label>
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Payment</span>
-            <select
-              name="payment_status"
-              value={String(p.payment_status)}
-              class="w-full rounded border border-slate-300 px-2 py-1.5"
-            >
+            <Select name="payment_status" value={String(p.payment_status)} class="w-full">
               <option value="unpaid">unpaid</option>
               <option value="partial">partial</option>
               <option value="paid">paid</option>
-            </select>
+            </Select>
           </label>
           <label class="block">
             <span class="mb-1 block text-xs font-medium text-slate-600">Due date</span>

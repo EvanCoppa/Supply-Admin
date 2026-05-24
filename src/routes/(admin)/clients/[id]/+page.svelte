@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
   let c = $derived(data.client);
@@ -39,33 +40,30 @@
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Status</span>
-    <select name="status" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+    <Select name="status" class="w-full">
       <option value="active" selected={c.status === 'active'}>Active</option>
       <option value="suspended" selected={c.status === 'suspended'}>Suspended</option>
       <option value="archived" selected={c.status === 'archived'}>Archived</option>
-    </select>
+    </Select>
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Lifecycle stage</span>
-    <select
-      name="lifecycle_stage"
-      class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-    >
+    <Select name="lifecycle_stage" class="w-full">
       <option value="lead" selected={c.lifecycle_stage === 'lead'}>Lead</option>
       <option value="prospect" selected={c.lifecycle_stage === 'prospect'}>Prospect</option>
       <option value="active" selected={c.lifecycle_stage === 'active'}>Active</option>
       <option value="at_risk" selected={c.lifecycle_stage === 'at_risk'}>At risk</option>
       <option value="churned" selected={c.lifecycle_stage === 'churned'}>Churned</option>
-    </select>
+    </Select>
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Territory</span>
-    <select name="territory_id" class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm">
+    <Select name="territory_id" class="w-full">
       <option value="">— None —</option>
       {#each data.territories as t}
         <option value={t.id} selected={t.id === c.territory_id}>{t.name}</option>
       {/each}
-    </select>
+    </Select>
   </label>
   <label class="block sm:col-span-2">
     <span class="mb-1 block text-sm font-medium">External code</span>
@@ -110,17 +108,14 @@
   </label>
   <label class="block">
     <span class="mb-1 block text-sm font-medium">Assigned sales rep</span>
-    <select
-      name="assigned_sales_rep_id"
-      class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-    >
+    <Select name="assigned_sales_rep_id" class="w-full">
       <option value="">— None —</option>
       {#each data.admins as a}
         <option value={a.id} selected={a.id === c.assigned_sales_rep_id}>
           {a.display_name ?? a.id.slice(0, 8)}
         </option>
       {/each}
-    </select>
+    </Select>
   </label>
 
   <div class="sm:col-span-2">

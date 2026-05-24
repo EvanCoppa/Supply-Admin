@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { currency, dateShort, dateTime } from '$lib/format';
+  import Select from '$lib/components/Select.svelte';
 
   let { data, form } = $props();
 
@@ -34,54 +35,40 @@
 
     <label class="block">
       <span class="mb-1 block text-xs font-medium">Scope</span>
-      <select
-        name="scope"
-        bind:value={scope}
-        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-      >
+      <Select name="scope" bind:value={scope} class="w-full">
         <option value="product">Product</option>
         <option value="category">Category</option>
-      </select>
+      </Select>
     </label>
 
     {#if scope === 'product'}
       <label class="block sm:col-span-2">
         <span class="mb-1 block text-xs font-medium">Product</span>
-        <select
-          name="product_id"
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="product_id" class="w-full">
           <option value="">— Select —</option>
           {#each data.products as p}
             <option value={p.id}>{p.sku} · {p.name}</option>
           {/each}
-        </select>
+        </Select>
       </label>
     {:else}
       <label class="block sm:col-span-2">
         <span class="mb-1 block text-xs font-medium">Category</span>
-        <select
-          name="category_id"
-          class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="category_id" class="w-full">
           <option value="">— Select —</option>
           {#each data.categories as c}
             <option value={c.id}>{c.name}</option>
           {/each}
-        </select>
+        </Select>
       </label>
     {/if}
 
     <label class="block">
       <span class="mb-1 block text-xs font-medium">Override type</span>
-      <select
-        name="override_type"
-        bind:value={overrideType}
-        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-      >
+      <Select name="override_type" bind:value={overrideType} class="w-full">
         <option value="percent_discount">Percent discount</option>
         <option value="absolute_price">Absolute price</option>
-      </select>
+      </Select>
     </label>
 
     {#if overrideType === 'absolute_price'}
@@ -89,7 +76,7 @@
         <span class="mb-1 block text-xs font-medium">Absolute price (USD)</span>
         <input
           type="number"
-          step="0.01"
+          step="1"
           min="0"
           name="absolute_price"
           class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
@@ -140,16 +127,13 @@
     <form method="POST" action="?/preview" use:enhance class="flex flex-wrap items-end gap-2">
       <label class="block">
         <span class="mb-1 block text-xs font-medium">Product</span>
-        <select
-          name="product_id"
-          class="min-w-[260px] rounded border border-slate-300 px-2 py-1.5 text-sm"
-        >
+        <Select name="product_id" class="min-w-[260px]">
           {#each data.products as p}
             <option value={p.id} selected={p.id === form?.previewProductId}>
               {p.sku} · {p.name}
             </option>
           {/each}
-        </select>
+        </Select>
       </label>
       <button
         type="submit"

@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Supply-Admin — Pre-Handover User Stories</title>
+<style>
+  @page {
+    size: Letter;
+    margin: 0.75in 0.7in 0.85in 0.7in;
+    @bottom-center {
+      content: "Supply-Admin — Pre-Handover User Stories  ·  Page " counter(page) " of " counter(pages);
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+      font-size: 9pt;
+      color: #888;
+    }
+  }
+
+  :root {
+    --ink: #1a1f2e;
+    --ink-soft: #3d4759;
+    --muted: #6b7280;
+    --rule: #e5e7eb;
+    --rule-soft: #f1f3f6;
+    --accent: #2563eb;
+    --accent-soft: #eff4ff;
+    --bg: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .cover {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 9in;
+    padding: 0 0.2in;
+  }
+
+  .cover .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 9.5pt;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.6em;
+  }
+
+  .cover h1 {
+    font-size: 34pt;
+    line-height: 1.1;
+    margin: 0 0 0.4em 0;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .cover .lede {
+    font-size: 13pt;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    max-width: 6in;
+    margin: 0 0 2.4em 0;
+  }
+
+  .cover .meta {
+    border-top: 1px solid var(--rule);
+    padding-top: 1.2em;
+    display: flex;
+    gap: 2.4em;
+    color: var(--muted);
+    font-size: 9.5pt;
+  }
+
+  .cover .meta dt {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 8.5pt;
+    color: var(--muted);
+    margin-bottom: 0.3em;
+  }
+
+  .cover .meta dd {
+    margin: 0;
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 10.5pt;
+  }
+
+  h1.doc-title {
+    font-size: 18pt;
+    margin: 0 0 0.2em 0;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+  }
+
+  h1.doc-title + p.intro {
+    color: var(--ink-soft);
+    font-size: 10.5pt;
+    margin: 0 0 1.6em 0;
+    max-width: 6in;
+  }
+
+  h2 {
+    font-size: 13.5pt;
+    margin: 1.6em 0 0.55em;
+    padding: 0 0 0.35em 0;
+    border-bottom: 1px solid var(--rule);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    page-break-after: avoid;
+  }
+
+  h2:first-of-type { margin-top: 0.4em; }
+
+  section {
+    page-break-inside: avoid;
+    margin-bottom: 0.4em;
+  }
+
+  ul.stories {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  ul.stories li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65em;
+    padding: 0.45em 0 0.45em 0;
+    border-bottom: 1px dashed var(--rule-soft);
+    page-break-inside: avoid;
+  }
+
+  ul.stories li:last-child { border-bottom: none; }
+
+  .box {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    margin-top: 2px;
+    border: 1.4px solid #b8bfcc;
+    border-radius: 3px;
+    background: #fff;
+  }
+
+  .story-text {
+    color: var(--ink);
+    flex: 1;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 1.5em 0;
+  }
+
+  strong { font-weight: 600; }
+
+  /* Section icon/index column */
+  .toc {
+    background: var(--accent-soft);
+    border: 1px solid #dbe5fb;
+    border-radius: 8px;
+    padding: 1em 1.2em;
+    margin: 0 0 1.8em 0;
+    page-break-inside: avoid;
+  }
+  .toc h3 {
+    margin: 0 0 0.6em 0;
+    font-size: 10pt;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .toc ol {
+    margin: 0;
+    padding: 0;
+    columns: 2;
+    column-gap: 1.6em;
+    list-style: none;
+    counter-reset: toc;
+  }
+  .toc ol li {
+    counter-increment: toc;
+    font-size: 10pt;
+    padding: 0.2em 0;
+    color: var(--ink-soft);
+    break-inside: avoid;
+  }
+  .toc ol li::before {
+    content: counter(toc, decimal-leading-zero) "  ";
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    margin-right: 0.4em;
+  }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="eyebrow">Pre-Handover Acceptance</div>
+  <h1>Supply-Admin<br/>User-Story Checklist</h1>
+  <p class="lede">
+    A walkthrough you can complete from your own seat. Every item below is something you,
+    as an admin user, should be able to do, see, or rely on during a normal working day.
+    Tick each one only after you have personally completed the flow against staging with
+    realistic data.
+  </p>
+  <dl class="meta">
+    <div>
+      <dt>Prepared for</dt>
+      <dd>Client sign-off</dd>
+    </div>
+    <div>
+      <dt>Document</dt>
+      <dd>Pre-handover acceptance</dd>
+    </div>
+    <div>
+      <dt>Date</dt>
+      <dd>May 2026</dd>
+    </div>
+  </dl>
+</section>
+
+<h1 class="doc-title">How to use this document</h1>
+<p class="intro">
+  Walk through each section in order. Each line is a single, self-contained user story.
+  If a story cannot be ticked, capture what you saw instead in the margin (or a separate note)
+  so we can resolve it before sign-off.
+</p>
+
+<div class="toc">
+  <h3>Sections</h3>
+  <ol>
+    <li>Signing In</li>
+    <li>Dashboard</li>
+    <li>Getting Around</li>
+    <li>Catalog</li>
+    <li>Inventory</li>
+    <li>Clients</li>
+    <li>Per-Client Pricing</li>
+    <li>Featured Items</li>
+    <li>Orders</li>
+    <li>Returns (RMAs)</li>
+    <li>Invoices</li>
+    <li>Purchases</li>
+    <li>Trends (per Client)</li>
+    <li>API Tokens</li>
+    <li>Admin Users</li>
+    <li>Tasks, Tags, Territories, Routines</li>
+    <li>Reports</li>
+    <li>Image Generator</li>
+    <li>Quality I Should Take for Granted</li>
+    <li>Day-Two Operations</li>
+    <li>Going Live</li>
+  </ol>
+</div>
+
+<section>
+<h2>Signing In</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can sign in with my email and password and land on the dashboard.</span></li>
+  <li><span class="box"></span><span class="story-text">If I enter the wrong password, I see a clear error and the message does not tell me whether the email exists.</span></li>
+  <li><span class="box"></span><span class="story-text">If I close the tab and come back, I am still signed in.</span></li>
+  <li><span class="box"></span><span class="story-text">If I forget my password, I can request a reset email and finish the reset without help.</span></li>
+  <li><span class="box"></span><span class="story-text">When I sign out, I am returned to the login page and the back button does not let me back into the app.</span></li>
+  <li><span class="box"></span><span class="story-text">If someone without admin access tries to sign in, they are turned away with a clear message that this app is admin-only.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Dashboard</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">When I land on the dashboard, I can see how many orders came in today, revenue for the last 7 and 30 days, and how many products are low on stock.</span></li>
+  <li><span class="box"></span><span class="story-text">I can click the low-stock card and land on an inventory list already filtered to the items I need to reorder.</span></li>
+  <li><span class="box"></span><span class="story-text">I can see a short list of the most recent orders and inventory changes without scrolling.</span></li>
+  <li><span class="box"></span><span class="story-text">On a brand-new account with no data, the dashboard still looks tidy and explains what I will see once data arrives.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Getting Around</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">From any page, I can reach Dashboard, Catalog, Inventory, Clients, Orders, Pricing, Featured Items, API Tokens, and Admin Users in one click.</span></li>
+  <li><span class="box"></span><span class="story-text">When I type a SKU, customer name, or order number into the global search, the right result shows up and clicking it takes me to the right page.</span></li>
+  <li><span class="box"></span><span class="story-text">On any detail page, the breadcrumb at the top takes me back to the list I came from.</span></li>
+  <li><span class="box"></span><span class="story-text">When I save, archive, refund, or delete something, I see a confirmation message; when something fails, the error tells me what went wrong.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Catalog</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can browse my full product list, sort it, and search it.</span></li>
+  <li><span class="box"></span><span class="story-text">I can filter the list by category and by status (active or archived).</span></li>
+  <li><span class="box"></span><span class="story-text">I can add a new product, fill in all the fields, and save it; if I miss a required field, the form tells me exactly which one.</span></li>
+  <li><span class="box"></span><span class="story-text">I can open an existing product, change anything on it, save, and see my change stick.</span></li>
+  <li><span class="box"></span><span class="story-text">I can archive a product so it stops showing up in the default list, and I can bring it back later if needed.</span></li>
+  <li><span class="box"></span><span class="story-text">I can upload images for a product, drag them into the order I want, and remove ones I don&rsquo;t need.</span></li>
+  <li><span class="box"></span><span class="story-text">When I pick a category, I can see and choose from the full nested category tree.</span></li>
+  <li><span class="box"></span><span class="story-text">I can upload a CSV to add or update products in bulk, see a preview of what will change, see any row-level errors, and only commit after I confirm.</span></li>
+  <li><span class="box"></span><span class="story-text">I can export my catalog (the whole thing or a filtered view) to a CSV file.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Inventory</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can see every product&rsquo;s on-hand quantity, what&rsquo;s reserved, the low-stock threshold, and when it was last updated.</span></li>
+  <li><span class="box"></span><span class="story-text">I can filter to show only low-stock items, only out-of-stock items, or by category.</span></li>
+  <li><span class="box"></span><span class="story-text">I can record a manual inventory change with a quantity (positive or negative), pick a reason (receipt, manual adjustment, cycle count, damage, other), and add a note; the new total shows up immediately.</span></li>
+  <li><span class="box"></span><span class="story-text">I can open any product and see the full history of inventory changes: when, who, how much, why, and which order if applicable.</span></li>
+  <li><span class="box"></span><span class="story-text">Products that are below their low-stock threshold are clearly flagged wherever they appear in the app.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Clients</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can browse my client businesses in a searchable, filterable list.</span></li>
+  <li><span class="box"></span><span class="story-text">I can open a client and edit their business name, primary contact, email, phone, assigned sales rep, and status.</span></li>
+  <li><span class="box"></span><span class="story-text">I can add, edit, and remove shipping/billing addresses for a client and mark one as the default shipping address.</span></li>
+  <li><span class="box"></span><span class="story-text">I can add a new client; during that flow, I can optionally invite a portal login so the client can sign in themselves.</span></li>
+  <li><span class="box"></span><span class="story-text">When I suspend a client, they can no longer place orders or sign in to the portal.</span></li>
+  <li><span class="box"></span><span class="story-text">I can leave internal notes on a client that other admins can read.</span></li>
+  <li><span class="box"></span><span class="story-text">I can keep multiple named contacts per client (e.g. ordering contact, billing contact, owner).</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Per-Client Pricing</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">On a client&rsquo;s Pricing tab, I can see every pricing rule that applies to them.</span></li>
+  <li><span class="box"></span><span class="story-text">I can create a new rule for either a specific product or an entire category, choose between a fixed price or a percent discount, and optionally set a start and end date.</span></li>
+  <li><span class="box"></span><span class="story-text">If I try to enter an invalid discount (less than 0%, more than 100%, or a negative price), the form blocks me and tells me why.</span></li>
+  <li><span class="box"></span><span class="story-text">I can edit or delete an existing rule.</span></li>
+  <li><span class="box"></span><span class="story-text">I can pick a product and instantly see what this specific client would pay for it, and which rule decided that price.</span></li>
+  <li><span class="box"></span><span class="story-text">I can see who changed which rule and when.</span></li>
+  <li><span class="box"></span><span class="story-text">If two rules conflict (same product or category for the same client), the app flags it so I can fix it.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Featured Items</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">On a client&rsquo;s Featured tab, I can add individual products or pre-made featured groups in the order I want them displayed.</span></li>
+  <li><span class="box"></span><span class="story-text">I can drag items to reorder them and the new order sticks.</span></li>
+  <li><span class="box"></span><span class="story-text">I can remove a featured item without affecting the others.</span></li>
+  <li><span class="box"></span><span class="story-text">On the Featured Groups page, I can create reusable groups with a name, description, and ordered list of products that I can then assign to many clients.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Orders</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can browse every order across all clients, with status, client name, total, placed date, and source visible at a glance.</span></li>
+  <li><span class="box"></span><span class="story-text">I can filter by status, by client, by date range, and by source; I can sort by placed date or total.</span></li>
+  <li><span class="box"></span><span class="story-text">I can open any order and see the client, current status, totals, payment reference, source, the line items exactly as they were at the time of the order, the shipping address, and the timeline of what&rsquo;s happened so far.</span></li>
+  <li><span class="box"></span><span class="story-text">I can mark an order fulfilled, mark it shipped (entering a tracking number), mark it delivered, or cancel it.</span></li>
+  <li><span class="box"></span><span class="story-text">I can refund an order; before it runs, a confirmation modal tells me what will happen to inventory and the payment, and I have to confirm.</span></li>
+  <li><span class="box"></span><span class="story-text">I can refund part of an order rather than all of it.</span></li>
+  <li><span class="box"></span><span class="story-text">I can see the full history of payment attempts on the order.</span></li>
+  <li><span class="box"></span><span class="story-text">I can add internal notes to an order that only admins can see.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Returns (RMAs)</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can browse all RMAs across clients.</span></li>
+  <li><span class="box"></span><span class="story-text">I can open an RMA and see the items being returned, the status, and the history of what&rsquo;s happened.</span></li>
+  <li><span class="box"></span><span class="story-text">I can move an RMA through its lifecycle: requested &rarr; approved &rarr; received &rarr; refunded, with the right things happening at each step.</span></li>
+  <li><span class="box"></span><span class="story-text">I can add, edit, or remove line items on an RMA (product, quantity, unit refund amount).</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Invoices</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can browse invoices across all clients.</span></li>
+  <li><span class="box"></span><span class="story-text">I can create a new invoice, choose the products it contains, preview what it will look like, and save it.</span></li>
+  <li><span class="box"></span><span class="story-text">I can edit an existing invoice and the changes stick.</span></li>
+  <li><span class="box"></span><span class="story-text">A client can open the link to their own invoice and view it themselves.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Purchases</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can browse purchase orders.</span></li>
+  <li><span class="box"></span><span class="story-text">I can create a new purchase order with line items, and edit it later.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Trends (per Client)</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">On a client&rsquo;s Trends tab, I can see how often they have ordered over the last 12 months.</span></li>
+  <li><span class="box"></span><span class="story-text">I can see their top 10 products by quantity and their top 10 products by revenue, as both a table and a chart.</span></li>
+  <li><span class="box"></span><span class="story-text">I can see the mix of categories they spend across.</span></li>
+  <li><span class="box"></span><span class="story-text">I can see products they used to order regularly but haven&rsquo;t ordered in the last N days (I can change N).</span></li>
+  <li><span class="box"></span><span class="story-text">I can export any of these tables to CSV.</span></li>
+  <li><span class="box"></span><span class="story-text">For a brand-new client with no order history, the Trends tab still looks tidy and explains what I&rsquo;ll see once orders arrive.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>API Tokens</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">On a client&rsquo;s Tokens tab, I can see every token issued to them: label, when it was last used, when it was created, and whether it&rsquo;s been revoked.</span></li>
+  <li><span class="box"></span><span class="story-text">I can create a new token by giving it a label; the full token value is shown to me exactly once, in a copy-to-clipboard modal, with a clear warning that I will never see it again.</span></li>
+  <li><span class="box"></span><span class="story-text">I never see the full token value anywhere else &mdash; not in lists, not in detail pages, not in logs.</span></li>
+  <li><span class="box"></span><span class="story-text">I can revoke a token; once revoked, any API call using it fails.</span></li>
+  <li><span class="box"></span><span class="story-text">I can rotate a token in one action (revokes the old one and gives me a new one).</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Admin Users</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can see every admin user.</span></li>
+  <li><span class="box"></span><span class="story-text">I can invite a new admin by email; they get an invitation and become a working admin.</span></li>
+  <li><span class="box"></span><span class="story-text">I can deactivate an admin so they can&rsquo;t sign in, while still keeping their history visible.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Tasks, Tags, Territories, Routines</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can create tasks, assign them to admins, attach them to clients, and mark them complete.</span></li>
+  <li><span class="box"></span><span class="story-text">I can manage tags and apply them to clients and products.</span></li>
+  <li><span class="box"></span><span class="story-text">I can manage sales territories and assign reps to them.</span></li>
+  <li><span class="box"></span><span class="story-text">Routine workflows do what they say they do for every role that uses them.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Reports</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">The AR aging report loads with realistic numbers and the totals reconcile against the underlying invoices.</span></li>
+  <li><span class="box"></span><span class="story-text">The profitability report loads with realistic numbers and the totals reconcile against the underlying orders.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Image Generator</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">I can generate an image and the result is saved where I expect to find it again.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Quality I Should Be Able to Take for Granted</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">Every long list paginates &mdash; nothing tries to load thousands of rows at once.</span></li>
+  <li><span class="box"></span><span class="story-text">Every destructive action (archive, revoke, refund, delete) asks me to confirm before it happens.</span></li>
+  <li><span class="box"></span><span class="story-text">Every page that loads data shows a skeleton or placeholder, not a blank screen.</span></li>
+  <li><span class="box"></span><span class="story-text">Every empty list explains what I&rsquo;m looking at and what to do next.</span></li>
+  <li><span class="box"></span><span class="story-text">When something goes wrong on the server, I see a clear error message that I could repeat to support, not a stack trace or a blank page.</span></li>
+  <li><span class="box"></span><span class="story-text">If I save something and the save secretly fails, the change I thought I made is rolled back visibly in front of me.</span></li>
+  <li><span class="box"></span><span class="story-text">I can complete the most important flows (signing in, creating a product, taking an order, refunding an order) using only the keyboard.</span></li>
+  <li><span class="box"></span><span class="story-text">The primary forms are usable with a screen reader and don&rsquo;t have obvious accessibility problems.</span></li>
+  <li><span class="box"></span><span class="story-text">Every table with meaningful data has a CSV export button.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Day-Two Operations</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">There is a written runbook explaining how to manually cancel an order that has gotten stuck, and I have walked through it on staging.</span></li>
+  <li><span class="box"></span><span class="story-text">There is a written runbook explaining how to release an inventory hold, and I have walked through it on staging.</span></li>
+  <li><span class="box"></span><span class="story-text">There is a written runbook explaining how to rotate an admin&rsquo;s credentials, and I have walked through it on staging.</span></li>
+  <li><span class="box"></span><span class="story-text">When something breaks in production, someone is notified and the error tells them which admin user hit it.</span></li>
+</ul>
+</section>
+
+<section>
+<h2>Going Live</h2>
+<ul class="stories">
+  <li><span class="box"></span><span class="story-text">Staging has realistic test clients, products, and orders so we could rehearse every flow above.</span></li>
+  <li><span class="box"></span><span class="story-text">On the production environment, I have personally completed: sign in, create a product, take an order, refund an order, and revoke a token.</span></li>
+</ul>
+</section>
+
+</body>
+</html>
