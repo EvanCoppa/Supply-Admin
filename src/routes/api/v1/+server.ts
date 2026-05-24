@@ -39,7 +39,21 @@ export const GET: RequestHandler = ({ url }) => {
         }
       },
       money: 'All monetary values are numbers in the customer currency, rounded to 2 decimals.',
-      timestamps: 'All timestamps are ISO 8601 strings in UTC.'
+      timestamps: 'All timestamps are ISO 8601 strings in UTC.',
+      rate_limits: {
+        partner_endpoints:
+          '60 requests per minute per API token (or per client IP for unauthenticated requests).',
+        integration_endpoints: '30 requests per minute per client IP for /api/v1/integrations/*.',
+        response_headers: [
+          'X-RateLimit-Limit: requests allowed in the current window',
+          'X-RateLimit-Remaining: requests remaining in the current window',
+          'X-RateLimit-Reset: unix timestamp (seconds) when the window resets'
+        ],
+        exceeded:
+          'On 429 responses, Retry-After indicates the number of seconds to wait before retrying.',
+        scope:
+          'Limits are enforced per server instance. Distributed deployments may permit a higher aggregate rate.'
+      }
     },
     endpoints: [
       {

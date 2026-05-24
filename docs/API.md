@@ -35,7 +35,29 @@ HTTP status + JSON body `{ "message": string }`.
 | 401    | Missing or invalid bearer token                             |
 | 403    | Token valid but resource is not accessible to this customer |
 | 404    | Resource does not exist or is not visible to this customer  |
+| 429    | Rate limit exceeded — back off and retry per `Retry-After`  |
 | 500    | Server error — safe to retry with backoff                   |
+
+### Rate limits
+
+Requests are limited per API token (or per client IP when unauthenticated). Limits are enforced per server instance; distributed deployments may permit a higher aggregate rate in practice.
+
+| Scope                                           | Limit                            |
+| ----------------------------------------------- | -------------------------------- |
+| Partner endpoints (`/api/v1/*`)                 | 60 requests per minute per token |
+| Integration webhooks (`/api/v1/integrations/*`) | 30 requests per minute per IP    |
+
+Every response includes the current window state:
+
+| Header                  | Description                                     |
+| ----------------------- | ----------------------------------------------- |
+| `X-RateLimit-Limit`     | Requests allowed in the current window          |
+| `X-RateLimit-Remaining` | Requests remaining in the current window        |
+| `X-RateLimit-Reset`     | Unix timestamp (seconds) when the window resets |
+
+When the limit is exceeded the API returns `429 Too Many Requests` with a `Retry-After` header (seconds) and a JSON body `{ "message": string }`. Clients should treat 429 as transient and retry with exponential backoff, respecting `Retry-After` on each attempt.
+
+Need a higher quota? Contact your Supply account manager.
 
 ## Endpoints
 

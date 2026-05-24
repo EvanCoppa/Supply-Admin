@@ -3,6 +3,14 @@ import { error, type Handle, type HandleServerError, redirect } from '@sveltejs/
 import { sequence } from '@sveltejs/kit/hooks';
 import { PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 import type { UserProfile } from '$lib/types/db';
+import {
+  applyRateLimitHeaders,
+  checkRateLimit,
+  isRateLimitingDisabled,
+  rateLimitExceededResponse,
+  rateLimitKey,
+  rateLimitOptionsForPath
+} from '$lib/server/rate-limit';
 
 export const handleError: HandleServerError = ({ error: err, event, status, message }) => {
   const code = `srv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -128,4 +136,23 @@ const authGuard: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
-export const handle: Handle = sequence(supabase, authGuard);
+const rateLimit: Handle = async ({ event, resolve }) => {
+  const opts = rateLimitOptionsForPath(event.url.pathname);
+  if (!opts || isRateLimitingDisabled()) return resolve(event);
+
+  let clientIp: string | null = null;
+  try {
+    clientIp = event.getClientAddress();
+  } catch {
+    clientIp = event.request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null;
+  }
+
+  const result = checkRateLimit(rateLimitKey(event.request, clientIp), opts);
+  if (!result.allowed) return rateLimitExceededResponse(result);
+
+  const response = await resolve(event);
+  applyRateLimitHeaders(response.headers, result);
+  return response;
+};
+
+export const handle: Handle = sequence(rateLimit, supabase, authGuard);
