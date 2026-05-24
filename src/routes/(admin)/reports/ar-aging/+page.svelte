@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currency, dateShort } from '$lib/format';
+  import HelpTooltip from '$lib/components/HelpTooltip.svelte';
 
   let { data } = $props();
 
@@ -76,7 +77,14 @@
   <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
     {#each summary as s (s.key)}
       <div class="rounded-lg border p-3 {s.tone}">
-        <p class="text-xs font-semibold uppercase tracking-wider text-slate-600">{s.label}</p>
+        <p class="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-600">
+          {s.label}
+          <HelpTooltip
+            text={s.key === 'current'
+              ? 'Invoices not yet due (due date ≥ today)'
+              : `Invoices ${s.key === 'd1_30' ? '1–30' : s.key === 'd31_60' ? '31–60' : s.key === 'd61_90' ? '61–90' : '90+'} days past due`}
+          />
+        </p>
         <p class="mt-1 text-xl font-semibold">{currency(s.amount)}</p>
       </div>
     {/each}

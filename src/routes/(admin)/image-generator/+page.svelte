@@ -108,8 +108,8 @@
   function startProgress() {
     progress = 0;
     progressTimer = setInterval(() => {
-      progress = Math.min(progress + 6, 92);
-    }, 400);
+      progress = Math.min(progress + 3, 90);
+    }, 300);
   }
 
   function stopProgress() {
@@ -215,6 +215,7 @@
   <form
     bind:this={formEl}
     method="POST"
+    action="?/generate"
     enctype="multipart/form-data"
     use:enhance={() => {
       currentState = 'generating';

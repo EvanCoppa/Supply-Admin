@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currency, dateShort } from '$lib/format';
+  import HelpTooltip from '$lib/components/HelpTooltip.svelte';
 
   let { data } = $props();
 
@@ -36,11 +37,17 @@
         <p class="mt-1 text-2xl font-semibold">{currency(m.cogsToday)}</p>
       </div>
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Gross Profit</p>
+        <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+          Gross Profit
+          <HelpTooltip text="Revenue minus COGS. Does not include operating expenses." />
+        </p>
         <p class="mt-1 text-2xl font-semibold">{currency(m.gpToday)}</p>
       </div>
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Gross Margin</p>
+        <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+          Gross Margin
+          <HelpTooltip text="(Revenue - COGS) ÷ Revenue. Green ≥40%, Amber ≥25%, Red <25%" />
+        </p>
         <p class="mt-1 text-2xl font-semibold {marginClass(m.marginToday)}">{pct(m.marginToday)}</p>
         <p class="text-xs text-slate-500">Target 40%+</p>
       </div>
@@ -59,11 +66,17 @@
         <p class="mt-1 text-2xl font-semibold">{currency(m.cogsMtd)}</p>
       </div>
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Gross Profit</p>
+        <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+          Gross Profit
+          <HelpTooltip text="Revenue minus COGS. Does not include operating expenses." />
+        </p>
         <p class="mt-1 text-2xl font-semibold">{currency(m.gpMtd)}</p>
       </div>
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Gross Margin</p>
+        <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+          Gross Margin
+          <HelpTooltip text="(Revenue - COGS) ÷ Revenue. Green ≥40%, Amber ≥25%, Red <25%" />
+        </p>
         <p class="mt-1 text-2xl font-semibold {marginClass(m.marginMtd)}">{pct(m.marginMtd)}</p>
         <p class="text-xs text-slate-500">Target 40%+</p>
       </div>
@@ -83,7 +96,10 @@
           <span class="font-medium text-red-700">{currency(m.cashOut)}</span>
         </div>
         <div class="flex justify-between border-t border-slate-200 pt-1.5">
-          <span class="font-medium text-slate-800">Net cash</span>
+          <span class="inline-flex items-center gap-1 font-medium text-slate-800">
+            Net cash
+            <HelpTooltip text="Cash in minus cash out for today. Daily snapshot, not cumulative." />
+          </span>
           <span class="font-semibold {m.netCash >= 0 ? 'text-emerald-700' : 'text-red-700'}">
             {currency(m.netCash)}
           </span>
@@ -95,7 +111,10 @@
       href="/invoices?status=outstanding"
       class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-sky-400"
     >
-      <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Outstanding AR</p>
+      <p class="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
+        Outstanding AR
+        <HelpTooltip text="Sum of unpaid invoice balances. = Invoice total - amount paid" />
+      </p>
       <p class="mt-1 text-2xl font-semibold">{currency(m.outstandingAr)}</p>
       <p class="text-xs text-slate-500">
         {m.overdueInvoices} invoice{m.overdueInvoices === 1 ? '' : 's'} overdue
@@ -103,7 +122,10 @@
     </a>
 
     <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Outstanding AP</p>
+      <p class="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
+        Outstanding AP
+        <HelpTooltip text="Sum of unpaid supplier purchase balances. = Purchase total - amount paid" />
+      </p>
       <p class="mt-1 text-2xl font-semibold">{currency(m.outstandingAp)}</p>
       <p class="text-xs text-slate-500">Unpaid supplier purchases</p>
     </div>

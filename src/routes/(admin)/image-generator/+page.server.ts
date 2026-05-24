@@ -91,7 +91,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 };
 
 export const actions: Actions = {
-  default: async ({ request }) => {
+  generate: async ({ request }) => {
     const apiKey = env.GEMINI_API_KEY;
     if (!apiKey) {
       return fail(500, {

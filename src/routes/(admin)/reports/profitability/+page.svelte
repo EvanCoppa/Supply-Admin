@@ -1,6 +1,7 @@
 <script lang="ts">
   import { currency } from '$lib/format';
   import Select from '$lib/components/Select.svelte';
+  import HelpTooltip from '$lib/components/HelpTooltip.svelte';
 
   let { data } = $props();
 
@@ -64,7 +65,10 @@
             <th class="px-2 py-2 text-right font-medium">Purchased</th>
             <th class="px-2 py-2 text-right font-medium">Cost</th>
             <th class="px-2 py-2 text-right font-medium">GP</th>
-            <th class="px-2 py-2 text-right font-medium">Margin</th>
+            <th class="flex items-center justify-end gap-1 px-2 py-2 text-right font-medium">
+              Margin
+              <HelpTooltip text="(Revenue - Cost) ÷ Revenue. Green ≥40%, Amber ≥25%, Red <25%" />
+            </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
