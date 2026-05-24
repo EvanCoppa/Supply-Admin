@@ -1,6 +1,7 @@
 <script lang="ts">
   import { currency } from '$lib/format';
   import Select from '$lib/components/Select.svelte';
+  import HelpTooltip from '$lib/components/HelpTooltip.svelte';
 
   let { data } = $props();
 
@@ -12,7 +13,10 @@
 <section class="space-y-4">
   <header class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-semibold">Catalog</h1>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-semibold">Catalog</h1>
+        <HelpTooltip text="Products available for customers to purchase" />
+      </div>
       <p class="text-sm text-slate-500">{data.total} product{data.total === 1 ? '' : 's'}</p>
     </div>
     <div class="flex items-center gap-2">

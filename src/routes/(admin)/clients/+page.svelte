@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import { dateShort } from '$lib/format';
   import Select from '$lib/components/Select.svelte';
+  import HelpTooltip from '$lib/components/HelpTooltip.svelte';
 
   let { data, form } = $props();
 
@@ -41,7 +42,10 @@
 <section class="space-y-4">
   <header class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-semibold">Clients</h1>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-semibold">Clients</h1>
+        <HelpTooltip text="Your customers who purchase products and place orders" />
+      </div>
       <p class="text-sm text-slate-500">{data.total} client{data.total === 1 ? '' : 's'}</p>
     </div>
     <button

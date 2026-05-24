@@ -2,6 +2,7 @@
   import { currency, dateTime } from '$lib/format';
   import OrderStatusBadge from '$lib/components/OrderStatusBadge.svelte';
   import Select from '$lib/components/Select.svelte';
+  import HelpTooltip from '$lib/components/HelpTooltip.svelte';
 
   let { data } = $props();
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
@@ -23,7 +24,10 @@
 <section class="space-y-4">
   <header class="flex flex-wrap items-baseline justify-between gap-3">
     <div>
-      <h1 class="text-2xl font-semibold">Orders</h1>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-semibold">Orders</h1>
+        <HelpTooltip text="Purchases made by your customers through the storefront or API" />
+      </div>
       <p class="text-sm text-slate-500">{data.total} order{data.total === 1 ? '' : 's'}</p>
     </div>
     <a

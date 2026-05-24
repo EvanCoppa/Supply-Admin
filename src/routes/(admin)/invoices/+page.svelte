@@ -1,6 +1,7 @@
 <script lang="ts">
   import { currency, dateShort } from '$lib/format';
   import Select from '$lib/components/Select.svelte';
+  import HelpTooltip from '$lib/components/HelpTooltip.svelte';
 
   let { data } = $props();
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
@@ -29,7 +30,10 @@
 <section class="space-y-4">
   <header class="flex items-end justify-between">
     <div>
-      <h1 class="text-2xl font-semibold">Invoices</h1>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-semibold">Invoices</h1>
+        <HelpTooltip text="Billing documents sent to customers for their orders" />
+      </div>
       <p class="text-sm text-slate-500">{data.total} total</p>
     </div>
     <a

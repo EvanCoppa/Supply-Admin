@@ -1,6 +1,7 @@
 <script lang="ts">
   import { currency, dateShort } from '$lib/format';
   import Select from '$lib/components/Select.svelte';
+  import HelpTooltip from '$lib/components/HelpTooltip.svelte';
 
   let { data } = $props();
 
@@ -37,7 +38,10 @@
 <section class="space-y-5">
   <header class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-semibold">Purchases</h1>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-semibold">Purchases</h1>
+        <HelpTooltip text="Orders you place with suppliers to fulfill customer orders and manage inventory" />
+      </div>
       <p class="text-sm text-slate-500">Supplier POs feeding COGS and AP.</p>
     </div>
     <a
