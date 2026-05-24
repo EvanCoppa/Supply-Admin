@@ -50,6 +50,7 @@
       <table class="w-full text-sm">
         <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
           <tr>
+            <th class="px-4 py-2"></th>
             <th class="px-4 py-2 text-left font-medium">SKU</th>
             <th class="px-4 py-2 text-left font-medium">Product</th>
             <th class="px-4 py-2 text-left font-medium">Category</th>
@@ -64,6 +65,23 @@
           {#each data.rows as row}
             {@const low = row.quantity_on_hand <= row.low_stock_threshold}
             <tr class="hover:bg-slate-50">
+              <td class="px-4 py-2">
+                {#if row.product?.image_url}
+                  <img
+                    src={row.product.image_url}
+                    alt="{row.product?.name ?? 'Product'} preview"
+                    class="h-12 w-12 rounded border border-slate-200 object-cover"
+                    loading="lazy"
+                  />
+                {:else}
+                  <div
+                    class="flex h-12 w-12 items-center justify-center rounded border border-dashed border-slate-300 bg-slate-50 text-[10px] text-slate-500"
+                    aria-label="No image"
+                  >
+                    —
+                  </div>
+                {/if}
+              </td>
               <td class="px-4 py-2 font-mono text-xs">{row.product?.sku}</td>
               <td class="px-4 py-2">
                 <a class="text-sky-700 hover:underline" href="/catalog/{row.product?.id}">

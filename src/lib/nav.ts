@@ -10,14 +10,20 @@ export interface NavSection {
 
 export const NAV_SECTIONS: NavSection[] = [
   {
-    heading: 'Commerce',
+    heading: 'CRM',
     items: [
       { label: 'Dashboard', href: '/' },
       { label: 'Today', href: '/routine' },
-      { label: 'Financials', href: '/dashboard' },
-      { label: 'Insights', href: '/insights' },
-      { label: 'Profitability', href: '/reports/profitability' },
-      { label: 'AR Aging', href: '/reports/ar-aging' },
+      { label: 'Clients', href: '/clients' },
+      { label: 'Tasks', href: '/tasks' },
+      { label: 'RMAs', href: '/rmas' },
+      { label: 'Territories', href: '/territories' },
+      { label: 'Tags', href: '/tags' }
+    ]
+  },
+  {
+    heading: 'Commerce',
+    items: [
       { label: 'Catalog', href: '/catalog' },
       { label: 'Inventory', href: '/inventory' },
       { label: 'Orders', href: '/orders' },
@@ -28,14 +34,13 @@ export const NAV_SECTIONS: NavSection[] = [
     ]
   },
   {
-    heading: 'CRM',
+    heading: 'Finances',
     items: [
-      { label: 'Clients', href: '/clients' },
-      { label: 'Tasks', href: '/tasks' },
-      { label: 'Invoices', href: '/invoices' },
-      { label: 'RMAs', href: '/rmas' },
-      { label: 'Territories', href: '/territories' },
-      { label: 'Tags', href: '/tags' }
+      { label: 'Financials', href: '/dashboard' },
+      { label: 'Insights', href: '/insights' },
+      { label: 'Profitability', href: '/reports/profitability' },
+      { label: 'AR Aging', href: '/reports/ar-aging' },
+      { label: 'Invoices', href: '/invoices' }
     ]
   },
   {

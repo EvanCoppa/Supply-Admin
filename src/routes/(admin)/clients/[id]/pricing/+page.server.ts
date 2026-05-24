@@ -26,11 +26,15 @@ async function logAudit(
     changes: Record<string, unknown> | null;
   }
 ) {
-  // Best effort — if the audit table is missing, we don't want to break the rule mutation.
-  try {
-    await supabase.from('customer_pricing_rule_audit').insert(entry);
-  } catch {
-    // ignore
+  const { error } = await supabase.from('customer_pricing_rule_audit').insert(entry);
+  if (error) {
+    console.error('[pricing-audit] insert failed', {
+      customer_id: entry.customer_id,
+      rule_id: entry.rule_id,
+      action: entry.action,
+      code: error.code,
+      message: error.message
+    });
   }
 }
 

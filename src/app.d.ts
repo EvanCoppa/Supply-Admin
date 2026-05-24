@@ -15,6 +15,10 @@ declare global {
       user: User | null;
       profile?: UserProfile | null;
     }
+    interface Error {
+      message: string;
+      code?: string;
+    }
   }
 }
 

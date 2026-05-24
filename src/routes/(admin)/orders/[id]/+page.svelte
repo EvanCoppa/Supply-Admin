@@ -7,6 +7,25 @@
   let { data, form } = $props();
   let o = $derived(data.order);
 
+  const TIMELINE: { status: string; label: string }[] = [
+    { status: 'pending_payment', label: 'Payment pending' },
+    { status: 'paid', label: 'Paid' },
+    { status: 'fulfilled', label: 'Fulfilled' },
+    { status: 'shipped', label: 'Shipped' },
+    { status: 'delivered', label: 'Delivered' }
+  ];
+  const TERMINAL = new Set(['cancelled', 'refunded']);
+
+  function timelineState(step: string, current: string) {
+    if (TERMINAL.has(current)) return 'inactive';
+    const order = TIMELINE.map((t) => t.status);
+    const curIdx = order.indexOf(current);
+    const stepIdx = order.indexOf(step);
+    if (stepIdx < curIdx) return 'done';
+    if (stepIdx === curIdx) return 'current';
+    return 'pending';
+  }
+
   const nextStatus = $derived(
     (
       {
@@ -19,6 +38,30 @@
 
   const canCancel = $derived(!['delivered', 'cancelled', 'refunded'].includes(o.status));
   const canRefund = $derived(['paid', 'fulfilled', 'shipped', 'delivered'].includes(o.status));
+
+  let refundOpen = $state(false);
+  let refundFull = $state(true);
+  let refundAmount = $state('');
+  let refundSubmitting = $state(false);
+  const orderTotal = $derived(Number(o.total));
+  const refundAmountNum = $derived(Number(refundAmount));
+  const refundValid = $derived(
+    refundFull ||
+      (refundAmount !== '' &&
+        Number.isFinite(refundAmountNum) &&
+        refundAmountNum > 0 &&
+        refundAmountNum <= orderTotal)
+  );
+
+  function openRefund() {
+    refundFull = true;
+    refundAmount = '';
+    refundOpen = true;
+  }
+  function closeRefund() {
+    refundOpen = false;
+    refundSubmitting = false;
+  }
 
   const cogsTotal = $derived(
     data.purchases
@@ -247,10 +290,41 @@
         </dl>
       </div>
 
-      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm text-sm space-y-3">
-        <h3 class="font-semibold">Actions</h3>
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm text-sm space-y-4">
+        <h3 class="font-semibold">Lifecycle</h3>
+        {#if TERMINAL.has(o.status)}
+          <p class="rounded bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            Order is <span class="font-semibold">{o.status}</span> — no further transitions.
+          </p>
+        {:else}
+          <ol class="space-y-2">
+            {#each TIMELINE as step}
+              {@const state = timelineState(step.status, o.status)}
+              <li class="flex items-center gap-2">
+                <span
+                  class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
+                  class:bg-emerald-500={state === 'done'}
+                  class:text-white={state === 'done' || state === 'current'}
+                  class:bg-sky-600={state === 'current'}
+                  class:bg-slate-100={state === 'pending'}
+                  class:text-slate-500={state === 'pending'}
+                >
+                  {#if state === 'done'}✓{:else}·{/if}
+                </span>
+                <span
+                  class="text-sm"
+                  class:font-semibold={state === 'current'}
+                  class:text-slate-500={state === 'pending'}
+                >
+                  {step.label}
+                </span>
+              </li>
+            {/each}
+          </ol>
+        {/if}
+
         {#if nextStatus}
-          <form method="POST" action="?/transition" use:enhance class="space-y-2">
+          <form method="POST" action="?/transition" use:enhance class="space-y-2 border-t border-slate-100 pt-3">
             <input type="hidden" name="to" value={nextStatus} />
             {#if nextStatus === 'shipped'}
               <label class="block">
@@ -265,51 +339,141 @@
               type="submit"
               class="w-full rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
             >
-              Mark {nextStatus}
-            </button>
-          </form>
-        {:else}
-          <p class="text-xs text-slate-500">No next-status transition available.</p>
-        {/if}
-
-        {#if canCancel}
-          <form method="POST" action="?/cancel" use:enhance>
-            <button
-              type="submit"
-              onclick={(e) => {
-                if (!confirm('Cancel this order? Inventory will be released.')) e.preventDefault();
-              }}
-              class="w-full rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
-            >
-              Cancel order
+              Advance to {nextStatus}
             </button>
           </form>
         {/if}
 
-        {#if canRefund}
-          <form method="POST" action="?/refund" use:enhance class="space-y-2">
-            <label class="block">
-              <span class="mb-1 block text-xs font-medium">Refund amount (blank = full)</span>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                name="amount"
-                class="w-full rounded border border-slate-300 px-2 py-1 text-sm"
-              />
-            </label>
-            <button
-              type="submit"
-              onclick={(e) => {
-                if (!confirm('Issue refund via API?')) e.preventDefault();
-              }}
-              class="w-full rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
-            >
-              Issue refund
-            </button>
-          </form>
+        {#if canCancel || canRefund}
+          <div class="space-y-2 border-t border-slate-100 pt-3">
+            {#if canCancel}
+              <form method="POST" action="?/cancel" use:enhance>
+                <button
+                  type="submit"
+                  onclick={(e) => {
+                    if (!confirm('Cancel this order? Inventory will be released.')) e.preventDefault();
+                  }}
+                  class="w-full rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+                >
+                  Cancel order
+                </button>
+              </form>
+            {/if}
+
+            {#if canRefund}
+              <button
+                type="button"
+                onclick={openRefund}
+                class="w-full rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+              >
+                Refund…
+              </button>
+            {/if}
+          </div>
         {/if}
       </div>
     </aside>
   </div>
+
+  {#if refundOpen}
+    <div
+      class="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="refund-title"
+      tabindex="-1"
+      onclick={(e) => {
+        if (e.target === e.currentTarget) closeRefund();
+      }}
+      onkeydown={(e) => {
+        if (e.key === 'Escape') closeRefund();
+      }}
+    >
+      <form
+        method="POST"
+        action="?/refund"
+        use:enhance={() => {
+          refundSubmitting = true;
+          return ({ update }) => {
+            void update().finally(() => closeRefund());
+          };
+        }}
+        class="w-full max-w-md space-y-4 rounded-lg bg-white p-5 shadow-xl"
+      >
+        <header>
+          <h2 id="refund-title" class="text-lg font-semibold">Issue refund</h2>
+          <p class="text-xs text-slate-500">Order total: {currency(orderTotal)}</p>
+        </header>
+
+        <fieldset class="space-y-2">
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="radio"
+              name="refund_mode"
+              checked={refundFull}
+              onchange={() => {
+                refundFull = true;
+                refundAmount = '';
+              }}
+            />
+            Full refund ({currency(orderTotal)})
+          </label>
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="radio"
+              name="refund_mode"
+              checked={!refundFull}
+              onchange={() => {
+                refundFull = false;
+              }}
+            />
+            Partial refund
+          </label>
+        </fieldset>
+
+        {#if !refundFull}
+          <label class="block">
+            <span class="mb-1 block text-xs font-medium">Refund amount</span>
+            <input
+              type="number"
+              step="0.01"
+              min="0.01"
+              max={orderTotal}
+              name="amount"
+              bind:value={refundAmount}
+              placeholder="0.00"
+              required
+              class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+            />
+            {#if refundAmount !== '' && !refundValid}
+              <p class="mt-1 text-xs text-red-700">
+                Enter an amount between $0.01 and {currency(orderTotal)}.
+              </p>
+            {/if}
+          </label>
+        {/if}
+
+        <p class="rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          This issues a refund against the payment gateway. The action cannot be undone.
+        </p>
+
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            onclick={closeRefund}
+            class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!refundValid || refundSubmitting}
+            class="rounded bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+          >
+            {refundSubmitting ? 'Processing…' : refundFull ? 'Refund full' : `Refund ${refundAmount ? currency(refundAmountNum) : ''}`}
+          </button>
+        </div>
+      </form>
+    </div>
+  {/if}
 </section>

@@ -124,7 +124,9 @@
         <tbody class="divide-y divide-slate-100">
           {#each data.rmas as r}
             <tr class="hover:bg-slate-50">
-              <td class="px-3 py-2 font-mono text-xs">{r.rma_number}</td>
+              <td class="px-3 py-2 font-mono text-xs">
+                <a class="text-sky-700 hover:underline" href="/rmas/{r.id}">{r.rma_number}</a>
+              </td>
               <td class="px-3 py-2">
                 <form method="POST" action="?/setStatus" use:enhance class="inline">
                   <input type="hidden" name="id" value={r.id} />

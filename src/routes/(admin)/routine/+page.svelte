@@ -1,85 +1,18 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import type { StepSlug } from './+page.server';
+  import type { Tone } from './+page.server';
 
   let { data, form } = $props();
 
-  type Step = {
-    slug: StepSlug;
-    title: string;
-    blurb: string;
-    href: string;
-    cta: string;
-    badge: { label: string; count: number; tone: 'red' | 'amber' | 'slate' } | null;
-  };
-
-  const steps = $derived<Step[]>([
-    {
-      slug: 'review_orders',
-      title: 'Review new orders',
-      blurb: 'Confirm new orders look right and are ready to be paid or processed.',
-      href: '/orders?status=pending_payment',
-      cta: 'Open orders',
-      badge: data.counts.new_orders
-        ? { label: 'awaiting payment', count: data.counts.new_orders, tone: 'amber' }
-        : null
-    },
-    {
-      slug: 'process_purchases',
-      title: 'Process purchases',
-      blurb: 'Place POs for items that need restocking and mark received goods.',
-      href: '/purchases?status=ordered',
-      cta: 'Open purchases',
-      badge: data.counts.open_purchases
-        ? { label: 'open POs', count: data.counts.open_purchases, tone: 'slate' }
-        : null
-    },
-    {
-      slug: 'fulfill_invoice',
-      title: 'Mark fulfilled & invoice clients',
-      blurb: 'Ship paid orders, generate invoices, send to clients.',
-      href: '/orders?status=paid',
-      cta: 'Open fulfillable',
-      badge: data.counts.fulfillable_orders
-        ? { label: 'ready to fulfill', count: data.counts.fulfillable_orders, tone: 'amber' }
-        : null
-    },
-    {
-      slug: 'ar_ap_followup',
-      title: 'AR / AP follow-up',
-      blurb: 'Chase overdue client invoices and reconcile supplier bills.',
-      href: '/invoices?view=overdue',
-      cta: 'Open AR',
-      badge:
-        data.counts.overdue_invoices || data.counts.unpaid_purchases
-          ? {
-              label: `${data.counts.overdue_invoices} overdue invoices · ${data.counts.unpaid_purchases} unpaid POs`,
-              count: data.counts.overdue_invoices + data.counts.unpaid_purchases,
-              tone: 'red'
-            }
-          : null
-    },
-    {
-      slug: 'review_tasks',
-      title: 'Clear overdue tasks',
-      blurb: 'Check the task board and resolve anything past its due date.',
-      href: '/tasks?view=overdue',
-      cta: 'Open tasks',
-      badge: data.counts.overdue_tasks
-        ? { label: 'overdue', count: data.counts.overdue_tasks, tone: 'red' }
-        : null
-    }
-  ]);
-
-  function isDone(slug: StepSlug): boolean {
+  function isDone(slug: string): boolean {
     return data.todayDone.includes(slug);
   }
 
-  const completedCount = $derived(steps.filter((s) => isDone(s.slug)).length);
-  const totalCount = $derived(steps.length);
-  const allDone = $derived(completedCount === totalCount);
+  const completedCount = $derived(data.steps.filter((s) => isDone(s.slug)).length);
+  const totalCount = $derived(data.steps.length);
+  const allDone = $derived(totalCount > 0 && completedCount === totalCount);
 
-  function toneClass(tone: 'red' | 'amber' | 'slate'): string {
+  function toneClass(tone: Tone): string {
     if (tone === 'red') return 'bg-red-100 text-red-800';
     if (tone === 'amber') return 'bg-amber-100 text-amber-800';
     return 'bg-slate-100 text-slate-700';
@@ -92,14 +25,6 @@
       day: 'numeric'
     })
   );
-
-  const stepTitles: Record<StepSlug, string> = {
-    review_orders: 'Review new orders',
-    process_purchases: 'Process purchases',
-    fulfill_invoice: 'Mark fulfilled & invoice clients',
-    ar_ap_followup: 'AR / AP follow-up',
-    review_tasks: 'Clear overdue tasks'
-  };
 </script>
 
 <svelte:head><title>Today · Supply Admin</title></svelte:head>
@@ -109,6 +34,9 @@
     <div>
       <p class="text-xs uppercase tracking-wider text-slate-500">{today}</p>
       <h1 class="text-2xl font-semibold">Daily routine</h1>
+      <a href="/routine/manage" class="text-xs font-medium text-sky-700 hover:underline">
+        Manage steps →
+      </a>
     </div>
     <div class="text-right">
       <p class="text-3xl font-semibold {allDone ? 'text-emerald-600' : 'text-slate-700'}">
@@ -132,8 +60,14 @@
     </div>
   {/if}
 
+  {#if data.steps.length === 0}
+    <div class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+      No routine steps yet. <a href="/routine/manage" class="font-medium text-sky-700 hover:underline">Add your first step →</a>
+    </div>
+  {/if}
+
   <ol class="space-y-3">
-    {#each steps as step, i (step.slug)}
+    {#each data.steps as step, i (step.slug)}
       {@const done = isDone(step.slug)}
       <li
         class="flex items-start gap-4 rounded-lg border p-4 shadow-sm transition {done
@@ -164,7 +98,9 @@
               >
                 {i + 1}. {step.title}
               </h2>
-              <p class="text-sm text-slate-500">{step.blurb}</p>
+              {#if step.blurb}
+                <p class="text-sm text-slate-500">{step.blurb}</p>
+              {/if}
             </div>
             {#if step.badge}
               <span
@@ -178,14 +114,16 @@
             {/if}
           </div>
 
-          <div class="mt-2">
-            <a
-              href={step.href}
-              class="inline-flex items-center text-sm font-medium text-sky-700 hover:underline"
-            >
-              {step.cta} →
-            </a>
-          </div>
+          {#if step.href && step.cta}
+            <div class="mt-2">
+              <a
+                href={step.href}
+                class="inline-flex items-center text-sm font-medium text-sky-700 hover:underline"
+              >
+                {step.cta} →
+              </a>
+            </div>
+          {/if}
         </div>
       </li>
     {/each}
@@ -204,8 +142,8 @@
         })}.
       </p>
       <ul class="mt-2 list-disc pl-5 text-sm text-amber-900">
-        {#each data.yesterdayMissing as slug (slug)}
-          <li>{stepTitles[slug]}</li>
+        {#each data.yesterdayMissing as step (step.slug)}
+          <li>{step.title}</li>
         {/each}
       </ul>
     </aside>

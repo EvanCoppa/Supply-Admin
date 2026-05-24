@@ -17,9 +17,17 @@
 <svelte:head><title>RMAs · Supply Admin</title></svelte:head>
 
 <section class="space-y-4">
-  <header>
-    <h1 class="text-2xl font-semibold">RMAs</h1>
-    <p class="text-sm text-slate-500">{data.total} total returns.</p>
+  <header class="flex flex-wrap items-baseline justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold">RMAs</h1>
+      <p class="text-sm text-slate-500">{data.total} total returns.</p>
+    </div>
+    <a
+      href={data.filters.status ? `/rmas/export.csv?status=${data.filters.status}` : '/rmas/export.csv'}
+      class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+    >
+      Export CSV
+    </a>
   </header>
 
   <form
@@ -60,9 +68,7 @@
           {#each data.rmas as r}
             <tr class="hover:bg-slate-50">
               <td class="px-3 py-2 font-mono text-xs">
-                <a class="text-sky-700 hover:underline" href="/clients/{r.customer_id}/rmas"
-                  >{r.rma_number}</a
-                >
+                <a class="text-sky-700 hover:underline" href="/rmas/{r.id}">{r.rma_number}</a>
               </td>
               <td class="px-3 py-2">
                 <a class="text-sky-700 hover:underline" href="/clients/{r.customer_id}">

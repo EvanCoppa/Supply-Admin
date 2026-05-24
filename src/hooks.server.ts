@@ -1,8 +1,24 @@
 import { createServerClient, type CookieMethodsServer } from '@supabase/ssr';
-import { error, type Handle, redirect } from '@sveltejs/kit';
+import { error, type Handle, type HandleServerError, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 import type { UserProfile } from '$lib/types/db';
+
+export const handleError: HandleServerError = ({ error: err, event, status, message }) => {
+  const code = `srv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  if (status >= 500) {
+    console.error('[server-error]', {
+      code,
+      status,
+      message,
+      path: event.url.pathname,
+      method: event.request.method,
+      userId: event.locals.user?.id ?? null,
+      err
+    });
+  }
+  return { message: message ?? 'Unexpected server error.', code };
+};
 
 const PUBLIC_PATHS = [
   '/login',

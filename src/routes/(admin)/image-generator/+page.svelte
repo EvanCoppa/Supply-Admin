@@ -9,9 +9,33 @@
   import LoaderCircle from '@lucide/svelte/icons/loader-circle';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import ImageIcon from '@lucide/svelte/icons/image';
+  import Package from '@lucide/svelte/icons/package';
+  import Search from '@lucide/svelte/icons/search';
   import X from '@lucide/svelte/icons/x';
 
-  let { form: serverForm } = $props();
+  let { data, form: serverForm } = $props();
+
+  type Product = { id: string; sku: string; name: string; manufacturer: string | null };
+  const allProducts = $derived<Product[]>(data.products ?? []);
+
+  let productQuery = $state('');
+  let selectedProductId = $state('');
+  let attachState = $state<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  let attachMessage = $state('');
+  let attachedProduct = $state<{ id: string; name: string; sku: string } | null>(null);
+
+  const filteredProducts = $derived.by(() => {
+    const q = productQuery.trim().toLowerCase();
+    if (!q) return allProducts.slice(0, 50);
+    return allProducts
+      .filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.sku.toLowerCase().includes(q) ||
+          (p.manufacturer ?? '').toLowerCase().includes(q)
+      )
+      .slice(0, 50);
+  });
 
   type PageState = 'upload' | 'preview' | 'generating' | 'result' | 'error';
 
@@ -105,7 +129,16 @@
     serverError = '';
     result = null;
     progress = 0;
+    resetAttach();
     currentState = 'upload';
+  }
+
+  function resetAttach() {
+    attachState = 'idle';
+    attachMessage = '';
+    attachedProduct = null;
+    selectedProductId = '';
+    productQuery = '';
   }
 
   function retry() {
@@ -115,6 +148,7 @@
 
   function regenerate() {
     if (!selectedFile) return;
+    resetAttach();
     formEl?.requestSubmit();
   }
 
@@ -149,7 +183,7 @@
       class="mt-3 inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700"
     >
       <Sparkles class="h-3.5 w-3.5" />
-      Powered by Gemini 2.5 Flash
+      AI-assisted product photography
     </div>
   </header>
 
@@ -321,16 +355,6 @@
             <p class="mt-1 text-sm text-slate-500">This usually takes 5–15 seconds.</p>
           </div>
 
-          <div class="grid w-full max-w-2xl grid-cols-2 gap-3 md:grid-cols-4">
-            {#each ['White background', 'Soft shadow', 'Faithful to source', 'Square crop'] as feature}
-              <div
-                class="flex items-center justify-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700"
-              >
-                <CircleCheck class="h-3.5 w-3.5 text-sky-600" />
-                <span>{feature}</span>
-              </div>
-            {/each}
-          </div>
         </div>
       {:else if currentState === 'error'}
         <div class="flex flex-col items-center justify-center space-y-5 py-12">
@@ -361,50 +385,220 @@
             </button>
           </div>
         </div>
-      {:else if currentState === 'result' && result}
-        <div class="space-y-6">
-          <ImageCompare before={result.originalDataUrl ?? beforeUrl} after={result.imageDataUrl} />
-
-          <div
-            class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5"
-          >
-            <div class="flex items-start gap-2 text-sm">
-              <CircleCheck class="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
-              <span class="text-slate-700"
-                >Studio shot ready. Download or regenerate to try a different take.</span
-              >
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-              <a
-                href={result.imageDataUrl}
-                download={downloadName()}
-                class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-              >
-                <ImageIcon class="h-4 w-4" />
-                Download
-              </a>
-              <button
-                type="button"
-                onclick={regenerate}
-                class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                <RefreshCw class="h-4 w-4" />
-                Regenerate
-              </button>
-              <button
-                type="button"
-                onclick={startOver}
-                class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                <Upload class="h-4 w-4" />
-                New photo
-              </button>
-            </div>
-          </div>
-        </div>
       {/if}
     </div>
   </form>
+
+  {#if currentState === 'result' && result}
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+      <div class="space-y-6">
+        <ImageCompare before={result.originalDataUrl ?? beforeUrl} after={result.imageDataUrl} />
+
+        <div
+          class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5"
+        >
+          <div class="flex items-start gap-2 text-sm">
+            <CircleCheck class="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
+            <span class="text-slate-700"
+              >Studio shot ready. Download, save to a product, or regenerate.</span
+            >
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <a
+              href={result.imageDataUrl}
+              download={downloadName()}
+              class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+              <ImageIcon class="h-4 w-4" />
+              Download
+            </a>
+            <button
+              type="button"
+              onclick={regenerate}
+              class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              <RefreshCw class="h-4 w-4" />
+              Regenerate
+            </button>
+            <button
+              type="button"
+              onclick={startOver}
+              class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              <Upload class="h-4 w-4" />
+              New photo
+            </button>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-5">
+          {#if attachState === 'saved' && attachedProduct}
+            <div
+              class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4"
+            >
+              <div class="flex items-start gap-2 text-sm">
+                <CircleCheck class="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
+                <span class="text-emerald-900">
+                  Saved as preview for
+                  <span class="font-semibold">{attachedProduct.name}</span>
+                  <span class="text-emerald-700">({attachedProduct.sku})</span>.
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <a
+                  href="/catalog/{attachedProduct.id}"
+                  class="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-800"
+                >
+                  <Package class="h-4 w-4" />
+                  Open product
+                </a>
+                <button
+                  type="button"
+                  onclick={resetAttach}
+                  class="inline-flex items-center gap-2 rounded-lg border border-emerald-300 bg-white px-3 py-1.5 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
+                >
+                  Save to another
+                </button>
+              </div>
+            </div>
+          {:else}
+            <p class="flex items-center gap-2 text-sm font-semibold text-slate-900">
+              <Package class="h-4 w-4 text-slate-500" />
+              Save to a product
+            </p>
+            <p class="mt-1 text-xs text-slate-500">
+              Attach this image as the product's preview shot. Any existing preview is replaced.
+            </p>
+
+            <form
+              method="POST"
+              action="?/attach"
+              class="mt-4 space-y-3"
+              use:enhance={() => {
+                attachState = 'saving';
+                attachMessage = '';
+                return async ({ result: r }) => {
+                  if (
+                    r.type === 'success' &&
+                    (r.data?.['attach'] as { ok?: boolean } | undefined)?.ok
+                  ) {
+                    const a = r.data!['attach'] as {
+                      ok: true;
+                      productId: string;
+                      productName: string;
+                      productSku: string;
+                    };
+                    attachedProduct = {
+                      id: a.productId,
+                      name: a.productName,
+                      sku: a.productSku
+                    };
+                    attachState = 'saved';
+                  } else if (r.type === 'failure') {
+                    attachState = 'error';
+                    attachMessage =
+                      ((r.data?.['attach'] as { message?: string } | undefined)?.message ??
+                        'Failed to save to product.') as string;
+                  } else if (r.type === 'error') {
+                    attachState = 'error';
+                    attachMessage = r.error?.message ?? 'Failed to save to product.';
+                  } else {
+                    attachState = 'error';
+                    attachMessage = 'Failed to save to product.';
+                  }
+                };
+              }}
+            >
+              <input type="hidden" name="imageDataUrl" value={result.imageDataUrl} />
+              <input type="hidden" name="productId" value={selectedProductId} />
+
+              <div class="relative">
+                <Search
+                  class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                />
+                <input
+                  type="search"
+                  bind:value={productQuery}
+                  placeholder="Search by SKU, name, or manufacturer…"
+                  class="block w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                />
+              </div>
+
+              {#if allProducts.length === 0}
+                <p
+                  class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+                >
+                  No active products to save to. <a
+                    href="/catalog/new"
+                    class="underline hover:text-amber-900">Create one</a
+                  > first.
+                </p>
+              {:else}
+                <ul
+                  class="max-h-64 overflow-y-auto rounded-lg border border-slate-200 divide-y divide-slate-100"
+                >
+                  {#each filteredProducts as p (p.id)}
+                    <li>
+                      <label
+                        class="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm hover:bg-slate-50"
+                        class:bg-sky-50={selectedProductId === p.id}
+                      >
+                        <input
+                          type="radio"
+                          value={p.id}
+                          bind:group={selectedProductId}
+                          class="h-4 w-4 text-sky-600 focus:ring-sky-500"
+                        />
+                        <span class="flex-1">
+                          <span class="font-medium text-slate-900">{p.name}</span>
+                          <span class="text-slate-500"> · {p.sku}</span>
+                          {#if p.manufacturer}
+                            <span class="text-xs text-slate-400"> · {p.manufacturer}</span>
+                          {/if}
+                        </span>
+                      </label>
+                    </li>
+                  {:else}
+                    <li class="px-3 py-3 text-sm text-slate-500">No products match "{productQuery}".</li>
+                  {/each}
+                </ul>
+                {#if filteredProducts.length === 50 && allProducts.length > 50}
+                  <p class="text-xs text-slate-400">
+                    Showing 50 of {allProducts.length}. Refine the search to narrow down.
+                  </p>
+                {/if}
+              {/if}
+
+              {#if attachState === 'error'}
+                <div
+                  class="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
+                >
+                  <X class="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  <span>{attachMessage}</span>
+                </div>
+              {/if}
+
+              <div class="flex items-center gap-2">
+                <button
+                  type="submit"
+                  disabled={!selectedProductId || attachState === 'saving'}
+                  class="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                >
+                  {#if attachState === 'saving'}
+                    <LoaderCircle class="h-4 w-4 animate-spin" />
+                    Saving…
+                  {:else}
+                    <Package class="h-4 w-4" />
+                    Save to product
+                  {/if}
+                </button>
+              </div>
+            </form>
+          {/if}
+        </div>
+      </div>
+    </div>
+  {/if}
 
   <!-- How it works -->
   {#if currentState === 'upload'}

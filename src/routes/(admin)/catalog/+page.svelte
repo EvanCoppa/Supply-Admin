@@ -14,12 +14,20 @@
       <h1 class="text-2xl font-semibold">Catalog</h1>
       <p class="text-sm text-slate-500">{data.total} product{data.total === 1 ? '' : 's'}</p>
     </div>
-    <a
-      href="/catalog/new"
-      class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
-    >
-      New product
-    </a>
+    <div class="flex items-center gap-2">
+      <a
+        href="/catalog/bulk-images"
+        class="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+      >
+        Bulk image upload
+      </a>
+      <a
+        href="/catalog/new"
+        class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+      >
+        New product
+      </a>
+    </div>
   </header>
 
   <form method="GET" class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-3">

@@ -4,14 +4,33 @@
 
   let { data } = $props();
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
+
+  const exportHref = $derived(() => {
+    const params = new URLSearchParams();
+    if (data.filters.status) params.set('status', data.filters.status);
+    if (data.filters.customerId) params.set('customer', data.filters.customerId);
+    if (data.filters.source) params.set('source', data.filters.source);
+    if (data.filters.from) params.set('from', data.filters.from);
+    if (data.filters.to) params.set('to', data.filters.to);
+    const qs = params.toString();
+    return qs ? `/orders/export.csv?${qs}` : '/orders/export.csv';
+  });
 </script>
 
 <svelte:head><title>Orders · Supply Admin</title></svelte:head>
 
 <section class="space-y-4">
-  <header>
-    <h1 class="text-2xl font-semibold">Orders</h1>
-    <p class="text-sm text-slate-500">{data.total} order{data.total === 1 ? '' : 's'}</p>
+  <header class="flex flex-wrap items-baseline justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold">Orders</h1>
+      <p class="text-sm text-slate-500">{data.total} order{data.total === 1 ? '' : 's'}</p>
+    </div>
+    <a
+      href={exportHref()}
+      class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+    >
+      Export CSV
+    </a>
   </header>
 
   <form method="GET" class="grid gap-2 rounded border border-slate-200 bg-white p-3 sm:grid-cols-6">

@@ -57,6 +57,28 @@ export type PricingScope = 'product' | 'category';
 export type PricingOverrideType = 'absolute_price' | 'percent_discount';
 export type PaymentStatus = 'succeeded' | 'failed' | 'refunded';
 export type CatalogAccessMode = 'all_active' | 'allowlist';
+export type DailyRoutineBadgeKind =
+  | 'new_orders'
+  | 'fulfillable_orders'
+  | 'open_purchases'
+  | 'unpaid_purchases'
+  | 'overdue_invoices'
+  | 'overdue_tasks'
+  | 'ar_ap';
+
+export interface DailyRoutineStep {
+  id: string;
+  slug: string;
+  title: string;
+  blurb: string | null;
+  href: string | null;
+  cta: string | null;
+  badge_kind: DailyRoutineBadgeKind | null;
+  sort_order: number;
+  archived_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface UserProfile {
   id: string;
