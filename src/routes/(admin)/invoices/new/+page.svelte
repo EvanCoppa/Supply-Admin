@@ -72,7 +72,9 @@
 
   function applyProductToLine(index: number, product: LineProductHit) {
     const next = [...lines];
-    const target = { ...next[index] };
+    const current = next[index];
+    if (!current) return;
+    const target: DraftLine = { ...current };
     target.product_id = product.id;
     target.product_sku_snapshot = product.sku;
     target.product_name_snapshot = product.name;
@@ -88,7 +90,14 @@
 
   function clearProductFromLine(index: number) {
     const next = [...lines];
-    next[index] = { ...next[index], product_id: null, product_sku_snapshot: null, product_name_snapshot: null };
+    const current = next[index];
+    if (!current) return;
+    next[index] = {
+      ...current,
+      product_id: null,
+      product_sku_snapshot: null,
+      product_name_snapshot: null
+    };
     lines = next;
   }
 
