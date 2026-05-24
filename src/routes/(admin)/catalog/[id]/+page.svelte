@@ -22,6 +22,25 @@
       >
         View ledger
       </a>
+      {#if data.watchlistItem}
+        <form method="POST" action="?/unwatch" use:enhance>
+          <button
+            type="submit"
+            class="rounded border border-amber-300 px-3 py-1.5 text-sm text-amber-800 bg-amber-50 hover:bg-amber-100"
+          >
+            ★ Watching
+          </button>
+        </form>
+      {:else}
+        <form method="POST" action="?/watch" use:enhance>
+          <button
+            type="submit"
+            class="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
+          >
+            + Watch
+          </button>
+        </form>
+      {/if}
       {#if data.product.status === 'active'}
         <form method="POST" action="?/archive" use:enhance>
           <button

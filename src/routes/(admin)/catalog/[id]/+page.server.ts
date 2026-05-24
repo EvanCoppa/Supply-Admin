@@ -12,10 +12,11 @@ import {
 } from '$lib/server/product-images';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
-  const [productRes, categoriesRes, inventoryRes] = await Promise.all([
+  const [productRes, categoriesRes, inventoryRes, watchlistRes] = await Promise.all([
     supabase.from('products').select('*').eq('id', params.id).maybeSingle(),
     supabase.from('categories').select('id, name').order('name'),
-    supabase.from('inventory').select('*').eq('product_id', params.id).maybeSingle()
+    supabase.from('inventory').select('*').eq('product_id', params.id).maybeSingle(),
+    supabase.from('watchlist_items').select('id, notes').eq('product_id', params.id).maybeSingle()
   ]);
 
   if (productRes.error || !productRes.data) {
@@ -28,7 +29,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     product: productRes.data,
     productImageUrl: getProductImagePublicUrl(supabase, productImagePath),
     categories: categoriesRes.data ?? [],
-    inventory: inventoryRes.data
+    inventory: inventoryRes.data,
+    watchlistItem: watchlistRes.data
   };
 };
 
@@ -152,6 +154,25 @@ export const actions: Actions = {
       low_stock_threshold: parsed.data.low_stock_threshold
     });
     if (error) return fail(400, { message: error.message, fieldErrors: {} });
+    return { saved: true };
+  },
+
+  watch: async ({ params, request, locals: { supabase, user } }) => {
+    const form = await request.formData();
+    const notes = String(form.get('notes') ?? '').trim() || null;
+    const { error } = await supabase
+      .from('watchlist_items')
+      .upsert(
+        { product_id: params.id, notes, added_by: user?.id ?? null },
+        { onConflict: 'product_id' }
+      );
+    if (error) return fail(400, { message: error.message });
+    return { saved: true };
+  },
+
+  unwatch: async ({ params, locals: { supabase } }) => {
+    const { error } = await supabase.from('watchlist_items').delete().eq('product_id', params.id);
+    if (error) return fail(400, { message: error.message });
     return { saved: true };
   }
 };

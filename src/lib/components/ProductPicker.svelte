@@ -63,48 +63,60 @@
 <div class="space-y-2">
   <input type="hidden" {name} value={selected.join(',')} />
 
-  <div class="rounded border border-slate-200 bg-white">
+  <div class="overflow-hidden rounded border border-slate-200 bg-white">
     {#if selected.length === 0}
       <p class="px-3 py-3 text-xs text-slate-500">No products selected.</p>
     {:else}
-      <ul class="divide-y divide-slate-100 text-sm">
-        {#each selected as id, i (id)}
-          {@const p = productMap.get(id)}
-          <li class="flex items-center gap-2 px-3 py-1.5">
-            <span class="w-6 font-mono text-xs text-slate-400">{i + 1}</span>
-            {#if p}
-              <span class="font-mono text-xs text-slate-500">{p.sku}</span>
-              <span class="min-w-0 flex-1 truncate">{p.name}</span>
-            {:else}
-              <span class="font-mono text-xs text-slate-400">{id.slice(0, 8)}</span>
-              <span class="text-slate-400">unknown product</span>
-            {/if}
-            <div class="flex gap-1">
-              <button
-                type="button"
-                aria-label="Move up"
-                onclick={() => move(id, -1)}
-                class="rounded border border-slate-300 px-1.5 py-0.5 text-xs hover:bg-slate-100"
-                disabled={i === 0}>↑</button
-              >
-              <button
-                type="button"
-                aria-label="Move down"
-                onclick={() => move(id, 1)}
-                class="rounded border border-slate-300 px-1.5 py-0.5 text-xs hover:bg-slate-100"
-                disabled={i === selected.length - 1}>↓</button
-              >
-              <button
-                type="button"
-                onclick={() => remove(id)}
-                class="rounded border border-red-300 px-1.5 py-0.5 text-xs text-red-700 hover:bg-red-50"
-              >
-                Remove
-              </button>
-            </div>
-          </li>
-        {/each}
-      </ul>
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+          <tr>
+            <th class="w-10 px-3 py-2 text-left font-medium">#</th>
+            <th class="w-28 px-3 py-2 text-left font-medium">SKU</th>
+            <th class="px-3 py-2 text-left font-medium">Name</th>
+            <th class="px-3 py-2 text-right font-medium"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {#each selected as id, i (id)}
+            {@const p = productMap.get(id)}
+            <tr>
+              <td class="px-3 py-1.5 font-mono text-xs text-slate-400">{i + 1}</td>
+              {#if p}
+                <td class="px-3 py-1.5 font-mono text-xs text-slate-500">{p.sku}</td>
+                <td class="px-3 py-1.5 truncate">{p.name}</td>
+              {:else}
+                <td class="px-3 py-1.5 font-mono text-xs text-slate-400">{id.slice(0, 8)}</td>
+                <td class="px-3 py-1.5 text-slate-400">unknown product</td>
+              {/if}
+              <td class="px-3 py-1.5 text-right">
+                <div class="inline-flex gap-1">
+                  <button
+                    type="button"
+                    aria-label="Move up"
+                    onclick={() => move(id, -1)}
+                    class="rounded border border-slate-300 px-1.5 py-0.5 text-xs hover:bg-slate-100 disabled:opacity-40"
+                    disabled={i === 0}>↑</button
+                  >
+                  <button
+                    type="button"
+                    aria-label="Move down"
+                    onclick={() => move(id, 1)}
+                    class="rounded border border-slate-300 px-1.5 py-0.5 text-xs hover:bg-slate-100 disabled:opacity-40"
+                    disabled={i === selected.length - 1}>↓</button
+                  >
+                  <button
+                    type="button"
+                    onclick={() => remove(id)}
+                    class="rounded border border-red-300 px-1.5 py-0.5 text-xs text-red-700 hover:bg-red-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
     {/if}
   </div>
 

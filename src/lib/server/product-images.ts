@@ -6,7 +6,8 @@ export const PRODUCT_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Map([
   ['image/jpeg', 'jpg'],
   ['image/png', 'png'],
-  ['image/webp', 'webp']
+  ['image/webp', 'webp'],
+  ['image/avif', 'avif']
 ]);
 
 export function getProductImageFile(value: FormDataEntryValue | null): File | null {
@@ -17,7 +18,7 @@ export function getProductImageFile(value: FormDataEntryValue | null): File | nu
 
 export function validateProductImage(file: File): string | null {
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-    return 'Image must be JPEG, PNG, or WebP.';
+    return 'Image must be JPEG, PNG, WebP, or AVIF.';
   }
   if (file.size > PRODUCT_IMAGE_MAX_BYTES) {
     return 'Image must be 10 MB or smaller.';

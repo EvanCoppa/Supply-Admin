@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currency, dateShort, dateTime } from '$lib/format';
+  import HelpTooltip from '$lib/components/HelpTooltip.svelte';
 
   let { data } = $props();
 
@@ -36,7 +37,10 @@
       href="/inventory?filter=low"
       class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-amber-400"
     >
-      <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Low stock</p>
+      <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+        Low stock
+        <HelpTooltip text="Items where quantity on hand ≤ the item's low stock threshold" />
+      </p>
       <p class="mt-1 text-2xl font-semibold text-amber-700">{data.metrics.lowStockCount}</p>
       <p class="text-xs text-slate-500">See inventory →</p>
     </a>
@@ -55,7 +59,10 @@
       href="/invoices?status=outstanding"
       class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-red-400"
     >
-      <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Overdue invoices</p>
+      <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+        Overdue invoices
+        <HelpTooltip text="Invoices with status issued, partially paid, or overdue that are past their due date" />
+      </p>
       <p class="mt-1 text-2xl font-semibold text-red-700">{data.metrics.overdueInvoices}</p>
       <p class="text-xs text-slate-500">
         {currency(data.metrics.outstandingBalance)} outstanding →
@@ -65,7 +72,10 @@
       href="/clients?lifecycle=at_risk"
       class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-amber-400"
     >
-      <p class="text-xs font-medium uppercase tracking-wider text-slate-500">At-risk accounts</p>
+      <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+        At-risk accounts
+        <HelpTooltip text="Clients whose lifecycle stage has been manually set to &quot;At risk&quot; on their profile" />
+      </p>
       <p class="mt-1 text-2xl font-semibold text-amber-700">{data.atRiskCustomers.length}</p>
       <p class="text-xs text-slate-500">Review lifecycle →</p>
     </a>
@@ -104,7 +114,10 @@
 
     <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
       <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-        <h2 class="font-semibold">At-risk & churned accounts</h2>
+        <h2 class="inline-flex items-center gap-1 font-semibold">
+          At-risk &amp; churned accounts
+          <HelpTooltip text="Clients manually tagged as &quot;At risk&quot; or &quot;Churned&quot; via the lifecycle stage field on each client's profile page" />
+        </h2>
         <a class="text-xs text-sky-700 hover:underline" href="/clients?lifecycle=at_risk"
           >View all</a
         >

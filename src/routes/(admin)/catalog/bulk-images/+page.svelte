@@ -24,7 +24,7 @@
     note?: string;
   };
 
-  const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+  const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
   const MAX_BYTES = 10 * 1024 * 1024;
 
   let selectedFiles = $state<File[]>([]);
@@ -68,7 +68,7 @@
           productSku: null,
           productHadImage: false,
           status: 'invalid',
-          note: 'Unsupported type (use JPEG, PNG, or WebP).'
+          note: 'Unsupported type (use JPEG, PNG, WebP, or AVIF).'
         };
       }
       if (file.size > MAX_BYTES) {
@@ -297,7 +297,7 @@
               : `${selectedFiles.length} file${selectedFiles.length === 1 ? '' : 's'} selected`}
           </p>
           <p class="mt-0.5 text-xs text-slate-500">
-            JPEG, PNG, or WebP · up to 10 MB each. Subfolders are included.
+            JPEG, PNG, WebP, or AVIF · up to 10 MB each. Subfolders are included.
           </p>
         </div>
         <span
@@ -311,7 +311,7 @@
         id="folder-input"
         bind:this={fileInputEl}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/avif"
         multiple
         webkitdirectory
         onchange={handleFileChange}

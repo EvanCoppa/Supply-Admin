@@ -3,17 +3,99 @@
   import { currency, dateShort } from '$lib/format';
   import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
   import Select from '$lib/components/Select.svelte';
+  import LineItemProductSearch, {
+    type LineProductHit
+  } from '$lib/components/LineItemProductSearch.svelte';
 
   let { data, form } = $props();
+
+  type DraftLine = {
+    product_id: string | null;
+    product_sku_snapshot: string | null;
+    product_name_snapshot: string | null;
+    description: string;
+    quantity: number;
+    unit_cost: number;
+  };
+
+  function emptyLine(): DraftLine {
+    return {
+      product_id: null,
+      product_sku_snapshot: null,
+      product_name_snapshot: null,
+      description: '',
+      quantity: 1,
+      unit_cost: 0
+    };
+  }
 
   // svelte-ignore state_referenced_locally
   let supplierId = $state(data.suppliers[0]?.id ?? '');
   // svelte-ignore state_referenced_locally
   let orderId = $state(data.defaultOrderId);
+  let orderQuery = $state('');
+  let orderOpen = $state(false);
   let subtotal = $state(0);
   let freight = $state(0);
   let distributionFeePct = $state(0);
   let tax = $state(0);
+  let lines = $state<DraftLine[]>([]);
+
+  const linesSubtotal = $derived(
+    lines.reduce(
+      (sum, l) => sum + Math.max(0, Number(l.quantity || 0)) * Math.max(0, Number(l.unit_cost || 0)),
+      0
+    )
+  );
+  const lineItemsJson = $derived(JSON.stringify(lines));
+
+  $effect(() => {
+    if (lines.length > 0) {
+      subtotal = Math.round(linesSubtotal * 100) / 100;
+    }
+  });
+
+  function addLine() {
+    lines = [...lines, emptyLine()];
+  }
+
+  function removeLine(index: number) {
+    lines = lines.filter((_, i) => i !== index);
+  }
+
+  function applyProductToLine(index: number, product: LineProductHit) {
+    const current = lines[index];
+    if (!current) return;
+    const target: DraftLine = { ...current };
+    target.product_id = product.id;
+    target.product_sku_snapshot = product.sku;
+    target.product_name_snapshot = product.name;
+    if (!target.description.trim()) {
+      const parts = [product.name];
+      if (product.description) parts.push(product.description);
+      target.description = parts.join(' — ');
+    }
+    const next = [...lines];
+    next[index] = target;
+    lines = next;
+  }
+
+  function clearProductFromLine(index: number) {
+    const current = lines[index];
+    if (!current) return;
+    const next = [...lines];
+    next[index] = {
+      ...current,
+      product_id: null,
+      product_sku_snapshot: null,
+      product_name_snapshot: null
+    };
+    lines = next;
+  }
+
+  function lineTotal(line: DraftLine) {
+    return Math.max(0, Number(line.quantity || 0)) * Math.max(0, Number(line.unit_cost || 0));
+  }
 
   $effect(() => {
     const s = data.suppliers.find((x) => x.id === supplierId);
@@ -41,6 +123,39 @@
       : 0
   );
 
+  function orderLabel(o: (typeof data.recentOrders)[number]) {
+    const who = o.customer?.business_name ?? '—';
+    return `${o.id.slice(0, 8)} · ${who} · ${dateShort(o.placed_at)} · ${currency(o.total)}`;
+  }
+
+  const filteredOrders = $derived.by(() => {
+    const term = orderQuery.trim().toLowerCase();
+    if (term === '') return data.recentOrders.slice(0, 50);
+    return data.recentOrders
+      .filter((o) => orderLabel(o).toLowerCase().includes(term))
+      .slice(0, 50);
+  });
+
+  function selectOrder(id: string) {
+    orderId = id;
+    const o = data.recentOrders.find((x) => x.id === id);
+    orderQuery = o ? orderLabel(o) : '';
+    orderOpen = false;
+  }
+
+  function clearOrder() {
+    orderId = '';
+    orderQuery = '';
+    orderOpen = false;
+  }
+
+  $effect(() => {
+    if (orderId && orderQuery === '') {
+      const o = data.recentOrders.find((x) => x.id === orderId);
+      if (o) orderQuery = orderLabel(o);
+    }
+  });
+
   function pct(v: number) {
     return `${(v * 100).toFixed(1)}%`;
   }
@@ -55,7 +170,6 @@
 
 <section class="space-y-5">
   <Breadcrumbs items={[{ label: 'Purchases', href: '/purchases' }, { label: 'New' }]} />
-  <h1 class="text-2xl font-semibold">New purchase</h1>
 
   {#if form?.message}
     <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
@@ -63,7 +177,9 @@
     </div>
   {/if}
 
+  <div class="mx-auto max-w-5xl">
   <form method="POST" action="?/create" use:enhance class="grid gap-5 lg:grid-cols-3">
+    <input type="hidden" name="line_items_json" value={lineItemsJson} />
     <div class="space-y-4 lg:col-span-2">
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm space-y-3 text-sm">
         <label class="block">
@@ -75,21 +191,58 @@
           </Select>
         </label>
 
-        <label class="block">
+        <div class="block">
           <span class="mb-1 block text-xs font-medium text-slate-600"
             >For client order (optional)</span
           >
-          <Select name="order_id" bind:value={orderId} class="w-full">
-            <option value="">— not tied to a client order —</option>
-            {#each data.recentOrders as o (o.id)}
-              <option value={o.id}>
-                {o.customer?.business_name ?? o.id.slice(0, 8)} · {dateShort(o.placed_at)} · {currency(
-                  o.total
-                )}
-              </option>
-            {/each}
-          </Select>
-        </label>
+          <div class="relative">
+            <input type="hidden" name="order_id" value={orderId} />
+            <input
+              type="text"
+              role="combobox"
+              aria-expanded={orderOpen}
+              aria-autocomplete="list"
+              autocomplete="off"
+              placeholder="— not tied to a client order —"
+              bind:value={orderQuery}
+              oninput={() => {
+                orderId = '';
+                orderOpen = true;
+              }}
+              onfocus={() => (orderOpen = true)}
+              onblur={() => setTimeout(() => (orderOpen = false), 150)}
+              class="w-full rounded border border-slate-300 px-2 py-1.5 pr-8"
+            />
+            {#if orderQuery}
+              <button
+                type="button"
+                aria-label="Clear"
+                onclick={clearOrder}
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+              >
+                ×
+              </button>
+            {/if}
+            {#if orderOpen && filteredOrders.length > 0}
+              <ul
+                class="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded border border-slate-200 bg-white shadow-lg"
+              >
+                {#each filteredOrders as o (o.id)}
+                  <li>
+                    <button
+                      type="button"
+                      onmousedown={(e) => e.preventDefault()}
+                      onclick={() => selectOrder(o.id)}
+                      class="block w-full px-3 py-1.5 text-left text-sm hover:bg-slate-50"
+                    >
+                      {orderLabel(o)}
+                    </button>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+          </div>
+        </div>
 
         <div class="grid gap-3 sm:grid-cols-2">
           <label class="block">
@@ -126,6 +279,100 @@
           <textarea name="notes" rows="3" class="w-full rounded border border-slate-300 px-2 py-1.5"
           ></textarea>
         </label>
+      </div>
+
+      <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <header class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+          <div>
+            <h2 class="font-semibold">Line items</h2>
+            <p class="text-xs text-slate-500">
+              Optional. If you add lines, subtotal auto-fills from line totals.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-100"
+            onclick={addLine}
+          >
+            Add line
+          </button>
+        </header>
+        {#if lines.length === 0}
+          <p class="px-4 py-6 text-center text-sm text-slate-500">
+            No line items. Click "Add line" to log items in this purchase.
+          </p>
+        {:else}
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[760px] text-sm">
+              <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+                <tr>
+                  <th class="px-3 py-2 text-left font-medium">Item</th>
+                  <th class="px-3 py-2 text-left font-medium">Description</th>
+                  <th class="px-3 py-2 text-right font-medium">Qty</th>
+                  <th class="px-3 py-2 text-right font-medium">Unit cost</th>
+                  <th class="px-3 py-2 text-right font-medium">Total</th>
+                  <th class="px-3 py-2"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                {#each lines as line, i}
+                  <tr>
+                    <td class="px-3 py-2 align-top">
+                      <LineItemProductSearch
+                        selectedSku={line.product_sku_snapshot}
+                        onSelect={(product) => applyProductToLine(i, product)}
+                        onClear={() => clearProductFromLine(i)}
+                      />
+                    </td>
+                    <td class="px-3 py-2">
+                      <input
+                        bind:value={line.description}
+                        class="w-full rounded border border-slate-300 px-2 py-1 text-sm"
+                      />
+                    </td>
+                    <td class="px-3 py-2">
+                      <input
+                        bind:value={line.quantity}
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        class="w-20 rounded border border-slate-300 px-2 py-1 text-right text-sm"
+                      />
+                    </td>
+                    <td class="px-3 py-2">
+                      <input
+                        bind:value={line.unit_cost}
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="w-28 rounded border border-slate-300 px-2 py-1 text-right text-sm"
+                      />
+                    </td>
+                    <td class="px-3 py-2 text-right font-medium">{currency(lineTotal(line))}</td>
+                    <td class="px-3 py-2 text-right">
+                      <button
+                        type="button"
+                        class="rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
+                        onclick={() => removeLine(i)}
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+              <tfoot>
+                <tr class="border-t border-slate-200 bg-slate-50 text-sm">
+                  <td colspan="4" class="px-3 py-2 text-right font-medium text-slate-600">
+                    Lines subtotal
+                  </td>
+                  <td class="px-3 py-2 text-right font-semibold">{currency(linesSubtotal)}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        {/if}
       </div>
 
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm space-y-3 text-sm">
@@ -264,19 +511,22 @@
           {/if}
         </div>
       {/if}
+    </aside>
 
-      <button
-        type="submit"
-        class="w-full rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
-      >
-        Create purchase
-      </button>
+    <div class="flex gap-2 lg:col-span-2">
       <a
         href="/purchases"
-        class="block w-full rounded border border-slate-300 px-3 py-2 text-center text-sm text-slate-700 hover:bg-slate-100"
+        class="flex-1 rounded border border-slate-300 px-3 py-2 text-center text-sm text-slate-700 hover:bg-slate-100"
       >
         Cancel
       </a>
-    </aside>
+      <button
+        type="submit"
+        class="flex-1 rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+      >
+        Create purchase
+      </button>
+    </div>
   </form>
+  </div>
 </section>

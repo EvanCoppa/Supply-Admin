@@ -3,6 +3,7 @@
 
   let { data, form } = $props();
   let editingId = $state<string | null>(null);
+  let expandedRepsId = $state<string | null>(null);
 </script>
 
 <svelte:head><title>Territories · Supply Admin</title></svelte:head>
@@ -25,7 +26,7 @@
     method="POST"
     action="?/create"
     use:enhance
-    class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-3"
+    class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-4"
   >
     <label class="block">
       <span class="mb-1 block text-xs font-medium">Name</span>
@@ -42,7 +43,7 @@
         class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
       />
     </label>
-    <div class="sm:col-span-3 flex justify-end">
+    <div class="flex items-end justify-end">
       <button
         type="submit"
         class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
@@ -62,6 +63,7 @@
             <th class="px-3 py-2 text-left font-medium">Name</th>
             <th class="px-3 py-2 text-left font-medium">Description</th>
             <th class="px-3 py-2 text-right font-medium">Clients</th>
+            <th class="px-3 py-2 text-left font-medium">Reps</th>
             <th class="px-3 py-2 text-right font-medium"></th>
           </tr>
         </thead>
@@ -69,7 +71,7 @@
           {#each data.territories as t}
             <tr class="hover:bg-slate-50">
               {#if editingId === t.id}
-                <td colspan="4" class="px-3 py-3">
+                <td colspan="5" class="px-3 py-3">
                   <form
                     method="POST"
                     action="?/update"
@@ -115,6 +117,19 @@
                 </td>
                 <td class="px-3 py-2 text-slate-600">{t.description ?? '—'}</td>
                 <td class="px-3 py-2 text-right">{t.customer_count}</td>
+                <td class="px-3 py-2">
+                  <button
+                    type="button"
+                    onclick={() => (expandedRepsId = expandedRepsId === t.id ? null : t.id)}
+                    class="text-xs text-slate-600 hover:text-slate-900"
+                  >
+                    {#if t.reps && t.reps.length > 0}
+                      {t.reps.length} rep{t.reps.length !== 1 ? 's' : ''}
+                    {:else}
+                      No reps
+                    {/if}
+                  </button>
+                </td>
                 <td class="px-3 py-2 text-right">
                   <button
                     type="button"
@@ -135,6 +150,62 @@
                 </td>
               {/if}
             </tr>
+            {#if expandedRepsId === t.id}
+              <tr class="bg-slate-50">
+                <td colspan="5" class="px-3 py-3">
+                  <div class="space-y-3">
+                    {#if t.reps && t.reps.length > 0}
+                      <div>
+                        <h4 class="mb-2 text-xs font-semibold">Current Reps</h4>
+                        <div class="space-y-1">
+                          {#each t.reps as rep}
+                            <div class="flex items-center justify-between rounded bg-white p-2 text-sm">
+                              <span>{rep.display_name || 'Unknown'}</span>
+                              <form
+                                method="POST"
+                                action="?/removeRep"
+                                use:enhance
+                                class="inline"
+                              >
+                                <input type="hidden" name="id" value={rep.id} />
+                                <button
+                                  type="submit"
+                                  class="text-xs text-red-600 hover:text-red-900"
+                                >
+                                  Remove
+                                </button>
+                              </form>
+                            </div>
+                          {/each}
+                        </div>
+                      </div>
+                    {/if}
+                    <form method="POST" action="?/addRep" use:enhance class="flex gap-2">
+                      <input type="hidden" name="territory_id" value={t.id} />
+                      <select
+                        name="user_id"
+                        class="flex-1 rounded border border-slate-300 px-2 py-1 text-sm"
+                      >
+                        <option value="">Select a rep to add...</option>
+                        {#each data.adminUsers as user}
+                          {#if !t.reps || !t.reps.some((r) => r.id === user.id)}
+                            <option value={user.id}>
+                              {user.display_name || user.id}
+                            </option>
+                          {/if}
+                        {/each}
+                      </select>
+                      <button
+                        type="submit"
+                        class="rounded bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800"
+                      >
+                        Add
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {/if}
           {/each}
         </tbody>
       </table>

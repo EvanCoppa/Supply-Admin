@@ -266,6 +266,13 @@ export interface Territory {
   created_at: string;
 }
 
+export interface TerritoryRep {
+  id: string;
+  territory_id: string;
+  user_id: string;
+  created_at: string;
+}
+
 export interface CustomerTag {
   id: string;
   name: string;

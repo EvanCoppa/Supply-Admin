@@ -11,7 +11,7 @@
 
   let {
     onSelected,
-    accept = 'image/jpeg,image/png,image/webp',
+    accept = 'image/jpeg,image/png,image/webp,image/avif',
     maxBytes = 10 * 1024 * 1024,
     onError
   }: Props = $props();
@@ -23,7 +23,7 @@
 
   function validate(file: File): string | null {
     if (!acceptList.includes(file.type)) {
-      return 'Image must be JPEG, PNG, or WebP.';
+      return 'Image must be JPEG, PNG, WebP, or AVIF.';
     }
     if (file.size > maxBytes) {
       const mb = Math.round(maxBytes / 1024 / 1024);
@@ -104,7 +104,7 @@
       {dragging ? 'Drop to upload' : 'Drag a photo here, or click to browse'}
     </p>
     <p class="mt-1 text-xs text-slate-500">
-      JPEG, PNG, or WebP — up to {Math.round(maxBytes / 1024 / 1024)} MB
+      JPEG, PNG, WebP, or AVIF — up to {Math.round(maxBytes / 1024 / 1024)} MB
     </p>
   </div>
 </div>

@@ -18,6 +18,20 @@ const optionalUuid = optionalTrimmed.refine(
   { message: 'Invalid id.' }
 );
 
+const money = z.coerce.number().finite().nonnegative();
+
+export const purchaseLineInputSchema = z.object({
+  product_id: z.string().uuid().optional().nullable(),
+  order_line_item_id: z.string().uuid().optional().nullable(),
+  product_sku_snapshot: z.string().trim().optional().nullable(),
+  product_name_snapshot: z.string().trim().optional().nullable(),
+  description: z.string().trim().optional().nullable(),
+  quantity: z.coerce.number().finite().positive('Quantity must be positive.'),
+  unit_cost: money
+});
+
+export type PurchaseLineInput = z.infer<typeof purchaseLineInputSchema>;
+
 export const purchaseCreateSchema = z.object({
   supplier_id: requiredTrimmed('Supplier is required.'),
   order_id: optionalUuid,
@@ -33,8 +47,24 @@ export const purchaseCreateSchema = z.object({
   payment_status: z.enum(PURCHASE_PAYMENT_STATUSES).default('unpaid'),
   due_date: optionalDateOnly,
   invoice_ref: optionalTrimmed,
-  notes: optionalTrimmed
+  notes: optionalTrimmed,
+  line_items_json: optionalTrimmed
 });
+
+export function parsePurchaseLineItems(raw: string | null | undefined): PurchaseLineInput[] {
+  if (!raw) return [];
+  let json: unknown;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    throw new Error('Purchase lines must be valid JSON.');
+  }
+  const result = z.array(purchaseLineInputSchema).safeParse(json);
+  if (!result.success) {
+    throw new Error(result.error.issues[0]?.message ?? 'Invalid purchase line item.');
+  }
+  return result.data;
+}
 
 export const purchaseUpdateSchema = purchaseCreateSchema.partial({
   supplier_id: true,

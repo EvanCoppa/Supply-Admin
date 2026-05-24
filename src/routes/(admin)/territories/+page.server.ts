@@ -3,12 +3,12 @@ import type { Actions, PageServerLoad } from './$types';
 import type { Territory } from '$lib/types/db';
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
-  const { data } = await supabase
+  const { data: terr } = await supabase
     .from('territories')
     .select('id, name, description, created_at')
     .order('name');
 
-  const terr = (data ?? []) as Territory[];
+  const territories = (terr ?? []) as Territory[];
 
   const counts = await supabase.from('customers').select('territory_id');
   const countByTerritory = new Map<string, number>();
@@ -18,11 +18,32 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
     }
   }
 
+  const { data: reps } = await supabase
+    .from('territory_reps')
+    .select('territory_id, user_id, user_profiles(id, display_name)');
+
+  const repsByTerritory = new Map<string, Array<{ id: string; display_name: string | null }>>();
+  for (const rep of reps ?? []) {
+    const profile = rep.user_profiles as any;
+    if (!profile) continue;
+    const list = repsByTerritory.get(rep.territory_id) ?? [];
+    list.push({ id: profile.id, display_name: profile.display_name });
+    repsByTerritory.set(rep.territory_id, list);
+  }
+
+  const { data: adminUsers } = await supabase
+    .from('user_profiles')
+    .select('id, display_name')
+    .eq('role', 'admin')
+    .order('display_name');
+
   return {
-    territories: terr.map((t) => ({
+    territories: territories.map((t) => ({
       ...t,
-      customer_count: countByTerritory.get(t.id) ?? 0
-    }))
+      customer_count: countByTerritory.get(t.id) ?? 0,
+      reps: repsByTerritory.get(t.id) ?? []
+    })),
+    adminUsers: (adminUsers ?? []) as Array<{ id: string; display_name: string | null }>
   };
 };
 
@@ -59,6 +80,33 @@ export const actions: Actions = {
     const form = await request.formData();
     const id = String(form.get('id') ?? '');
     const { error } = await supabase.from('territories').delete().eq('id', id);
+    if (error) return fail(400, { message: error.message });
+    return { saved: true };
+  },
+
+  addRep: async ({ request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const territory_id = String(form.get('territory_id') ?? '');
+    const user_id = String(form.get('user_id') ?? '');
+    if (!territory_id || !user_id) return fail(400, { message: 'Territory and user are required.' });
+    const { error } = await supabase.from('territory_reps').insert({
+      territory_id,
+      user_id
+    });
+    if (error) {
+      if (error.code === '23505') {
+        return fail(400, { message: 'This user is already assigned to this territory.' });
+      }
+      return fail(400, { message: error.message });
+    }
+    return { saved: true };
+  },
+
+  removeRep: async ({ request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const id = String(form.get('id') ?? '');
+    if (!id) return fail(400, { message: 'Rep ID is required.' });
+    const { error } = await supabase.from('territory_reps').delete().eq('id', id);
     if (error) return fail(400, { message: error.message });
     return { saved: true };
   }

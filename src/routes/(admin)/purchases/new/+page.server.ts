@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { parseForm, purchaseCreateSchema } from '$lib/schemas';
+import { parseForm, parsePurchaseLineItems, purchaseCreateSchema } from '$lib/schemas';
 
 type OrderForLink = {
   id: string;
@@ -49,6 +49,17 @@ export const actions: Actions = {
     }
 
     const d = parsed.data;
+
+    let lines;
+    try {
+      lines = parsePurchaseLineItems(d.line_items_json);
+    } catch (err) {
+      return fail(400, {
+        message: err instanceof Error ? err.message : 'Invalid purchase lines.',
+        fieldErrors: {}
+      });
+    }
+
     const { data: purchase, error } = await supabase
       .from('purchases')
       .insert({
@@ -74,6 +85,30 @@ export const actions: Actions = {
         message: error?.message ?? 'Failed to create purchase.',
         fieldErrors: {}
       });
+    }
+
+    if (lines.length > 0) {
+      const rows = lines.map((line, i) => ({
+        purchase_id: purchase.id,
+        product_id: line.product_id ?? null,
+        order_line_item_id: line.order_line_item_id ?? null,
+        product_sku_snapshot: line.product_sku_snapshot ?? null,
+        product_name_snapshot: line.product_name_snapshot ?? null,
+        description: line.description ?? null,
+        quantity: line.quantity,
+        unit_cost: line.unit_cost,
+        line_total: Math.round(line.quantity * line.unit_cost * 100) / 100,
+        display_order: i
+      }));
+
+      const { error: lineErr } = await supabase.from('purchase_line_items').insert(rows);
+      if (lineErr) {
+        await supabase.from('purchases').delete().eq('id', purchase.id);
+        return fail(400, {
+          message: `Failed to save line items: ${lineErr.message}`,
+          fieldErrors: {}
+        });
+      }
     }
 
     throw redirect(303, `/purchases/${purchase.id}`);

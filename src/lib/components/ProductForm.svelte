@@ -128,7 +128,7 @@
     <input
       type="file"
       name="image"
-      accept="image/jpeg,image/png,image/webp"
+      accept="image/jpeg,image/png,image/webp,image/avif"
       class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm file:mr-3 file:rounded file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-sm file:font-medium file:text-slate-700"
       aria-invalid={imageError ? 'true' : undefined}
       aria-describedby={imageError ? 'product-image-error' : 'product-image-help'}
@@ -137,7 +137,7 @@
       <p id="product-image-error" class="mt-1 text-xs text-red-700">{imageError}</p>
     {:else}
       <p id="product-image-help" class="mt-1 text-xs text-slate-500">
-        JPEG, PNG, or WebP up to 10 MB.
+        JPEG, PNG, WebP, or AVIF up to 10 MB.
       </p>
     {/if}
   </label>

@@ -244,7 +244,7 @@
       bind:this={fileInputEl}
       type="file"
       name="image"
-      accept="image/jpeg,image/png,image/webp"
+      accept="image/jpeg,image/png,image/webp,image/avif"
       class="hidden"
       aria-hidden="true"
       tabindex="-1"

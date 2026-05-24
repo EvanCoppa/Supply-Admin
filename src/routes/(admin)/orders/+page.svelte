@@ -35,19 +35,19 @@
   </header>
 
   <form method="GET" class="grid gap-2 rounded border border-slate-200 bg-white p-3 sm:grid-cols-6">
-    <Select name="status" class="sm:col-span-1">
+    <Select name="status">
       <option value="">All statuses</option>
       {#each data.statuses as s}
         <option value={s} selected={data.filters.status === s}>{s}</option>
       {/each}
     </Select>
-    <Select name="customer" class="sm:col-span-2">
+    <Select name="customer">
       <option value="">All clients</option>
       {#each data.customers as c}
         <option value={c.id} selected={data.filters.customerId === c.id}>{c.business_name}</option>
       {/each}
     </Select>
-    <Select name="source" class="sm:col-span-1">
+    <Select name="source">
       <option value="">Any source</option>
       <option value="storefront" selected={data.filters.source === 'storefront'}>Storefront</option>
       <option value="api" selected={data.filters.source === 'api'}>API</option>
@@ -64,14 +64,12 @@
       value={data.filters.to}
       class="rounded border border-slate-300 px-2 py-1.5 text-sm"
     />
-    <div class="sm:col-span-6 flex justify-end">
-      <button
-        type="submit"
-        class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
-      >
-        Filter
-      </button>
-    </div>
+    <button
+      type="submit"
+      class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+    >
+      Filter
+    </button>
   </form>
 
   <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">

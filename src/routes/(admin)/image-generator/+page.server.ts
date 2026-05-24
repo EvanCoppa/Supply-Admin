@@ -10,7 +10,7 @@ import {
 
 const MODEL = 'gemini-2.5-flash-image';
 const MAX_BYTES = 10 * 1024 * 1024;
-const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
 
 const BASE_PROMPT = [
   'Regenerate this image as a premium, photorealistic ecommerce product photo.',
@@ -111,7 +111,7 @@ export const actions: Actions = {
       return fail(400, { message: 'Image must be 10 MB or smaller.' });
     }
     if (!ALLOWED_MIME.has(file.type)) {
-      return fail(400, { message: 'Image must be JPEG, PNG, or WebP.' });
+      return fail(400, { message: 'Image must be JPEG, PNG, WebP, or AVIF.' });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
