@@ -7,6 +7,7 @@ import type {
   InvoiceTerms
 } from '$lib/types/db';
 import type { InvoiceLineInput } from '$lib/schemas/invoice';
+import { GoldStandardError, bcpSale, parseBcpResult } from '$lib/server/goldstandard';
 
 type InvoiceWritable = Partial<Invoice> & {
   customer_id: string;
@@ -272,4 +273,135 @@ export async function createPaymentIntent(
   if (updateError) throw new Error(updateError.message);
 
   return data as InvoicePaymentIntent;
+}
+
+export interface ChargeInvoiceCardInput {
+  cardNumber: string;
+  expirationDate: string;
+  cvv: string;
+  nameOnCard?: string;
+  street?: string;
+  zipCode?: string;
+}
+
+export interface ChargeInvoiceTokenInput {
+  token: string;
+}
+
+export type ChargeInvoiceCredential = ChargeInvoiceCardInput | ChargeInvoiceTokenInput;
+
+/**
+ * Charge an invoice through GoldStandard and reconcile the related rows:
+ *   - inserts an invoice_payment_intent reflecting the gateway result
+ *   - updates the invoice's amount_paid / status / payment_status on success
+ */
+export async function chargeInvoice(
+  supabase: SupabaseClient,
+  invoice: Invoice,
+  credential: ChargeInvoiceCredential,
+  metadata: Record<string, unknown> = {}
+) {
+  const amount = balanceDue(invoice);
+  if (amount <= 0) throw new Error('Invoice does not have a balance due.');
+  if (['void', 'refunded'].includes(invoice.status)) {
+    throw new Error('This invoice cannot be paid.');
+  }
+
+  const invoiceData: { invoiceNumber?: string; totalAmount: number } = { totalAmount: amount };
+  if (invoice.invoice_number) invoiceData.invoiceNumber = invoice.invoice_number;
+
+  const saleInput: Parameters<typeof bcpSale>[0] = {
+    transactionType: 'Sale',
+    invoiceData
+  };
+  if ('token' in credential) {
+    saleInput.token = credential.token;
+  } else {
+    const cardData: Record<string, string> = {
+      cardNumber: credential.cardNumber,
+      expirationDate: credential.expirationDate.replace('/', ''),
+      cvv: credential.cvv
+    };
+    if (credential.nameOnCard) cardData['nameOnCard'] = credential.nameOnCard;
+    if (credential.street) cardData['street'] = credential.street;
+    if (credential.zipCode) cardData['zipCode'] = credential.zipCode;
+    saleInput.cardData = cardData;
+  }
+
+  let raw: unknown;
+  try {
+    raw = await bcpSale(saleInput);
+  } catch (err) {
+    const message =
+      err instanceof GoldStandardError
+        ? `Payment processor error: ${err.message}`
+        : err instanceof Error
+          ? err.message
+          : 'Payment processor error';
+    await supabase.from('invoice_payment_intents').insert({
+      invoice_id: invoice.id,
+      customer_id: invoice.customer_id,
+      amount,
+      currency: 'usd',
+      status: 'failed',
+      provider: 'goldstandard',
+      provider_reference: null,
+      metadata: { ...metadata, error: message }
+    });
+    await supabase.from('invoices').update({ payment_status: 'failed' }).eq('id', invoice.id);
+    throw new Error(message);
+  }
+
+  const result = parseBcpResult(raw);
+
+  const intentInsert = {
+    invoice_id: invoice.id,
+    customer_id: invoice.customer_id,
+    amount,
+    currency: 'usd',
+    status: result.approved ? 'succeeded' : 'failed',
+    provider: 'goldstandard',
+    provider_reference: result.reference,
+    metadata: { ...metadata, gateway_response: raw },
+    completed_at: new Date().toISOString()
+  };
+
+  const { data: intentRow, error: intentErr } = await supabase
+    .from('invoice_payment_intents')
+    .insert(intentInsert)
+    .select('*')
+    .single();
+  if (intentErr || !intentRow) {
+    throw new Error(intentErr?.message ?? 'Failed to record payment intent.');
+  }
+
+  if (!result.approved) {
+    await supabase.from('invoices').update({ payment_status: 'failed' }).eq('id', invoice.id);
+    throw new Error(
+      result.responseMessage ??
+        `Payment declined${result.responseCode ? ` (${result.responseCode})` : ''}`
+    );
+  }
+
+  const newAmountPaid = roundMoney(Number(invoice.amount_paid ?? 0) + amount);
+  const newStatus = statusAfterPayment(invoice, newAmountPaid);
+  const paidAt = newStatus === 'paid' ? new Date().toISOString() : invoice.paid_at;
+
+  const { error: invoiceUpdateErr } = await supabase
+    .from('invoices')
+    .update({
+      amount_paid: newAmountPaid,
+      status: newStatus,
+      payment_status: 'paid',
+      paid_at: paidAt
+    })
+    .eq('id', invoice.id);
+  if (invoiceUpdateErr) throw new Error(invoiceUpdateErr.message);
+
+  return {
+    intent: intentRow as InvoicePaymentIntent,
+    reference: result.reference,
+    amountPaid: newAmountPaid,
+    status: newStatus
+  };
 }

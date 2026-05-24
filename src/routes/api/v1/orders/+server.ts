@@ -9,10 +9,30 @@ import {
   getCatalogCustomer,
   resolveCustomerPrice
 } from '$lib/server/supply-catalog';
+import { GoldStandardError, bcpSale, parseBcpResult } from '$lib/server/goldstandard';
+
+const cardPaymentSchema = z.object({
+  card_number: z.string().trim().min(12).max(19),
+  expiration_date: z
+    .string()
+    .trim()
+    .regex(/^\d{2}\/?\d{2}$/, 'expiration_date must be MMYY or MM/YY'),
+  cvv: z.string().trim().min(3).max(4),
+  name_on_card: z.string().trim().min(1).max(128).optional(),
+  zip_code: z.string().trim().min(3).max(16).optional(),
+  street: z.string().trim().min(1).max(128).optional()
+});
+
+const tokenPaymentSchema = z.object({
+  token: z.string().trim().min(1).max(128)
+});
+
+const paymentSchema = z.union([cardPaymentSchema, tokenPaymentSchema]);
 
 const orderSchema = z.object({
   idempotency_key: z.string().trim().min(1).max(128).optional(),
   shipping_address: z.record(z.unknown()).nullable().optional(),
+  payment: paymentSchema.optional(),
   items: z
     .array(
       z.object({
@@ -105,7 +125,77 @@ export const POST: RequestHandler = async ({ request }) => {
     Math.round(lineItems.reduce((sum, item) => sum + item.line_total, 0) * 100) / 100;
   const tax = 0;
   const shipping = 0;
-  const total = subtotal + tax + shipping;
+  const total = Math.round((subtotal + tax + shipping) * 100) / 100;
+
+  const paymentInput = parsed.data.payment;
+  let charge: ReturnType<typeof parseBcpResult> | null = null;
+  let chargeRaw: unknown = null;
+
+  if (paymentInput) {
+    if (total <= 0) {
+      throw error(400, 'Cannot charge a card for a zero-total order');
+    }
+    const invoiceData: { invoiceNumber?: string; totalAmount: number } = { totalAmount: total };
+    if (parsed.data.idempotency_key) invoiceData.invoiceNumber = parsed.data.idempotency_key;
+
+    const saleInput: Parameters<typeof bcpSale>[0] = {
+      transactionType: 'Sale',
+      invoiceData
+    };
+    if ('token' in paymentInput) {
+      saleInput.token = paymentInput.token;
+    } else {
+      const cardData: Record<string, string> = {
+        cardNumber: paymentInput.card_number,
+        expirationDate: paymentInput.expiration_date.replace('/', ''),
+        cvv: paymentInput.cvv
+      };
+      if (paymentInput.name_on_card) cardData['nameOnCard'] = paymentInput.name_on_card;
+      if (paymentInput.street) cardData['street'] = paymentInput.street;
+      if (paymentInput.zip_code) cardData['zipCode'] = paymentInput.zip_code;
+      saleInput.cardData = cardData;
+    }
+
+    try {
+      chargeRaw = await bcpSale(saleInput);
+      charge = parseBcpResult(chargeRaw);
+    } catch (err) {
+      const message =
+        err instanceof GoldStandardError
+          ? `Payment processor error: ${err.message}`
+          : err instanceof Error
+            ? err.message
+            : 'Payment processor error';
+      await supabase.from('payment_attempts').insert({
+        order_id: null,
+        customer_id: customerId,
+        amount: total,
+        status: 'failed',
+        gateway_reference: null,
+        gateway_response: {
+          error: message,
+          raw: err instanceof GoldStandardError ? err.body : null
+        }
+      });
+      throw error(402, message);
+    }
+
+    if (!charge.approved) {
+      await supabase.from('payment_attempts').insert({
+        order_id: null,
+        customer_id: customerId,
+        amount: total,
+        status: 'failed',
+        gateway_reference: charge.reference,
+        gateway_response: chargeRaw as Record<string, unknown> | null
+      });
+      throw error(
+        402,
+        charge.responseMessage ??
+          `Payment declined${charge.responseCode ? ` (${charge.responseCode})` : ''}`
+      );
+    }
+  }
 
   const { data: order, error: orderError } = await supabase
     .from('orders')
@@ -117,10 +207,11 @@ export const POST: RequestHandler = async ({ request }) => {
       shipping,
       total,
       shipping_address_snapshot: parsed.data.shipping_address ?? null,
+      payment_reference: charge?.reference ?? null,
       source: 'api',
       idempotency_key: parsed.data.idempotency_key ?? null
     })
-    .select('id, status, subtotal, tax, shipping, total, placed_at')
+    .select('id, status, subtotal, tax, shipping, total, placed_at, payment_reference')
     .single();
 
   if (orderError || !order) {
@@ -136,6 +227,17 @@ export const POST: RequestHandler = async ({ request }) => {
     console.error('[supply-api] line item create failed', lineError);
     await supabase.from('orders').delete().eq('id', order.id);
     throw error(500, 'Line item create failed');
+  }
+
+  if (charge) {
+    await supabase.from('payment_attempts').insert({
+      order_id: order.id,
+      customer_id: customerId,
+      amount: total,
+      status: 'succeeded',
+      gateway_reference: charge.reference,
+      gateway_response: chargeRaw as Record<string, unknown> | null
+    });
   }
 
   return json({ order: { ...order, line_items: lineItems }, idempotent: false }, { status: 201 });
