@@ -1,8 +1,14 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { CustomerTask, TaskPriority, TaskStatus } from '$lib/types/db';
+import {
+  ACTIONABLE_TASK_STATUSES,
+  ALL_TASK_STATUSES,
+  type CustomerTask,
+  type TaskPriority,
+  type TaskStatus
+} from '$lib/types/db';
 
-const STATUSES: TaskStatus[] = ['open', 'in_progress', 'done', 'cancelled'];
+const STATUSES = ALL_TASK_STATUSES;
 const PRIORITIES: TaskPriority[] = ['low', 'normal', 'high', 'urgent'];
 
 // Board shows all matching tasks at once; cap to keep the page bounded.
@@ -31,7 +37,9 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, user } }) 
   if (view === 'mine') {
     if (user?.id) q = q.eq('assigned_to', user.id);
   } else if (view === 'overdue') {
-    q = q.in('status', ['open', 'in_progress']).lt('due_at', new Date().toISOString());
+    q = q
+      .in('status', ACTIONABLE_TASK_STATUSES as unknown as string[])
+      .lt('due_at', new Date().toISOString());
   } else if (view === 'unassigned') {
     q = q.is('assigned_to', null);
   }
@@ -42,13 +50,14 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, user } }) 
   if (assignee) q = q.eq('assigned_to', assignee);
   if (customer) q = q.eq('customer_id', customer);
 
-  const [tasksRes, adminsRes] = await Promise.all([
+  const [tasksRes, adminsRes, customersRes] = await Promise.all([
     q,
     supabase
       .from('user_profiles')
       .select('id, display_name')
       .eq('role', 'admin')
-      .order('display_name')
+      .order('display_name'),
+    supabase.from('customers').select('id, business_name').order('business_name')
   ]);
 
   return {
@@ -70,6 +79,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, user } }) 
     total: tasksRes.count ?? 0,
     limit: TASK_LIMIT,
     admins: adminsRes.data ?? [],
+    customers: customersRes.data ?? [],
     filters: { view, priority: priorityParam, assignee, customer }
   };
 };
@@ -83,6 +93,66 @@ export const actions: Actions = {
       return fail(400, { message: 'Invalid status.' });
     }
     const { error } = await supabase.from('customer_tasks').update({ status }).eq('id', id);
+    if (error) return fail(400, { message: error.message });
+    return { saved: true };
+  },
+
+  setDue: async ({ request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const id = String(form.get('id') ?? '');
+    const raw = String(form.get('due_at') ?? '').trim();
+    const due_at = raw ? new Date(raw).toISOString() : null;
+    const { error } = await supabase.from('customer_tasks').update({ due_at }).eq('id', id);
+    if (error) return fail(400, { message: error.message });
+    return { saved: true };
+  },
+
+  setPriority: async ({ request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const id = String(form.get('id') ?? '');
+    const priority = String(form.get('priority') ?? '');
+    if (!PRIORITIES.includes(priority as TaskPriority)) {
+      return fail(400, { message: 'Invalid priority.' });
+    }
+    const { error } = await supabase.from('customer_tasks').update({ priority }).eq('id', id);
+    if (error) return fail(400, { message: error.message });
+    return { saved: true };
+  },
+
+  setAssignee: async ({ request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const id = String(form.get('id') ?? '');
+    const raw = String(form.get('assigned_to') ?? '').trim();
+    const assigned_to = raw || null;
+    const { error } = await supabase.from('customer_tasks').update({ assigned_to }).eq('id', id);
+    if (error) return fail(400, { message: error.message });
+    return { saved: true };
+  },
+
+  create: async ({ request, locals: { supabase, user } }) => {
+    const form = await request.formData();
+    const title = String(form.get('title') ?? '').trim();
+    if (!title) return fail(400, { message: 'Title is required.' });
+    const customer_id = String(form.get('customer_id') ?? '').trim();
+    if (!customer_id) return fail(400, { message: 'Customer is required.' });
+    const priority = String(form.get('priority') ?? 'normal');
+    if (!PRIORITIES.includes(priority as TaskPriority)) {
+      return fail(400, { message: 'Invalid priority.' });
+    }
+    const assigned_to = String(form.get('assigned_to') ?? '').trim() || null;
+    const due = String(form.get('due_at') ?? '').trim();
+    // Default to 'assigned' if an owner was picked, else 'unassigned' (matches DB default).
+    const status: TaskStatus = assigned_to ? 'assigned' : 'unassigned';
+    const { error } = await supabase.from('customer_tasks').insert({
+      customer_id,
+      created_by: user?.id ?? null,
+      assigned_to,
+      title,
+      description: String(form.get('description') ?? '').trim() || null,
+      priority,
+      status,
+      due_at: due ? new Date(due).toISOString() : null
+    });
     if (error) return fail(400, { message: error.message });
     return { saved: true };
   }

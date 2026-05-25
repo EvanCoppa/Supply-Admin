@@ -22,9 +22,13 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
     .from('territory_reps')
     .select('territory_id, user_id, user_profiles(id, display_name)');
 
-  const repsByTerritory = new Map<string, Array<{ id: string; display_name: string | null }>>();
+  const repsByTerritory = new Map<string, { id: string; display_name: string | null }[]>();
   for (const rep of reps ?? []) {
-    const profile = rep.user_profiles as any;
+    const raw = rep.user_profiles as unknown as
+      | { id: string; display_name: string | null }
+      | { id: string; display_name: string | null }[]
+      | null;
+    const profile = Array.isArray(raw) ? raw[0] : raw;
     if (!profile) continue;
     const list = repsByTerritory.get(rep.territory_id) ?? [];
     list.push({ id: profile.id, display_name: profile.display_name });
@@ -43,7 +47,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
       customer_count: countByTerritory.get(t.id) ?? 0,
       reps: repsByTerritory.get(t.id) ?? []
     })),
-    adminUsers: (adminUsers ?? []) as Array<{ id: string; display_name: string | null }>
+    adminUsers: adminUsers ?? []
   };
 };
 
@@ -88,7 +92,8 @@ export const actions: Actions = {
     const form = await request.formData();
     const territory_id = String(form.get('territory_id') ?? '');
     const user_id = String(form.get('user_id') ?? '');
-    if (!territory_id || !user_id) return fail(400, { message: 'Territory and user are required.' });
+    if (!territory_id || !user_id)
+      return fail(400, { message: 'Territory and user are required.' });
     const { error } = await supabase.from('territory_reps').insert({
       territory_id,
       user_id

@@ -23,12 +23,22 @@
       <h1 class="text-2xl font-semibold">RMAs</h1>
       <p class="text-sm text-slate-500">{data.total} total returns.</p>
     </div>
-    <a
-      href={data.filters.status ? `/rmas/export.csv?status=${data.filters.status}` : '/rmas/export.csv'}
-      class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
-    >
-      Export CSV
-    </a>
+    <div class="flex items-center gap-2">
+      <a
+        href={data.filters.status
+          ? `/rmas/export.csv?status=${data.filters.status}`
+          : '/rmas/export.csv'}
+        class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+      >
+        Export CSV
+      </a>
+      <a
+        href="/rmas/new"
+        class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+      >
+        New RMA
+      </a>
+    </div>
   </header>
 
   <form

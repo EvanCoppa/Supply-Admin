@@ -1,8 +1,13 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { CustomerTask, TaskPriority, TaskStatus } from '$lib/types/db';
+import {
+  ALL_TASK_STATUSES,
+  type CustomerTask,
+  type TaskPriority,
+  type TaskStatus
+} from '$lib/types/db';
 
-const STATUSES: TaskStatus[] = ['open', 'in_progress', 'done', 'cancelled'];
+const STATUSES = ALL_TASK_STATUSES;
 const PRIORITIES: TaskPriority[] = ['low', 'normal', 'high', 'urgent'];
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {

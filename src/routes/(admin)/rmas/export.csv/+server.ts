@@ -1,7 +1,14 @@
 import type { RequestHandler } from './$types';
 import { rowsToCsv } from '$lib/csv';
 
-const STATUSES = ['requested', 'approved', 'received', 'refunded', 'rejected', 'cancelled'] as const;
+const STATUSES = [
+  'requested',
+  'approved',
+  'received',
+  'refunded',
+  'rejected',
+  'cancelled'
+] as const;
 const MAX_ROWS = 10000;
 
 export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {

@@ -6,6 +6,7 @@
 ## Background
 
 Each row in `public.inventory` tracks:
+
 - `quantity_on_hand` — physical stock
 - `quantity_reserved` — stock allocated to in-flight orders/carts but not yet shipped
 - `low_stock_threshold` — used by the reorder planner

@@ -162,9 +162,9 @@
         Writes through the API with the current admin as actor.
       </p>
 
-      {#if form?.message && form?.code !== undefined}
+      {#if form?.message}
         <div class="mb-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
-          {form.message}{form.code ? ` (${form.code})` : ''}
+          {form.message}
         </div>
       {/if}
       {#if form?.saved}

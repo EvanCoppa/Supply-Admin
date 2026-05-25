@@ -62,7 +62,10 @@
 
   {#if data.steps.length === 0}
     <div class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
-      No routine steps yet. <a href="/routine/manage" class="font-medium text-sky-700 hover:underline">Add your first step →</a>
+      No routine steps yet. <a
+        href="/routine/manage"
+        class="font-medium text-sky-700 hover:underline">Add your first step →</a
+      >
     </div>
   {/if}
 

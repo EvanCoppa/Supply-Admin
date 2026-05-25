@@ -61,10 +61,11 @@
             <form
               method="POST"
               action="?/update"
-              use:enhance={() => async ({ update }) => {
-                await update();
-                editingId = null;
-              }}
+              use:enhance={() =>
+                async ({ update }) => {
+                  await update();
+                  editingId = null;
+                }}
               class="space-y-2"
             >
               <input type="hidden" name="id" value={n.id} />

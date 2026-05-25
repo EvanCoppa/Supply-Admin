@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import { dateTime } from '$lib/format';
   import Select from '$lib/components/Select.svelte';
+  import { ACTIONABLE_TASK_STATUSES, CLOSED_TASK_STATUSES } from '$lib/types/db';
 
   let { data, form } = $props();
 
@@ -14,12 +15,11 @@
     urgent: 'bg-red-50 text-red-700'
   };
 
+  const ACTIONABLE: ReadonlySet<string> = new Set(ACTIONABLE_TASK_STATUSES);
+  const CLOSED: ReadonlySet<string> = new Set(CLOSED_TASK_STATUSES);
+
   function isOverdue(t: { due_at: string | null; status: string }) {
-    return (
-      !!t.due_at &&
-      (t.status === 'open' || t.status === 'in_progress') &&
-      new Date(t.due_at).getTime() < Date.now()
-    );
+    return !!t.due_at && ACTIONABLE.has(t.status) && new Date(t.due_at).getTime() < Date.now();
   }
 </script>
 
@@ -48,10 +48,11 @@
     <form
       method="POST"
       action="?/create"
-      use:enhance={() => async ({ update }) => {
-        await update();
-        showCreate = false;
-      }}
+      use:enhance={() =>
+        async ({ update }) => {
+          await update();
+          showCreate = false;
+        }}
       class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-3"
     >
       <label class="block sm:col-span-3">
@@ -134,23 +135,46 @@
                   <input type="hidden" name="id" value={t.id} />
                   <Select
                     name="status"
-                    onchange={(e) =>
-                      ((e.currentTarget as HTMLSelectElement).form as HTMLFormElement).requestSubmit()}
+                    onchange={(e) => (e.currentTarget as HTMLSelectElement).form?.requestSubmit()}
                   >
-                    <option value="open" selected={t.status === 'open'}>Open</option>
-                    <option value="in_progress" selected={t.status === 'in_progress'}
-                      >In progress</option
-                    >
-                    <option value="done" selected={t.status === 'done'}>Done</option>
-                    <option value="cancelled" selected={t.status === 'cancelled'}>Cancelled</option>
+                    <optgroup label="New">
+                      <option value="unassigned" selected={t.status === 'unassigned'}
+                        >Unassigned</option
+                      >
+                      <option value="assigned" selected={t.status === 'assigned'}>Assigned</option>
+                    </optgroup>
+                    <optgroup label="Qualifying">
+                      <option value="contacted" selected={t.status === 'contacted'}
+                        >Contacted</option
+                      >
+                      <option value="interested" selected={t.status === 'interested'}
+                        >Interested</option
+                      >
+                    </optgroup>
+                    <optgroup label="Active">
+                      <option value="in_progress" selected={t.status === 'in_progress'}
+                        >In progress</option
+                      >
+                      <option
+                        value="waiting_on_customer"
+                        selected={t.status === 'waiting_on_customer'}>Waiting on customer</option
+                      >
+                    </optgroup>
+                    <optgroup label="Closed-Won">
+                      <option value="shipped" selected={t.status === 'shipped'}>Shipped</option>
+                      <option value="verified" selected={t.status === 'verified'}>Verified</option>
+                    </optgroup>
+                    <optgroup label="Closed-Lost">
+                      <option value="cancelled" selected={t.status === 'cancelled'}
+                        >Cancelled</option
+                      >
+                      <option value="lost" selected={t.status === 'lost'}>Lost</option>
+                    </optgroup>
                   </Select>
                 </form>
               </td>
               <td class="px-3 py-2">
-                <p
-                  class="font-medium"
-                  class:line-through={t.status === 'done' || t.status === 'cancelled'}
-                >
+                <p class="font-medium" class:line-through={CLOSED.has(t.status)}>
                   {t.title}
                 </p>
                 {#if t.description}

@@ -23,7 +23,7 @@ test.describe('auto-refresh after mutations', () => {
   test('form enhancement callbacks call update() before state reset', async ({ page }) => {
     // Check that the compiled Svelte component includes the async/await pattern
     // by inspecting the network activity or checking for specific markup
-    const response = await page.goto('/');
+    await page.goto('/');
 
     // We expect a redirect to /login since unauthenticated
     expect(page.url()).toContain('login');

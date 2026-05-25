@@ -8,8 +8,48 @@ export type CustomerLifecycleStage = 'lead' | 'prospect' | 'active' | 'at_risk' 
 export type ContactRole = 'primary' | 'billing' | 'shipping' | 'clinical' | 'other';
 export type ActivityType = 'call' | 'email' | 'meeting' | 'visit' | 'sms' | 'other';
 export type ActivityDirection = 'inbound' | 'outbound';
-export type TaskStatus = 'open' | 'in_progress' | 'done' | 'cancelled';
+// Task lifecycle — 10 statuses grouped into 5 board columns:
+//   New        : unassigned, assigned
+//   Qualifying : contacted, interested
+//   Active     : in_progress, waiting_on_customer
+//   Closed-Won : shipped, verified
+//   Closed-Lost: cancelled, lost
+// Mirrors the CHECK constraint on customer_tasks.status.
+export type TaskStatus =
+  | 'unassigned'
+  | 'assigned'
+  | 'contacted'
+  | 'interested'
+  | 'in_progress'
+  | 'waiting_on_customer'
+  | 'shipped'
+  | 'verified'
+  | 'cancelled'
+  | 'lost';
 export type TaskPriority = 'low' | 'normal' | 'high' | 'urgent';
+
+// Closed buckets (Closed-Won + Closed-Lost). Trigger stamps completed_at on entry.
+export const CLOSED_TASK_STATUSES: readonly TaskStatus[] = [
+  'shipped',
+  'verified',
+  'cancelled',
+  'lost'
+] as const;
+
+// Anything not closed — used for "overdue" and "still actionable" filters.
+export const ACTIONABLE_TASK_STATUSES: readonly TaskStatus[] = [
+  'unassigned',
+  'assigned',
+  'contacted',
+  'interested',
+  'in_progress',
+  'waiting_on_customer'
+] as const;
+
+export const ALL_TASK_STATUSES: readonly TaskStatus[] = [
+  ...ACTIONABLE_TASK_STATUSES,
+  ...CLOSED_TASK_STATUSES
+] as const;
 export type InvoiceStatus =
   | 'draft'
   | 'issued'

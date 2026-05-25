@@ -1,11 +1,13 @@
 # Tax Prefilling Implementation Guide
 
 ## Overview
+
 This system automatically calculates and prefills sales tax based on the shipping address (state) for orders. Tax is calculated at the order level, after discounts are applied.
 
 ## Database Setup
 
 ### 1. Apply Migrations
+
 Run these migrations in order in the Supabase dashboard or via CLI:
 
 ```bash
@@ -13,12 +15,15 @@ supabase migration up
 ```
 
 Migrations created:
+
 - `202605240003_create_tax_rates_table.sql` - Creates `tax_rates` table with all US state rates
 - `202605240004_add_tax_columns_to_orders.sql` - Adds tax tracking columns to orders
 - `202605240005_create_tax_lookup_function.sql` - Creates lookup function
 
 ### 2. Verify Setup
+
 Check Supabase to ensure:
+
 - `tax_rates` table exists with 50 state rates populated
 - `orders` table has new columns: `shipping_state`, `tax_rate`, `tax_amount`, `subtotal_before_tax`, `tax_calculated_at`
 - `get_tax_rate_for_state()` function is available
@@ -26,24 +31,28 @@ Check Supabase to ensure:
 ## Backend Setup
 
 ### Edge Function
+
 The Edge Function `/functions/v1/calculate-order-tax` handles tax calculation requests.
 
 **File:** `supabase/functions/calculate-order-tax/index.ts`
 
 **Deploy it:**
+
 ```bash
 supabase functions deploy calculate-order-tax
 ```
 
 **Request:**
+
 ```json
 {
   "state": "CA",
-  "subtotal": 100.00
+  "subtotal": 100.0
 }
 ```
 
 **Response:**
+
 ```json
 {
   "tax_rate": 0.0725,
@@ -55,28 +64,33 @@ supabase functions deploy calculate-order-tax
 ## Frontend Integration
 
 ### 1. Utility Functions
+
 **File:** `src/lib/tax-utils.ts`
 
 Exports:
+
 - `calculateTaxForOrder(state, subtotal)` - Calls the Edge Function
 - `extractStateFromAddress(address)` - Extracts state from address object
 - `formatCurrency(amount)` - Formats numbers as USD
 
 ### 2. Custom Hook
+
 **File:** `src/hooks/useTaxCalculation.ts`
 
 Usage:
+
 ```typescript
 const { taxCalculation, loading, error, calculateTax } = useTaxCalculation();
 
 // When user selects an address:
-await calculateTax("CA", 100.00);
+await calculateTax('CA', 100.0);
 
 // Access results:
 console.log(taxCalculation.tax_amount); // 7.25
 ```
 
 ### 3. Example Component
+
 **File:** `src/components/OrderTaxCalculation.example.tsx`
 
 This shows how to integrate tax calculation into your order form.
@@ -159,6 +173,7 @@ function OrderForm() {
 ## When Tax is Recalculated
 
 Tax automatically recalculates when:
+
 - ✅ Shipping address changes
 - ✅ Discount is applied/removed
 - ✅ Order items are added/removed (changes subtotal)
@@ -187,6 +202,7 @@ Or create a background job that syncs rates from TaxJar/Avalara APIs.
 ## Testing
 
 ### Manual Testing
+
 1. Go to order creation form
 2. Select an address with a valid US state
 3. Verify tax calculation displays correctly
@@ -194,6 +210,7 @@ Or create a background job that syncs rates from TaxJar/Avalara APIs.
 5. Submit and verify tax is saved to database
 
 ### Edge Cases to Test
+
 - No state in address → should show "Select an address to calculate tax"
 - Unknown state → should return zero tax with error
 - Zero subtotal → should return zero tax
@@ -210,14 +227,17 @@ Or create a background job that syncs rates from TaxJar/Avalara APIs.
 ## Troubleshooting
 
 **Tax calculation returns 0%:**
+
 - Check that state code is correctly extracted from address
 - Verify state code exists in `tax_rates` table (should be 2 uppercase letters)
 
 **Edge Function returns error:**
+
 - Check Supabase logs: `supabase functions logs calculate-order-tax`
 - Ensure CORS is configured correctly
 
 **Tax doesn't update:**
+
 - Check browser console for errors
 - Verify Edge Function is deployed
 - Check network tab to see Edge Function response

@@ -46,9 +46,7 @@
 
 <section class="space-y-5">
   <header class="space-y-2">
-    <Breadcrumbs
-      items={[{ label: 'RMAs', href: '/rmas' }, { label: r.rma_number }]}
-    />
+    <Breadcrumbs items={[{ label: 'RMAs', href: '/rmas' }, { label: r.rma_number }]} />
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="font-mono text-2xl font-semibold">{r.rma_number}</h1>
       <span class="rounded px-2 py-0.5 text-xs {statusClass[r.status] ?? ''}">{r.status}</span>
@@ -182,7 +180,8 @@
             name="notes"
             rows="2"
             class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-          >{r.notes ?? ''}</textarea>
+            >{r.notes ?? ''}</textarea
+          >
         </label>
         <div class="sm:col-span-2 flex justify-end">
           <button
@@ -212,10 +211,11 @@
           <form
             method="POST"
             action="?/addItem"
-            use:enhance={() => async ({ update }) => {
-              await update();
-              showAddItem = false;
-            }}
+            use:enhance={() =>
+              async ({ update }) => {
+                await update();
+                showAddItem = false;
+              }}
             class="grid gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4 sm:grid-cols-6"
           >
             <label class="block sm:col-span-3">
@@ -293,9 +293,7 @@
               {#each r.items as it (it.id)}
                 <tr>
                   <td class="px-5 py-2">
-                    <span class="font-mono text-xs text-slate-500"
-                      >{it.product?.sku ?? ''}</span
-                    >
+                    <span class="font-mono text-xs text-slate-500">{it.product?.sku ?? ''}</span>
                     <span class="ml-1">{it.product?.name ?? '—'}</span>
                     {#if it.reason}
                       <p class="text-xs text-slate-500">{it.reason}</p>

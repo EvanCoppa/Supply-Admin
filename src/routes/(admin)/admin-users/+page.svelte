@@ -29,9 +29,9 @@
 
   <form
     method="POST"
-    action="?/invite"
+    action="?/create"
     use:enhance
-    class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-[1fr_1fr_auto]"
+    class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-[1fr_1fr_1fr_auto]"
   >
     <label class="block">
       <span class="mb-1 block text-sm font-medium">Email</span>
@@ -54,19 +54,28 @@
         class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
       />
     </label>
+    <label class="block">
+      <span class="mb-1 block text-sm font-medium">Password</span>
+      <input
+        type="password"
+        name="password"
+        required
+        minlength={8}
+        autocomplete="new-password"
+        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+      />
+    </label>
     <div class="flex items-end">
       <button
         type="submit"
         class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
       >
-        Invite admin
+        Create admin
       </button>
     </div>
-    <p class="text-xs text-slate-500 sm:col-span-3">
-      Sends a Supabase invite email and creates a <code class="rounded bg-slate-100 px-1"
-        >user_profiles</code
-      >
-      row with <code class="rounded bg-slate-100 px-1">role = 'admin'</code>.
+    <p class="text-xs text-slate-500 sm:col-span-4">
+      Creates an active admin account. Share the email and password with them — they can sign in
+      immediately at <code class="rounded bg-slate-100 px-1">/login</code>.
     </p>
   </form>
 

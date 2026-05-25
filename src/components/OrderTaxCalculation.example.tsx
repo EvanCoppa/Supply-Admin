@@ -1,6 +1,6 @@
-import { useMemo, useEffect } from "react";
-import { useTaxCalculation } from "@/hooks/useTaxCalculation";
-import { extractStateFromAddress, formatCurrency } from "@/lib/tax-utils";
+import { useMemo, useEffect } from 'react';
+import { useTaxCalculation } from '@/hooks/useTaxCalculation';
+import { extractStateFromAddress, formatCurrency } from '@/lib/tax-utils';
 
 interface OrderAddress {
   state?: string;
@@ -12,11 +12,7 @@ interface OrderAddress {
 interface OrderTaxCalculationProps {
   address: OrderAddress | null;
   subtotalAfterDiscount: number;
-  onTaxCalculated?: (tax: {
-    rate: number;
-    amount: number;
-    total: number;
-  }) => void;
+  onTaxCalculated?: (tax: { rate: number; amount: number; total: number }) => void;
 }
 
 /**
@@ -37,10 +33,9 @@ interface OrderTaxCalculationProps {
 export function OrderTaxCalculation({
   address,
   subtotalAfterDiscount,
-  onTaxCalculated,
+  onTaxCalculated
 }: OrderTaxCalculationProps) {
-  const { taxCalculation, loading, error, calculateTax } =
-    useTaxCalculation();
+  const { taxCalculation, loading, error, calculateTax } = useTaxCalculation();
 
   const state = useMemo(() => {
     if (!address) return null;
@@ -60,7 +55,7 @@ export function OrderTaxCalculation({
       onTaxCalculated({
         rate: taxCalculation.tax_rate,
         amount: taxCalculation.tax_amount,
-        total: taxCalculation.total,
+        total: taxCalculation.total
       });
     }
   }, [taxCalculation, onTaxCalculated]);
@@ -88,11 +83,7 @@ export function OrderTaxCalculation({
           </div>
         )}
 
-        {error && (
-          <div className="text-sm text-red-600">
-            Tax calculation error: {error}
-          </div>
-        )}
+        {error && <div className="text-sm text-red-600">Tax calculation error: {error}</div>}
 
         {taxCalculation && !loading && (
           <>
@@ -103,16 +94,12 @@ export function OrderTaxCalculation({
                   ({(taxCalculation.tax_rate * 100).toFixed(2)}%)
                 </span>
               </span>
-              <span className="font-medium">
-                {formatCurrency(taxCalculation.tax_amount)}
-              </span>
+              <span className="font-medium">{formatCurrency(taxCalculation.tax_amount)}</span>
             </div>
 
             <div className="border-t border-blue-200 pt-2 flex justify-between">
               <span className="font-semibold">Total:</span>
-              <span className="font-semibold text-lg">
-                {formatCurrency(taxCalculation.total)}
-              </span>
+              <span className="font-semibold text-lg">{formatCurrency(taxCalculation.total)}</span>
             </div>
           </>
         )}

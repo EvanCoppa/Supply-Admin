@@ -63,7 +63,9 @@
     <Select name="inventory">
       <option value="">All inventory</option>
       <option value="low" selected={data.filters.inventoryFilter === 'low'}>Low stock only</option>
-      <option value="out" selected={data.filters.inventoryFilter === 'out'}>Out of stock only</option>
+      <option value="out" selected={data.filters.inventoryFilter === 'out'}
+        >Out of stock only</option
+      >
     </Select>
     <button
       type="submit"
@@ -117,7 +119,9 @@
               </td>
               <td class="px-4 py-2 font-mono text-xs">{p.sku}</td>
               <td class="px-4 py-2 max-w-xs truncate">
-                <a class="text-sky-700 hover:underline" href="/catalog/{p.id}" title={p.name}>{p.name}</a>
+                <a class="text-sky-700 hover:underline" href="/catalog/{p.id}" title={p.name}
+                  >{p.name}</a
+                >
               </td>
               <td class="px-4 py-2 text-slate-600">{p.category?.name ?? '—'}</td>
               <td class="px-4 py-2 text-slate-600">{p.manufacturer ?? '—'}</td>
@@ -125,9 +129,15 @@
               <td class="px-4 py-2 text-right" class:text-amber-700={low} class:font-semibold={low}>
                 {stock ?? '—'}
               </td>
-              <td class="px-4 py-2 text-right text-slate-600">{p.inventory?.quantity_reserved ?? '—'}</td>
-              <td class="px-4 py-2 text-right text-slate-500">{p.inventory?.low_stock_threshold ?? '—'}</td>
-              <td class="px-4 py-2 text-right text-slate-500">{p.inventory?.updated_at ? dateShort(p.inventory.updated_at) : '—'}</td>
+              <td class="px-4 py-2 text-right text-slate-600"
+                >{p.inventory?.quantity_reserved ?? '—'}</td
+              >
+              <td class="px-4 py-2 text-right text-slate-500"
+                >{p.inventory?.low_stock_threshold ?? '—'}</td
+              >
+              <td class="px-4 py-2 text-right text-slate-500"
+                >{p.inventory?.updated_at ? dateShort(p.inventory.updated_at) : '—'}</td
+              >
               <td class="px-4 py-2">
                 <div class="flex justify-center">
                   <span

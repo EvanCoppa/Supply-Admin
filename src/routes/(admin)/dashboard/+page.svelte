@@ -37,14 +37,18 @@
         <p class="mt-1 text-2xl font-semibold">{currency(m.cogsToday)}</p>
       </div>
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+        <p
+          class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500"
+        >
           Gross Profit
           <HelpTooltip text="Revenue minus COGS. Does not include operating expenses." />
         </p>
         <p class="mt-1 text-2xl font-semibold">{currency(m.gpToday)}</p>
       </div>
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+        <p
+          class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500"
+        >
           Gross Margin
           <HelpTooltip text="(Revenue - COGS) ÷ Revenue. Green ≥40%, Amber ≥25%, Red <25%" />
         </p>
@@ -66,14 +70,18 @@
         <p class="mt-1 text-2xl font-semibold">{currency(m.cogsMtd)}</p>
       </div>
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+        <p
+          class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500"
+        >
           Gross Profit
           <HelpTooltip text="Revenue minus COGS. Does not include operating expenses." />
         </p>
         <p class="mt-1 text-2xl font-semibold">{currency(m.gpMtd)}</p>
       </div>
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
+        <p
+          class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500"
+        >
           Gross Margin
           <HelpTooltip text="(Revenue - COGS) ÷ Revenue. Green ≥40%, Amber ≥25%, Red <25%" />
         </p>
@@ -111,7 +119,9 @@
       href="/invoices?status=outstanding"
       class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-sky-400"
     >
-      <p class="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
+      <p
+        class="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500"
+      >
         Outstanding AR
         <HelpTooltip text="Sum of unpaid invoice balances. = Invoice total - amount paid" />
       </p>
@@ -122,9 +132,13 @@
     </a>
 
     <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <p class="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
+      <p
+        class="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500"
+      >
         Outstanding AP
-        <HelpTooltip text="Sum of unpaid supplier purchase balances. = Purchase total - amount paid" />
+        <HelpTooltip
+          text="Sum of unpaid supplier purchase balances. = Purchase total - amount paid"
+        />
       </p>
       <p class="mt-1 text-2xl font-semibold">{currency(m.outstandingAp)}</p>
       <p class="text-xs text-slate-500">Unpaid supplier purchases</p>

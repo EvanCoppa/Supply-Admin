@@ -1,6 +1,10 @@
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { DailyRoutineBadgeKind, DailyRoutineStep } from '$lib/types/db';
+import {
+  ACTIONABLE_TASK_STATUSES,
+  type DailyRoutineBadgeKind,
+  type DailyRoutineStep
+} from '$lib/types/db';
 
 export type Tone = 'red' | 'amber' | 'slate';
 
@@ -100,7 +104,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
       ? supabase
           .from('customer_tasks')
           .select('id', { count: 'exact', head: true })
-          .in('status', ['open', 'in_progress'])
+          .in('status', ACTIONABLE_TASK_STATUSES as unknown as string[])
           .lt('due_at', nowIso)
       : Promise.resolve({ count: 0 } as { count: number | null })
   ]);
@@ -172,8 +176,8 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
     slug: s.slug,
     title: s.title,
     blurb: s.blurb ?? '',
-    href: s.href && s.href.trim() ? s.href : null,
-    cta: s.cta && s.cta.trim() ? s.cta : null,
+    href: s.href?.trim() ? s.href : null,
+    cta: s.cta?.trim() ? s.cta : null,
     badge: resolveBadge(s.badge_kind)
   }));
 

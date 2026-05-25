@@ -84,9 +84,9 @@ export const actions: Actions = {
     const storage = createSupabaseAdminClient();
     const results: UploadOutcome[] = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]!;
-      const productId = productIds[i]!;
+    for (const [i, file] of files.entries()) {
+      const productId = productIds[i];
+      if (productId === undefined) continue;
       const product = productsById.get(productId);
 
       if (!product) {

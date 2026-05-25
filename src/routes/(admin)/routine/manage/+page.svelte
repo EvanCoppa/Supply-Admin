@@ -41,7 +41,9 @@
     <div>
       <h1 class="text-2xl font-semibold">Manage daily routine</h1>
       <p class="text-sm text-slate-500">
-        Edit shared steps that show on the <a href="/routine" class="text-sky-700 hover:underline">daily routine</a> page.
+        Edit shared steps that show on the <a href="/routine" class="text-sky-700 hover:underline"
+          >daily routine</a
+        > page.
       </p>
     </div>
   </header>
@@ -78,7 +80,9 @@
       />
     </label>
     <label class="block sm:col-span-3">
-      <span class="mb-1 block text-sm font-medium">Link URL <span class="font-normal text-slate-400">(optional)</span></span>
+      <span class="mb-1 block text-sm font-medium"
+        >Link URL <span class="font-normal text-slate-400">(optional)</span></span
+      >
       <input
         name="href"
         placeholder="/orders?status=pending_payment"
@@ -112,7 +116,9 @@
   </form>
 
   <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-    <header class="flex items-center justify-between border-b border-slate-200 px-4 py-2 text-xs uppercase tracking-wider text-slate-500">
+    <header
+      class="flex items-center justify-between border-b border-slate-200 px-4 py-2 text-xs uppercase tracking-wider text-slate-500"
+    >
       <span>Active steps</span>
       <span>{active.length}</span>
     </header>
@@ -230,11 +236,20 @@
                       {#if step.blurb}
                         <p class="text-sm text-slate-500">{step.blurb}</p>
                       {/if}
-                      <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                      <p
+                        class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500"
+                      >
                         {#if step.href}
-                          <span><span class="text-slate-400">link:</span> <span class="font-mono">{step.href}</span>{#if step.cta} ({step.cta}){/if}</span>
+                          <span
+                            ><span class="text-slate-400">link:</span>
+                            <span class="font-mono">{step.href}</span>{#if step.cta}
+                              ({step.cta}){/if}</span
+                          >
                         {/if}
-                        <span><span class="text-slate-400">badge:</span> {badgeLabel(step.badge_kind)}</span>
+                        <span
+                          ><span class="text-slate-400">badge:</span>
+                          {badgeLabel(step.badge_kind)}</span
+                        >
                         <span class="font-mono text-slate-400">{step.slug}</span>
                       </p>
                     </div>
@@ -285,7 +300,9 @@
 
   {#if archived.length > 0}
     <div class="overflow-hidden rounded-lg border border-slate-200 bg-slate-50 shadow-sm">
-      <header class="flex items-center justify-between border-b border-slate-200 px-4 py-2 text-xs uppercase tracking-wider text-slate-500">
+      <header
+        class="flex items-center justify-between border-b border-slate-200 px-4 py-2 text-xs uppercase tracking-wider text-slate-500"
+      >
         <span>Hidden steps</span>
         <span>{archived.length}</span>
       </header>

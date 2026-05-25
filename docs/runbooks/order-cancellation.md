@@ -7,15 +7,15 @@
 
 The order detail UI (`/orders/[id]`) exposes a **Cancel order** button whenever the order is **not** in `delivered`, `cancelled`, or `refunded`.
 
-| Current status     | UI cancel allowed? | Inventory effect on cancel                              |
-| ------------------ | ------------------ | ------------------------------------------------------- |
-| `pending_payment`  | Yes                | Reserved stock released                                 |
-| `paid`             | Yes                | Reserved stock released; payment refund issued via API  |
-| `fulfilled`        | Yes — be careful   | Inventory write-back; payment refund                    |
-| `shipped`          | Yes — manual ops   | Coordinate with carrier; treat as RMA-on-arrival        |
-| `delivered`        | No — open an RMA   | Use `/rmas` workflow                                    |
-| `cancelled`        | n/a                | n/a                                                     |
-| `refunded`         | n/a                | n/a                                                     |
+| Current status    | UI cancel allowed? | Inventory effect on cancel                             |
+| ----------------- | ------------------ | ------------------------------------------------------ |
+| `pending_payment` | Yes                | Reserved stock released                                |
+| `paid`            | Yes                | Reserved stock released; payment refund issued via API |
+| `fulfilled`       | Yes — be careful   | Inventory write-back; payment refund                   |
+| `shipped`         | Yes — manual ops   | Coordinate with carrier; treat as RMA-on-arrival       |
+| `delivered`       | No — open an RMA   | Use `/rmas` workflow                                   |
+| `cancelled`       | n/a                | n/a                                                    |
+| `refunded`        | n/a                | n/a                                                    |
 
 ## Procedure
 
@@ -49,5 +49,6 @@ The order detail UI (`/orders/[id]`) exposes a **Cancel order** button whenever 
 ## Escalation
 
 Page on-call platform engineering if:
+
 - The payment gateway returned a 5xx and the order status is now inconsistent (e.g., `cancelled` in DB but capture still active in gateway).
 - Inventory totals look wrong after cancel (use the Inventory page to spot-check `on hand` vs `reserved`).

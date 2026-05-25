@@ -77,7 +77,9 @@
   <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
     {#each summary as s (s.key)}
       <div class="rounded-lg border p-3 {s.tone}">
-        <p class="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-600">
+        <p
+          class="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-600"
+        >
           {s.label}
           <HelpTooltip
             text={s.key === 'current'

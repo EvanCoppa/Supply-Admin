@@ -194,14 +194,10 @@ export const actions: Actions = {
     const form = await request.formData();
     const parsed = parseForm(inventoryAdjustSchema, form);
     if (!parsed.success) {
-      return fail(400, {
-        message: parsed.message,
-        fieldErrors: parsed.fieldErrors,
-        code: undefined
-      });
+      return fail(400, { message: parsed.message, fieldErrors: parsed.fieldErrors });
     }
     if (!locals.session) {
-      return fail(401, { message: 'Not signed in.', fieldErrors: {}, code: undefined });
+      return fail(401, { message: 'Not signed in.', fieldErrors: {} });
     }
 
     const { delta, reason, notes } = parsed.data;
@@ -217,10 +213,9 @@ export const actions: Actions = {
     if (ledgerError) {
       return fail(400, {
         message: ledgerError.message ?? 'Adjustment failed.',
-        fieldErrors: {},
-        code: undefined
+        fieldErrors: {}
       });
     }
-    return { saved: true, message: undefined, code: undefined };
+    return { saved: true };
   }
 };

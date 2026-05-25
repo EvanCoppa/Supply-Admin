@@ -43,6 +43,8 @@ function explainMissingImage(args: {
   const blockedSuffix = blocked && blocked.length > 0 ? ` (${blocked.join(', ')})` : '';
 
   switch (finishReason) {
+    case undefined:
+      return 'Gemini did not return an image. Try regenerating or use a different source photo.';
     case 'IMAGE_SAFETY':
     case 'SAFETY':
       return `Gemini blocked the image for safety reasons${blockedSuffix}. Try a different photo or remove sensitive context.`;
@@ -67,10 +69,7 @@ function explainMissingImage(args: {
       if (textPart) {
         return `Gemini did not return an image. It said: ${textPart.slice(0, 300)}`;
       }
-      if (finishReason) {
-        return `Gemini did not return an image (finishReason: ${finishReason}). Try again or use a different source photo.`;
-      }
-      return 'Gemini did not return an image. Try regenerating or use a different source photo.';
+      return `Gemini did not return an image (finishReason: ${finishReason}). Try again or use a different source photo.`;
   }
 }
 
@@ -240,12 +239,14 @@ export const actions: Actions = {
       return fail(400, { attach: { ok: false, message: 'No generated image to save.' } });
     }
 
-    const match = imageDataUrl.match(/^data:(image\/(?:png|jpeg|webp));base64,(.+)$/);
-    if (!match) {
-      return fail(400, { attach: { ok: false, message: 'Generated image format is unsupported.' } });
+    const match = /^data:(image\/(?:png|jpeg|webp));base64,(.+)$/.exec(imageDataUrl);
+    const mime = match?.[1];
+    const base64 = match?.[2];
+    if (!mime || !base64) {
+      return fail(400, {
+        attach: { ok: false, message: 'Generated image format is unsupported.' }
+      });
     }
-    const mime = match[1]!;
-    const base64 = match[2]!;
     const buffer = Buffer.from(base64, 'base64');
     if (buffer.length === 0) {
       return fail(400, { attach: { ok: false, message: 'Generated image is empty.' } });

@@ -75,10 +75,11 @@
                   <form
                     method="POST"
                     action="?/update"
-                    use:enhance={() => async ({ update }) => {
-                      await update();
-                      editingId = null;
-                    }}
+                    use:enhance={() =>
+                      async ({ update }) => {
+                        await update();
+                        editingId = null;
+                      }}
                     class="grid gap-3 sm:grid-cols-3"
                   >
                     <input type="hidden" name="id" value={t.id} />
@@ -160,14 +161,11 @@
                         <h4 class="mb-2 text-xs font-semibold">Current Reps</h4>
                         <div class="space-y-1">
                           {#each t.reps as rep}
-                            <div class="flex items-center justify-between rounded bg-white p-2 text-sm">
+                            <div
+                              class="flex items-center justify-between rounded bg-white p-2 text-sm"
+                            >
                               <span>{rep.display_name || 'Unknown'}</span>
-                              <form
-                                method="POST"
-                                action="?/removeRep"
-                                use:enhance
-                                class="inline"
-                              >
+                              <form method="POST" action="?/removeRep" use:enhance class="inline">
                                 <input type="hidden" name="id" value={rep.id} />
                                 <button
                                   type="submit"
@@ -189,7 +187,7 @@
                       >
                         <option value="">Select a rep to add...</option>
                         {#each data.adminUsers as user}
-                          {#if !t.reps || !t.reps.some((r) => r.id === user.id)}
+                          {#if !t.reps?.some((r) => r.id === user.id)}
                             <option value={user.id}>
                               {user.display_name || user.id}
                             </option>

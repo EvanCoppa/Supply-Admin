@@ -1,4 +1,5 @@
 import type { PageServerLoad } from './$types';
+import { ACTIONABLE_TASK_STATUSES } from '$lib/types/db';
 
 export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
   const now = new Date();
@@ -51,7 +52,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
             'id, title, due_at, priority, status, customer_id, customer:customers(business_name)'
           )
           .eq('assigned_to', user.id)
-          .in('status', ['open', 'in_progress'])
+          .in('status', ACTIONABLE_TASK_STATUSES as unknown as string[])
           .order('due_at', { ascending: true, nullsFirst: false })
           .limit(8)
       : Promise.resolve({ data: [], count: 0 }),

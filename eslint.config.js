@@ -18,7 +18,13 @@ export default [
       'playwright-report/',
       'test-results/',
       'static/',
-      'src/lib/types/db.generated.ts'
+      'src/lib/types/db.generated.ts',
+      // Deno-runtime edge functions — separate lint/build pipeline.
+      'supabase/functions/**',
+      // React example file kept for reference; not part of the Svelte build.
+      'src/components/**/*.tsx',
+      // Ad-hoc script at repo root.
+      'test-import.mjs'
     ]
   },
   js.configs.recommended,

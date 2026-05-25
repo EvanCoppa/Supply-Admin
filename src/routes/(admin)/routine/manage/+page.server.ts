@@ -1,6 +1,6 @@
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { DailyRoutineBadgeKind, DailyRoutineStep } from '$lib/types/db';
+import type { DailyRoutineBadgeKind } from '$lib/types/db';
 
 const VALID_BADGE_KINDS: DailyRoutineBadgeKind[] = [
   'new_orders',
@@ -54,11 +54,13 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
   if (!user) throw error(401, 'Not signed in.');
   const { data, error: stepErr } = await supabase
     .from('daily_routine_steps')
-    .select('id, slug, title, blurb, href, cta, badge_kind, sort_order, archived_at, created_at, updated_at')
+    .select(
+      'id, slug, title, blurb, href, cta, badge_kind, sort_order, archived_at, created_at, updated_at'
+    )
     .order('archived_at', { ascending: true, nullsFirst: true })
     .order('sort_order', { ascending: true });
   if (stepErr) throw error(500, stepErr.message);
-  return { steps: (data ?? []) as DailyRoutineStep[] };
+  return { steps: data ?? [] };
 };
 
 export const actions: Actions = {

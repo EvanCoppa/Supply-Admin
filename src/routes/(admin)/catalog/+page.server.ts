@@ -51,7 +51,12 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     image_paths: string[] | null;
     image_url: string | null;
     category: { id: string; name: string } | null;
-    inventory: { quantity_on_hand: number; quantity_reserved: number; low_stock_threshold: number; updated_at: string } | null;
+    inventory: {
+      quantity_on_hand: number;
+      quantity_reserved: number;
+      low_stock_threshold: number;
+      updated_at: string;
+    } | null;
   };
 
   const products = ((productsRes.data ?? []) as unknown as Omit<ProductRow, 'image_url'>[]).map(

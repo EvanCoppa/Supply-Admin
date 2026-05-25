@@ -40,7 +40,9 @@
     <div>
       <div class="flex items-center gap-2">
         <h1 class="text-2xl font-semibold">Purchases</h1>
-        <HelpTooltip text="Orders you place with suppliers to fulfill customer orders and manage inventory" />
+        <HelpTooltip
+          text="Orders you place with suppliers to fulfill customer orders and manage inventory"
+        />
       </div>
       <p class="text-sm text-slate-500">Supplier POs feeding COGS and AP.</p>
     </div>
@@ -129,7 +131,9 @@
                 >{p.payment_status}</span
               >
             </td>
-            <td class="px-3 py-2 text-sm capitalize">{p.payment_method?.replace(/_/g, ' ') ?? '—'}</td>
+            <td class="px-3 py-2 text-sm capitalize"
+              >{p.payment_method?.replace(/_/g, ' ') ?? '—'}</td
+            >
             <td class="px-3 py-2 text-right">{currency(p.subtotal)}</td>
             <td class="px-3 py-2 text-right font-medium">{currency(p.total)}</td>
             <td class="px-3 py-2 text-slate-500">{dateShort(p.due_date)}</td>

@@ -43,10 +43,11 @@
     <form
       method="POST"
       action="?/create"
-      use:enhance={() => async ({ update }) => {
-        await update();
-        showCreate = false;
-      }}
+      use:enhance={() =>
+        async ({ update }) => {
+          await update();
+          showCreate = false;
+        }}
       class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-3"
     >
       <label class="block">
@@ -132,10 +133,11 @@
               <form
                 method="POST"
                 action="?/update"
-                use:enhance={() => async ({ update }) => {
-                  await update();
-                  editingId = null;
-                }}
+                use:enhance={() =>
+                  async ({ update }) => {
+                    await update();
+                    editingId = null;
+                  }}
                 class="grid gap-3 sm:grid-cols-3"
               >
                 <input type="hidden" name="id" value={ct.id} />

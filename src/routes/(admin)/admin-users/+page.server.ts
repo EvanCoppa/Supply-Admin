@@ -16,25 +16,32 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const actions: Actions = {
-  invite: async ({ request }) => {
+  create: async ({ request }) => {
     const form = await request.formData();
     const email = String(form.get('email') ?? '')
       .trim()
       .toLowerCase();
     const display_name = String(form.get('display_name') ?? '').trim();
+    const password = String(form.get('password') ?? '');
 
     if (!email || !EMAIL_RE.test(email)) {
       return fail(400, { message: 'Enter a valid email address.', code: undefined });
     }
+    if (password.length < 8) {
+      return fail(400, { message: 'Password must be at least 8 characters.', code: undefined });
+    }
 
     const adminClient = createSupabaseAdminClient();
-    const { error } = await adminClient.auth.admin.inviteUserByEmail(email, {
-      data: { display_name: display_name || undefined, role: 'admin' }
+    const { error } = await adminClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { display_name: display_name || undefined, role: 'admin' }
     });
 
     if (error) {
       return fail(400, {
-        message: error.message ?? 'Invite failed.',
+        message: error.message ?? 'Create failed.',
         code: undefined
       });
     }

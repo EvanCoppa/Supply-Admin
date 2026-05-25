@@ -5,14 +5,14 @@
 
 ## Inventory of secrets
 
-| Secret                                | Where it lives                                          | Who consumes it                                  |
-| ------------------------------------- | ------------------------------------------------------- | ------------------------------------------------ |
-| `SUPABASE_SERVICE_ROLE_KEY`           | `.env` (server), Vercel project env                     | Admin SSR routes that bypass RLS                 |
-| `PUBLIC_SUPABASE_PUBLISHABLE_KEY`     | `.env`, Vercel public env                               | Browser + SSR (read-only with RLS)               |
-| Per-customer API tokens (`api_tokens`)| Hashed in `public.api_tokens.token_hash`                | External integrations (Guaranteeth, etc.)        |
-| Gemini API key (`GEMINI_API_KEY`)     | `.env` (server only)                                    | `/image-generator` route                         |
-| Payment gateway credentials           | Vercel env (gateway-specific)                           | `/api/v1/admin/orders/:id/refund` server caller  |
-| GitHub deploy key / Vercel token      | Vercel + GitHub settings                                | CI/CD                                            |
+| Secret                                 | Where it lives                           | Who consumes it                                 |
+| -------------------------------------- | ---------------------------------------- | ----------------------------------------------- |
+| `SUPABASE_SERVICE_ROLE_KEY`            | `.env` (server), Vercel project env      | Admin SSR routes that bypass RLS                |
+| `PUBLIC_SUPABASE_PUBLISHABLE_KEY`      | `.env`, Vercel public env                | Browser + SSR (read-only with RLS)              |
+| Per-customer API tokens (`api_tokens`) | Hashed in `public.api_tokens.token_hash` | External integrations (Guaranteeth, etc.)       |
+| Gemini API key (`GEMINI_API_KEY`)      | `.env` (server only)                     | `/image-generator` route                        |
+| Payment gateway credentials            | Vercel env (gateway-specific)            | `/api/v1/admin/orders/:id/refund` server caller |
+| GitHub deploy key / Vercel token       | Vercel + GitHub settings                 | CI/CD                                           |
 
 ## Rotation procedures
 
@@ -72,6 +72,7 @@ Coordinate with finance — refund attempts during rotation may queue or fail.
 ## Escalation
 
 Page on-call platform engineering if:
+
 - A rotation breaks production and the previous secret is unrecoverable.
 - An external partner reports their token still works **after** you revoked it (indicates cache or stale row).
 - Any rotation produces a 5xx storm in `/api/v1/*` — immediately roll back the env change in Vercel.

@@ -19,25 +19,26 @@ The `AddressInput` component is a reusable address form field that includes Open
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `label` | string | `'Address'` | Section heading label |
-| `namePrefix` | string | `'address'` | Prefix for form field names |
-| `initialLabel` | string | `''` | Initial label value (for editing) |
-| `initialLine1` | string | `''` | Initial street address |
-| `initialLine2` | string | `''` | Initial apartment/suite |
-| `initialCity` | string | `''` | Initial city |
-| `initialRegion` | string | `''` | Initial state/province |
-| `initialPostalCode` | string | `''` | Initial postal code |
-| `initialCountry` | string | `''` | Initial country (2-letter ISO) |
-| `required` | boolean | `true` | Make core fields required |
-| `hideLabel` | boolean | `false` | Hide the section heading |
+| Prop                | Type    | Default     | Description                       |
+| ------------------- | ------- | ----------- | --------------------------------- |
+| `label`             | string  | `'Address'` | Section heading label             |
+| `namePrefix`        | string  | `'address'` | Prefix for form field names       |
+| `initialLabel`      | string  | `''`        | Initial label value (for editing) |
+| `initialLine1`      | string  | `''`        | Initial street address            |
+| `initialLine2`      | string  | `''`        | Initial apartment/suite           |
+| `initialCity`       | string  | `''`        | Initial city                      |
+| `initialRegion`     | string  | `''`        | Initial state/province            |
+| `initialPostalCode` | string  | `''`        | Initial postal code               |
+| `initialCountry`    | string  | `''`        | Initial country (2-letter ISO)    |
+| `required`          | boolean | `true`      | Make core fields required         |
+| `hideLabel`         | boolean | `false`     | Hide the section heading          |
 
 ## Form Field Names
 
 The component outputs form fields with the following names:
 
 **With `namePrefix=""` (default for simple forms):**
+
 - `label`
 - `line1`
 - `line2`
@@ -47,6 +48,7 @@ The component outputs form fields with the following names:
 - `country`
 
 **With `namePrefix="shipping"` (for multiple addresses):**
+
 - `shipping_label`
 - `shipping_line1`
 - `shipping_line2`
@@ -58,6 +60,7 @@ The component outputs form fields with the following names:
 ## Examples
 
 ### Example 1: Customer Address Form (Existing)
+
 ```svelte
 <form method="POST" action="?/create">
   <AddressInput namePrefix="" hideLabel={true} />
@@ -67,13 +70,14 @@ The component outputs form fields with the following names:
 ```
 
 ### Example 2: Order Shipping Address
+
 ```svelte
 <script>
   import AddressInput from '$lib/components/AddressInput.svelte';
 </script>
 
 <form method="POST">
-  <AddressInput 
+  <AddressInput
     label="Shipping Address"
     namePrefix="shipping"
     initialLine1={order.shipping_address?.line1 || ''}
@@ -87,19 +91,17 @@ The component outputs form fields with the following names:
 ```
 
 ### Example 3: Optional Address Field
+
 ```svelte
-<AddressInput 
-  label="Billing Address"
-  namePrefix="billing"
-  required={false}
-/>
+<AddressInput label="Billing Address" namePrefix="billing" required={false} />
 ```
 
 ### Example 4: Programmatic Access
+
 ```svelte
 <script>
   import AddressInput from '$lib/components/AddressInput.svelte';
-  
+
   let addressRef;
 
   function handleSubmit() {
@@ -116,7 +118,9 @@ The component outputs form fields with the following names:
 ## Component Methods
 
 ### `getAddress()`
+
 Returns the current address data as an object:
+
 ```typescript
 {
   label: string;
@@ -130,6 +134,7 @@ Returns the current address data as an object:
 ```
 
 ### `reset()`
+
 Resets the form to its initial values (from props).
 
 ## Features
@@ -140,7 +145,7 @@ Resets the form to its initial values (from props).
 ✅ All fields remain manually editable  
 ✅ Support for prefixed field names (for multiple addresses on one form)  
 ✅ Initial value support (for editing existing addresses)  
-✅ Optional/required field control  
+✅ Optional/required field control
 
 ## Auto-Fill Flow
 

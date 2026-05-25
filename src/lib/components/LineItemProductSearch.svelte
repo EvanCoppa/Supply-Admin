@@ -20,7 +20,12 @@
     placeholder?: string;
   }
 
-  let { selectedSku, onSelect, onClear, placeholder = 'Find item by SKU or name…' }: Props = $props();
+  let {
+    selectedSku,
+    onSelect,
+    onClear,
+    placeholder = 'Find item by SKU or name…'
+  }: Props = $props();
 
   let q = $state('');
   let open = $state(false);
@@ -33,7 +38,7 @@
 
   function runSearch(value: string) {
     if (abortCtl) abortCtl.abort();
-    if (value.trim().length < 2) {
+    if (value.trim().length < 1) {
       hits = [];
       activeIdx = -1;
       loading = false;
@@ -123,11 +128,15 @@
     {/if}
   </div>
   {#if selectedSku && !q}
-    <p class="mt-0.5 truncate font-mono text-[10px] text-slate-500" title={selectedSku}>{selectedSku}</p>
+    <p class="mt-0.5 truncate font-mono text-[10px] text-slate-500" title={selectedSku}>
+      {selectedSku}
+    </p>
   {/if}
 
-  {#if open && q.trim().length >= 2}
-    <div class="absolute left-0 top-full z-20 mt-1 w-72 overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg">
+  {#if open && q.trim().length >= 1}
+    <div
+      class="absolute left-0 top-full z-20 mt-1 w-72 overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg"
+    >
       {#if loading}
         <p class="px-3 py-2 text-xs text-slate-500">Searching…</p>
       {:else if hits.length === 0}

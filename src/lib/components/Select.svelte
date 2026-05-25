@@ -10,12 +10,9 @@
     children?: Snippet;
   };
 
-  let {
-    class: className = '',
-    value = $bindable(),
-    children,
-    ...rest
-  }: Props = $props();
+  /* eslint-disable svelte/valid-compile -- intentional rest props; not a custom element */
+  let { class: className = '', value = $bindable(), children, ...rest }: Props = $props();
+  /* eslint-enable svelte/valid-compile */
 </script>
 
 <div class={cn('relative inline-block', className)}>

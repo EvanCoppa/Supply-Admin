@@ -4,9 +4,7 @@
   let { data } = $props();
 
   const invoice = $derived(data.invoice);
-  const balance = $derived(
-    Math.max(0, Number(invoice.total) - Number(invoice.amount_paid))
-  );
+  const balance = $derived(Math.max(0, Number(invoice.total) - Number(invoice.amount_paid)));
 
   function printNow() {
     window.print();
@@ -37,7 +35,9 @@
 
 <div class="invoice-wrap mx-auto max-w-[850px] bg-white p-10 text-slate-900 print:p-0">
   <div class="no-print mb-4 flex items-center justify-between gap-3">
-    <a href="/invoices/{invoice.id}" class="text-sm text-sky-700 hover:underline">← Back to invoice</a>
+    <a href="/invoices/{invoice.id}" class="text-sm text-sky-700 hover:underline"
+      >← Back to invoice</a
+    >
     <button
       type="button"
       onclick={printNow}
@@ -47,7 +47,9 @@
     </button>
   </div>
 
-  <article class="invoice-doc border border-slate-200 p-10 shadow-sm print:border-0 print:shadow-none">
+  <article
+    class="invoice-doc border border-slate-200 p-10 shadow-sm print:border-0 print:shadow-none"
+  >
     <header class="flex items-start justify-between gap-6 border-b border-slate-200 pb-6">
       <div>
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">Supply</p>
@@ -93,7 +95,9 @@
     <section class="mt-8">
       <table class="w-full text-sm">
         <thead>
-          <tr class="border-y border-slate-300 text-left text-xs uppercase tracking-wider text-slate-500">
+          <tr
+            class="border-y border-slate-300 text-left text-xs uppercase tracking-wider text-slate-500"
+          >
             <th class="py-2 pr-2 font-medium">Item</th>
             <th class="py-2 px-2 font-medium">Description</th>
             <th class="py-2 px-2 text-right font-medium">Qty</th>
@@ -116,7 +120,9 @@
                 {/if}
               </td>
               <td class="py-2 px-2 text-right align-top tabular-nums">{Number(line.quantity)}</td>
-              <td class="py-2 px-2 text-right align-top tabular-nums">{currency(line.unit_price)}</td>
+              <td class="py-2 px-2 text-right align-top tabular-nums"
+                >{currency(line.unit_price)}</td
+              >
               <td class="py-2 px-2 text-right align-top tabular-nums">{currency(line.discount)}</td>
               <td class="py-2 px-2 text-right align-top tabular-nums">{currency(line.tax)}</td>
               <td class="py-2 pl-2 text-right align-top font-medium tabular-nums">
@@ -156,7 +162,10 @@
             <dd class="tabular-nums">{currency(invoice.amount_paid)}</dd>
           </div>
         {/if}
-        <div class="flex justify-between border-t border-slate-300 pt-2 text-base font-semibold" class:text-red-700={balance > 0}>
+        <div
+          class="flex justify-between border-t border-slate-300 pt-2 text-base font-semibold"
+          class:text-red-700={balance > 0}
+        >
           <dt>Balance due</dt>
           <dd class="tabular-nums">{currency(balance)}</dd>
         </div>

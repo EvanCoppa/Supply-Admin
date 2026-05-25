@@ -355,7 +355,6 @@
             </p>
             <p class="mt-1 text-sm text-slate-500">This usually takes 5–15 seconds.</p>
           </div>
-
         </div>
       {:else if currentState === 'error'}
         <div class="flex flex-col items-center justify-center space-y-5 py-12">
@@ -483,7 +482,7 @@
                     r.type === 'success' &&
                     (r.data?.['attach'] as { ok?: boolean } | undefined)?.ok
                   ) {
-                    const a = r.data!['attach'] as {
+                    const a = r.data?.['attach'] as {
                       ok: true;
                       productId: string;
                       productName: string;
@@ -498,8 +497,8 @@
                   } else if (r.type === 'failure') {
                     attachState = 'error';
                     attachMessage =
-                      ((r.data?.['attach'] as { message?: string } | undefined)?.message ??
-                        'Failed to save to product.') as string;
+                      (r.data?.['attach'] as { message?: string } | undefined)?.message ??
+                      'Failed to save to product.';
                   } else if (r.type === 'error') {
                     attachState = 'error';
                     attachMessage = r.error?.message ?? 'Failed to save to product.';
@@ -560,7 +559,9 @@
                       </label>
                     </li>
                   {:else}
-                    <li class="px-3 py-3 text-sm text-slate-500">No products match "{productQuery}".</li>
+                    <li class="px-3 py-3 text-sm text-slate-500">
+                      No products match "{productQuery}".
+                    </li>
                   {/each}
                 </ul>
                 {#if filteredProducts.length === 50 && allProducts.length > 50}

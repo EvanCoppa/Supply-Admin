@@ -38,16 +38,6 @@ type RmaDetail = Rma & {
   items: RmaItemRow[];
 };
 
-type OrderLineItemRow = {
-  id: string;
-  product_id: string;
-  product_sku_snapshot: string;
-  product_name_snapshot: string;
-  quantity: number;
-  unit_price_snapshot: number;
-  line_total: number;
-};
-
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
   const rmaRes = await supabase
     .from('rmas')
@@ -74,7 +64,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 
   return {
     rma,
-    orderLineItems: (lineItemsRes.data ?? []) as OrderLineItemRow[],
+    orderLineItems: lineItemsRes.data ?? [],
     allowedNextStatuses: ALLOWED_TRANSITIONS[rma.status] ?? []
   };
 };

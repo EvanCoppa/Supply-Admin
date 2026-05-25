@@ -72,10 +72,11 @@
                   <form
                     method="POST"
                     action="?/update"
-                    use:enhance={() => async ({ update }) => {
-                      await update();
-                      editingId = null;
-                    }}
+                    use:enhance={() =>
+                      async ({ update }) => {
+                        await update();
+                        editingId = null;
+                      }}
                     class="flex flex-wrap items-end gap-3"
                   >
                     <input type="hidden" name="id" value={tag.id} />

@@ -33,7 +33,10 @@
   let fileInputEl = $state<HTMLInputElement | null>(null);
 
   function normalize(s: string): string {
-    return s.toLowerCase().replace(/\.[^.]+$/, '').replace(/[^a-z0-9]+/g, '');
+    return s
+      .toLowerCase()
+      .replace(/\.[^.]+$/, '')
+      .replace(/[^a-z0-9]+/g, '');
   }
 
   function stripExt(s: string): string {
@@ -99,17 +102,17 @@
       }
 
       const nameHits = indexes.byName.get(key);
-      if (nameHits && nameHits.length === 1) {
-        const p = nameHits[0]!;
+      const soleNameHit = nameHits?.length === 1 ? nameHits[0] : undefined;
+      if (soleNameHit) {
         return {
           file,
           filename: file.name,
-          productId: p.id,
-          productLabel: p.name,
-          productSku: p.sku,
-          productHadImage: p.hasImage,
+          productId: soleNameHit.id,
+          productLabel: soleNameHit.name,
+          productSku: soleNameHit.sku,
+          productHadImage: soleNameHit.hasImage,
           status: 'matched-name',
-          note: `Matched by name "${p.name}".`
+          note: `Matched by name "${soleNameHit.name}".`
         };
       }
       if (nameHits && nameHits.length > 1) {
@@ -192,7 +195,12 @@
 
   const serverResults = $derived(
     (serverForm?.upload as { results?: unknown } | undefined)?.results as
-      | { filename: string; productSku: string | null; status: 'uploaded' | 'failed'; message?: string }[]
+      | {
+          filename: string;
+          productSku: string | null;
+          status: 'uploaded' | 'failed';
+          message?: string;
+        }[]
       | undefined
   );
   const serverOk = $derived((serverForm?.upload as { ok?: boolean } | undefined)?.ok === true);
@@ -269,8 +277,8 @@
       formData.delete('productIds');
       formData.delete('files');
       for (const m of matches) {
-        if (m.status === 'matched-sku' || m.status === 'matched-name') {
-          formData.append('productIds', m.productId!);
+        if ((m.status === 'matched-sku' || m.status === 'matched-name') && m.productId !== null) {
+          formData.append('productIds', m.productId);
           formData.append('files', m.file, m.filename);
         }
       }
@@ -320,18 +328,24 @@
 
       {#if selectedFiles.length > 0}
         <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-600">
-          <span class="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-1 text-emerald-700">
+          <span
+            class="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-1 text-emerald-700"
+          >
             <CircleCheck class="h-3.5 w-3.5" />
             {matchedCount} matched
           </span>
           {#if ambiguousCount > 0}
-            <span class="inline-flex items-center gap-1 rounded bg-amber-50 px-2 py-1 text-amber-800">
+            <span
+              class="inline-flex items-center gap-1 rounded bg-amber-50 px-2 py-1 text-amber-800"
+            >
               <CircleAlert class="h-3.5 w-3.5" />
               {ambiguousCount} ambiguous
             </span>
           {/if}
           {#if unmatchedCount > 0}
-            <span class="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-1 text-slate-600">
+            <span
+              class="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-1 text-slate-600"
+            >
               {unmatchedCount} unmatched
             </span>
           {/if}
