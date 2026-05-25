@@ -82,14 +82,14 @@ function parseRate(rate: unknown): number {
 
 function extractState(address: Record<string, unknown>): string | null {
   return (
-    (address.state as string) ||
-    (address.state_province as string) ||
-    (address.province as string) ||
-    (address.administrative_area_level_1 as string) ||
+    (address['state'] as string) ||
+    (address['state_province'] as string) ||
+    (address['province'] as string) ||
+    (address['administrative_area_level_1'] as string) ||
     null
   );
 }
 
 function extractCounty(address: Record<string, unknown>): string | null {
-  return (address.county_code as string) || null;
+  return (address['county_code'] as string) || null;
 }

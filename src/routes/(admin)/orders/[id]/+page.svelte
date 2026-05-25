@@ -283,6 +283,7 @@
           taxAmount={o.tax}
           taxRate={o.tax_rate || 0}
           state={o.shipping_state}
+          county={null}
         />
       {/if}
 
@@ -334,7 +335,12 @@
         {/if}
 
         {#if nextStatus}
-          <form method="POST" action="?/transition" use:enhance class="space-y-2 border-t border-slate-100 pt-3">
+          <form
+            method="POST"
+            action="?/transition"
+            use:enhance
+            class="space-y-2 border-t border-slate-100 pt-3"
+          >
             <input type="hidden" name="to" value={nextStatus} />
             {#if nextStatus === 'shipped'}
               <label class="block">
@@ -361,7 +367,8 @@
                 <button
                   type="submit"
                   onclick={(e) => {
-                    if (!confirm('Cancel this order? Inventory will be released.')) e.preventDefault();
+                    if (!confirm('Cancel this order? Inventory will be released.'))
+                      e.preventDefault();
                   }}
                   class="w-full rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
                 >
@@ -480,7 +487,11 @@
             disabled={!refundValid || refundSubmitting}
             class="rounded bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
           >
-            {refundSubmitting ? 'Processing…' : refundFull ? 'Refund full' : `Refund ${refundAmount ? currency(refundAmountNum) : ''}`}
+            {refundSubmitting
+              ? 'Processing…'
+              : refundFull
+                ? 'Refund full'
+                : `Refund ${refundAmount ? currency(refundAmountNum) : ''}`}
           </button>
         </div>
       </form>

@@ -117,28 +117,44 @@
 
   function applyProductToLine(index: number, product: LineProductHit) {
     const next = [...lines];
-    const target = { ...next[index] };
-    target.product_id = product.id;
-    target.product_sku_snapshot = product.sku;
-    target.product_name_snapshot = product.name;
-    if (!target.description.trim()) {
+    const existing = next[index];
+    if (!existing) return;
+    const target: DraftLine = {
+      order_line_item_id: existing.order_line_item_id,
+      product_id: product.id,
+      product_sku_snapshot: product.sku,
+      product_name_snapshot: product.name,
+      description: existing.description,
+      quantity: existing.quantity,
+      unit_price: Number(product.base_price ?? 0),
+      discount: existing.discount,
+      tax: existing.tax
+    };
+    if (!(target.description ?? '').trim()) {
       const parts = [product.name];
       if (product.description) parts.push(product.description);
       target.description = parts.join(' — ');
     }
-    target.unit_price = Number(product.base_price ?? 0);
     next[index] = target;
     lines = next;
   }
 
   function clearProductFromLine(index: number) {
     const next = [...lines];
-    next[index] = {
-      ...next[index],
+    const existing = next[index];
+    if (!existing) return;
+    const target: DraftLine = {
+      order_line_item_id: existing.order_line_item_id,
       product_id: null,
       product_sku_snapshot: null,
-      product_name_snapshot: null
+      product_name_snapshot: null,
+      description: existing.description,
+      quantity: existing.quantity,
+      unit_price: existing.unit_price,
+      discount: existing.discount,
+      tax: existing.tax
     };
+    next[index] = target;
     lines = next;
   }
 </script>

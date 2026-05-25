@@ -3,6 +3,7 @@
   import { NAV_SECTIONS } from '$lib/nav';
   import GlobalSearch from '$lib/components/GlobalSearch.svelte';
   import * as Icons from '@lucide/svelte';
+  import type { Component } from 'svelte';
 
   let { data, children } = $props();
 
@@ -11,8 +12,8 @@
     return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
   }
 
-  function getIcon(iconName: string) {
-    return Icons[iconName as keyof typeof Icons];
+  function getIcon(iconName: string): Component {
+    return Icons[iconName as keyof typeof Icons] as Component;
   }
 </script>
 

@@ -19,7 +19,8 @@
 <main class="flex min-h-screen items-center justify-center bg-slate-50 px-4">
   <div class="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
     <div class="mb-6 space-y-1">
-      <p class="text-sm font-medium uppercase tracking-wider text-sky-600">Supply Admin</p>
+      <p class="text-sm font-medium uppercase tracking-wider text-sky-600">Evolution</p>
+      <p class="text-sm font-medium uppercase tracking-wider text-slate-900">Supply Admin</p>
       <h1 class="text-2xl font-semibold text-slate-900">Sign in</h1>
       <p class="text-sm text-slate-600">Admin and customer portal access.</p>
     </div>

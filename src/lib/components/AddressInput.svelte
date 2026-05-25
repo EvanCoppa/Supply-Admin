@@ -30,13 +30,24 @@
   }: Props = $props();
 
   let formData = $state({
-    label: initialLabel,
-    line1: initialLine1,
-    line2: initialLine2,
-    city: initialCity,
-    region: initialRegion,
-    postal_code: initialPostalCode,
-    country: initialCountry
+    label: '',
+    line1: '',
+    line2: '',
+    city: '',
+    region: '',
+    postal_code: '',
+    country: ''
+  });
+
+  // Initialize form data with provided values
+  $effect(() => {
+    formData.label = initialLabel;
+    formData.line1 = initialLine1;
+    formData.line2 = initialLine2;
+    formData.city = initialCity;
+    formData.region = initialRegion;
+    formData.postal_code = initialPostalCode;
+    formData.country = initialCountry;
   });
 
   // Export current address data for programmatic access
@@ -68,13 +79,23 @@
     <label class="block">
       <span class="mb-1 block text-xs font-medium">Search address</span>
       <AddressAutocomplete
-        onselect={(e) => {
-          formData.line1 = e.detail.line1;
-          formData.line2 = e.detail.line2;
-          formData.city = e.detail.city;
-          formData.region = e.detail.region;
-          formData.postal_code = e.detail.postal_code;
-          formData.country = e.detail.country;
+        on:select={(
+          e: CustomEvent<{
+            line1: string;
+            line2: string;
+            city: string;
+            region: string;
+            postal_code: string;
+            country: string;
+          }>
+        ) => {
+          const detail = e.detail;
+          formData.line1 = detail.line1 ?? '';
+          formData.line2 = detail.line2 ?? '';
+          formData.city = detail.city ?? '';
+          formData.region = detail.region ?? '';
+          formData.postal_code = detail.postal_code ?? '';
+          formData.country = detail.country ?? '';
         }}
       />
     </label>
@@ -97,7 +118,7 @@
       <input
         name={namePrefix ? `${namePrefix}_line1` : 'line1'}
         bind:value={formData.line1}
-        required={required}
+        {required}
         class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
       />
     </label>
@@ -117,7 +138,7 @@
       <input
         name={namePrefix ? `${namePrefix}_city` : 'city'}
         bind:value={formData.city}
-        required={required}
+        {required}
         class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
       />
     </label>
@@ -128,7 +149,7 @@
         name={namePrefix ? `${namePrefix}_region` : 'region'}
         bind:value={formData.region}
         placeholder="State, province, etc."
-        required={required}
+        {required}
         class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
       />
     </label>
@@ -138,7 +159,7 @@
       <input
         name={namePrefix ? `${namePrefix}_postal_code` : 'postal_code'}
         bind:value={formData.postal_code}
-        required={required}
+        {required}
         class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
       />
     </label>
@@ -148,7 +169,7 @@
       <input
         name={namePrefix ? `${namePrefix}_country` : 'country'}
         bind:value={formData.country}
-        required={required}
+        {required}
         maxlength="2"
         placeholder="US"
         class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm uppercase"

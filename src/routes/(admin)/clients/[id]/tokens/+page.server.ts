@@ -69,7 +69,7 @@ export const actions: Actions = {
       return fail(400, { message: 'Org ID and token are required.', fieldErrors: {} });
     }
 
-    const guaranteethUrl = env.GUARANTEETH_API_URL ?? 'https://preview.yessmile.ai/';
+    const guaranteethUrl = env['GUARANTEETH_API_URL'] ?? 'https://preview.yessmile.ai/';
     const secret = env.SUPPLY_ADMIN_SYNC_SECRET;
     if (!secret) {
       return fail(500, {

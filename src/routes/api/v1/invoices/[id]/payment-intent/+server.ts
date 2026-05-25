@@ -21,7 +21,7 @@ export const POST: RequestHandler = async ({ params, locals, url }) => {
   if (!invoice) throw error(404, 'Invoice not found.');
 
   try {
-    const appUrl = publicEnv.PUBLIC_APP_URL || url.origin;
+    const appUrl = publicEnv['PUBLIC_APP_URL'] || url.origin;
     const intent = await createPaymentIntent(supabase, invoice as Invoice, appUrl, {
       created_by_role: profile.role
     });

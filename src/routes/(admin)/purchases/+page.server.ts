@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
   let query = supabase
     .from('purchases')
     .select(
-      'id, supplier_id, order_id, ordered_at, received_at, subtotal, freight, distribution_fee, total, status, payment_status, due_date, invoice_ref, supplier:suppliers(id, name, key), order:orders(id, customer:customers(id, business_name))',
+      'id, supplier_id, order_id, ordered_at, received_at, subtotal, freight, distribution_fee, total, status, payment_status, payment_method, due_date, invoice_ref, supplier:suppliers(id, name, key), order:orders(id, customer:customers(id, business_name))',
       { count: 'exact' }
     )
     .order('ordered_at', { ascending: false })
@@ -45,6 +45,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     total: number;
     status: string;
     payment_status: string;
+    payment_method: string | null;
     due_date: string | null;
     invoice_ref: string | null;
     supplier: { id: string; name: string; key: string } | null;

@@ -23,9 +23,12 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
 
   let query = supabase
     .from('orders')
-    .select('id, status, total, placed_at, source, customer:customers(id, business_name)', {
-      count: 'exact'
-    })
+    .select(
+      'id, status, total, placed_at, source, payment_method, customer:customers(id, business_name)',
+      {
+        count: 'exact'
+      }
+    )
     .order('placed_at', { ascending: false })
     .range(sliceFrom, sliceTo);
 
@@ -46,6 +49,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     total: number;
     placed_at: string;
     source: 'storefront' | 'api';
+    payment_method: string | null;
     customer: { id: string; business_name: string } | null;
   };
 

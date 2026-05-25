@@ -187,7 +187,7 @@ export const actions: Actions = {
     if (invoice instanceof Error) return fail(404, { message: invoice.message, fieldErrors: {} });
 
     try {
-      const appUrl = publicEnv.PUBLIC_APP_URL || url.origin;
+      const appUrl = publicEnv['PUBLIC_APP_URL'] || url.origin;
       await createPaymentIntent(supabase, invoice, appUrl, { created_by_role: 'admin' });
     } catch (err) {
       return fail(400, {
@@ -226,7 +226,7 @@ export const actions: Actions = {
     if (!recipient)
       return fail(400, { message: 'Add a billing email before sending.', fieldErrors: {} });
 
-    const appUrl = publicEnv.PUBLIC_APP_URL || url.origin;
+    const appUrl = publicEnv['PUBLIC_APP_URL'] || url.origin;
     const result = await sendInvoiceEmail(supabase, {
       invoice,
       recipient,

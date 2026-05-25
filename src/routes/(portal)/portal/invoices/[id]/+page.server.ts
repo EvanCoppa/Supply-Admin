@@ -28,7 +28,7 @@ export const actions: Actions = {
     }
 
     try {
-      const appUrl = publicEnv.PUBLIC_APP_URL || url.origin;
+      const appUrl = publicEnv['PUBLIC_APP_URL'] || url.origin;
       await createPaymentIntent(adminSupabase, invoice as Invoice, appUrl, {
         created_by_role: 'customer'
       });

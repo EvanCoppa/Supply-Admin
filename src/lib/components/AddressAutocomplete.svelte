@@ -80,7 +80,7 @@
     }
 
     debounceTimer = setTimeout(() => {
-      searchAddresses(q);
+      void searchAddresses(q);
     }, 300);
   }
 
@@ -90,12 +90,13 @@
     const road = addr.road ?? '';
 
     const address: AddressData = {
-      line1: `${streetNumber}${road}`.trim() || result.display_name.split(',')[0],
+      line1:
+        `${streetNumber}${road}`.trim() || result.display_name.split(',')[0] || result.display_name,
       line2: '',
       city: addr.city || addr.town || '',
       region: addr.state || addr.county || '',
       postal_code: addr.postcode || '',
-      country: (addr.country_code || '').toUpperCase()
+      country: (addr.country_code || '').toUpperCase() || ''
     };
 
     q = '';
@@ -125,7 +126,9 @@
   />
 
   {#if showResults}
-    <div class="absolute top-full left-0 right-0 z-10 mt-1 rounded border border-slate-300 bg-white shadow-lg">
+    <div
+      class="absolute top-full left-0 right-0 z-10 mt-1 rounded border border-slate-300 bg-white shadow-lg"
+    >
       {#if isLoading}
         <div class="px-3 py-2 text-xs text-slate-500">Searching...</div>
       {:else if results.length === 0}
@@ -141,7 +144,9 @@
                 onclick={() => selectAddress(result)}
                 class="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50"
               >
-                <div class="truncate font-medium text-slate-900">{result.address.road || result.display_name.split(',')[0]}</div>
+                <div class="truncate font-medium text-slate-900">
+                  {result.address.road || result.display_name.split(',')[0]}
+                </div>
                 <div class="truncate text-xs text-slate-600">{result.display_name}</div>
               </button>
             </li>
