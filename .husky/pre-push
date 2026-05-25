@@ -1,2 +1,30 @@
-npm run typecheck
-npm run test
+#!/bin/bash
+
+set -e
+
+echo "🔍 Running pre-push checks..."
+echo ""
+
+echo "📋 TypeScript & Svelte type checking..."
+if npm run typecheck; then
+  echo "✅ Type checking passed"
+else
+  echo ""
+  echo "❌ Type checking failed"
+  echo "   Fix the TypeScript/Svelte errors above and try pushing again."
+  exit 1
+fi
+
+echo ""
+echo "🧪 Running tests..."
+if npm run test; then
+  echo "✅ Tests passed"
+else
+  echo ""
+  echo "❌ Tests failed"
+  echo "   Fix the failing tests above and try pushing again."
+  exit 1
+fi
+
+echo ""
+echo "✨ All checks passed! Pushing..."
