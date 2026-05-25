@@ -1,8 +1,13 @@
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { lowStockThresholdSchema, parseForm, productSchema, inventoryAdjustSchema, REASON_CODES } from '$lib/schemas';
+import {
+  lowStockThresholdSchema,
+  parseForm,
+  productSchema,
+  inventoryAdjustSchema,
+  REASON_CODES
+} from '$lib/schemas';
 import { createSupabaseAdminClient } from '$lib/supabase.server';
-import { callApi } from '$lib/api';
 import {
   deleteProductImage,
   getFirstProductImagePath,
@@ -200,23 +205,20 @@ export const actions: Actions = {
     }
 
     const { delta, reason, notes } = parsed.data;
-    const res = await callApi({
-      path: '/api/v1/admin/inventory/adjust',
-      method: 'POST',
-      body: {
-        product_id: params.id,
-        delta,
-        reason,
-        notes: notes ?? undefined
-      },
-      accessToken: locals.session.access_token
+
+    const { error: ledgerError } = await locals.supabase.from('inventory_ledger').insert({
+      product_id: params.id,
+      delta,
+      reason,
+      notes: notes ?? null,
+      actor_id: locals.user?.id
     });
 
-    if (!res.ok) {
-      return fail(res.status || 500, {
-        message: res.error?.message ?? 'Adjustment failed.',
+    if (ledgerError) {
+      return fail(400, {
+        message: ledgerError.message ?? 'Adjustment failed.',
         fieldErrors: {},
-        code: res.error?.code
+        code: undefined
       });
     }
     return { saved: true, message: undefined, code: undefined };

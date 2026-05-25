@@ -134,6 +134,20 @@
                       Deactivate
                     </button>
                   </form>
+                {:else if isDeactivated && !isSelf}
+                  <form method="POST" action="?/delete" use:enhance>
+                    <input type="hidden" name="id" value={a.id} />
+                    <button
+                      type="submit"
+                      onclick={(e) => {
+                        if (!confirm(`Permanently delete ${a.display_name ?? 'this admin'}?`))
+                          e.preventDefault();
+                      }}
+                      class="rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
+                    >
+                      Delete
+                    </button>
+                  </form>
                 {/if}
               </td>
             </tr>

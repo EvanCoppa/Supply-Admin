@@ -1,6 +1,5 @@
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { callApi } from '$lib/api';
 import { orderRefundSchema, orderTransitionSchema, parseForm } from '$lib/schemas';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
@@ -95,25 +94,22 @@ export const actions: Actions = {
     return { saved: true, message: undefined, code: undefined };
   },
 
-  cancel: async ({ params, locals }) => {
-    if (!locals.session)
-      return fail(401, { message: 'Not signed in.', fieldErrors: {}, code: undefined });
-    const res = await callApi({
-      path: `/api/v1/admin/orders/${params.id}/refund`,
-      method: 'POST',
-      body: { cancel: true },
-      accessToken: locals.session.access_token
-    });
-    if (!res.ok)
-      return fail(res.status || 500, {
-        message: res.error?.message ?? 'Cancel failed.',
+  cancel: async ({ params, locals: { supabase } }) => {
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ status: 'cancelled' })
+      .eq('id', params.id);
+
+    if (updateError)
+      return fail(400, {
+        message: updateError.message ?? 'Cancel failed.',
         fieldErrors: {},
-        code: res.error?.code
+        code: undefined
       });
     return { saved: true, message: undefined, code: undefined };
   },
 
-  refund: async ({ params, request, locals }) => {
+  refund: async ({ params, request, locals: { supabase } }) => {
     const form = await request.formData();
     const parsed = parseForm(orderRefundSchema, form);
     if (!parsed.success) {
@@ -123,21 +119,17 @@ export const actions: Actions = {
         code: undefined
       });
     }
-    if (!locals.session)
-      return fail(401, { message: 'Not signed in.', fieldErrors: {}, code: undefined });
 
-    const { amount } = parsed.data;
-    const res = await callApi({
-      path: `/api/v1/admin/orders/${params.id}/refund`,
-      method: 'POST',
-      body: amount !== null ? { amount } : {},
-      accessToken: locals.session.access_token
-    });
-    if (!res.ok)
-      return fail(res.status || 500, {
-        message: res.error?.message ?? 'Refund failed.',
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ status: 'refunded' })
+      .eq('id', params.id);
+
+    if (updateError)
+      return fail(400, {
+        message: updateError.message ?? 'Refund failed.',
         fieldErrors: {},
-        code: res.error?.code
+        code: undefined
       });
     return { saved: true, message: undefined, code: undefined };
   }
