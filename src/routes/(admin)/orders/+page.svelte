@@ -30,12 +30,20 @@
       </div>
       <p class="text-sm text-slate-500">{data.total} order{data.total === 1 ? '' : 's'}</p>
     </div>
-    <a
-      href={exportHref()}
-      class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
-    >
-      Export CSV
-    </a>
+    <div class="flex gap-2">
+      <a
+        href="/orders/new"
+        class="rounded bg-sky-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-sky-700"
+      >
+        New Order
+      </a>
+      <a
+        href={exportHref()}
+        class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+      >
+        Export CSV
+      </a>
+    </div>
   </header>
 
   <form method="GET" class="grid gap-2 rounded border border-slate-200 bg-white p-3 sm:grid-cols-6">
@@ -106,7 +114,9 @@
                 </a>
               </td>
               <td class="px-4 py-2"><OrderStatusBadge status={o.status} /></td>
-              <td class="px-4 py-2 text-sm capitalize">{o.payment_method?.replace(/_/g, ' ') ?? '—'}</td>
+              <td class="px-4 py-2 text-sm capitalize"
+                >{o.payment_method?.replace(/_/g, ' ') ?? '—'}</td
+              >
               <td class="px-4 py-2 text-right">{currency(o.total)}</td>
               <td class="px-4 py-2">{o.source}</td>
               <td class="px-4 py-2 text-right text-slate-500">{dateTime(o.placed_at)}</td>

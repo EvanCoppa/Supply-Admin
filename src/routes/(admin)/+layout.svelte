@@ -2,12 +2,17 @@
   import { page } from '$app/state';
   import { NAV_SECTIONS } from '$lib/nav';
   import GlobalSearch from '$lib/components/GlobalSearch.svelte';
+  import * as Icons from '@lucide/svelte';
 
   let { data, children } = $props();
 
   function isActive(href: string) {
     if (href === '/') return page.url.pathname === '/';
     return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
+  }
+
+  function getIcon(iconName: string) {
+    return Icons[iconName as keyof typeof Icons];
   }
 </script>
 
@@ -24,15 +29,17 @@
         </p>
         <ul class="space-y-0.5">
           {#each section.items as item}
+            {@const Icon = getIcon(item.icon)}
             <li>
               <a
                 href={item.href}
-                class="block rounded px-3 py-1.5 text-sm transition-colors"
+                class="flex items-center gap-2 rounded px-3 py-1.5 text-sm transition-colors"
                 class:bg-slate-900={isActive(item.href)}
                 class:text-white={isActive(item.href)}
                 class:text-slate-700={!isActive(item.href)}
                 class:hover:bg-slate-100={!isActive(item.href)}
               >
+                <Icon class="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                 {item.label}
               </a>
             </li>
