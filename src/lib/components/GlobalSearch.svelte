@@ -139,7 +139,7 @@
   }
 </script>
 
-<div bind:this={rootEl} class="relative w-72">
+<div bind:this={rootEl} class="relative w-80">
   <input
     type="search"
     placeholder="Search SKU, customer, order…"

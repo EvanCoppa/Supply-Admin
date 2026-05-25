@@ -75,7 +75,7 @@
           {#each data.products as p (p.product_id)}
             <tr class="hover:bg-slate-50">
               <td class="px-2 py-2">
-                <a class="text-sky-700 hover:underline" href="/inventory/{p.product_id}">
+                <a class="text-sky-700 hover:underline" href="/catalog/{p.product_id}">
                   {p.name ?? '—'}
                 </a>
                 <p class="font-mono text-[10px] text-slate-400">{p.sku ?? ''}</p>

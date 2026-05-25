@@ -39,7 +39,7 @@ function normalizeHeader(header: string): string {
   return header
     .trim()
     .toLowerCase()
-    .replace(/^\uFEFF/, '')
+    .replace(/^﻿/, '')
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ');
 }

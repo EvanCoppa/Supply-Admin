@@ -1,7 +1,8 @@
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { lowStockThresholdSchema, parseForm, productSchema } from '$lib/schemas';
+import { lowStockThresholdSchema, parseForm, productSchema, inventoryAdjustSchema, REASON_CODES } from '$lib/schemas';
 import { createSupabaseAdminClient } from '$lib/supabase.server';
+import { callApi } from '$lib/api';
 import {
   deleteProductImage,
   getFirstProductImagePath,
@@ -12,11 +13,17 @@ import {
 } from '$lib/server/product-images';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
-  const [productRes, categoriesRes, inventoryRes, watchlistRes] = await Promise.all([
+  const [productRes, categoriesRes, inventoryRes, watchlistRes, ledgerRes] = await Promise.all([
     supabase.from('products').select('*').eq('id', params.id).maybeSingle(),
     supabase.from('categories').select('id, name').order('name'),
     supabase.from('inventory').select('*').eq('product_id', params.id).maybeSingle(),
-    supabase.from('watchlist_items').select('id, notes').eq('product_id', params.id).maybeSingle()
+    supabase.from('watchlist_items').select('id, notes').eq('product_id', params.id).maybeSingle(),
+    supabase
+      .from('inventory_ledger')
+      .select('id, delta, reason, notes, order_id, actor_id, created_at')
+      .eq('product_id', params.id)
+      .order('created_at', { ascending: false })
+      .limit(200)
   ]);
 
   if (productRes.error || !productRes.data) {
@@ -30,7 +37,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     productImageUrl: getProductImagePublicUrl(supabase, productImagePath),
     categories: categoriesRes.data ?? [],
     inventory: inventoryRes.data,
-    watchlistItem: watchlistRes.data
+    watchlistItem: watchlistRes.data,
+    ledger: ledgerRes.data ?? [],
+    reasons: REASON_CODES
   };
 };
 
@@ -174,5 +183,42 @@ export const actions: Actions = {
     const { error } = await supabase.from('watchlist_items').delete().eq('product_id', params.id);
     if (error) return fail(400, { message: error.message });
     return { saved: true };
+  },
+
+  adjust: async ({ params, request, locals }) => {
+    const form = await request.formData();
+    const parsed = parseForm(inventoryAdjustSchema, form);
+    if (!parsed.success) {
+      return fail(400, {
+        message: parsed.message,
+        fieldErrors: parsed.fieldErrors,
+        code: undefined
+      });
+    }
+    if (!locals.session) {
+      return fail(401, { message: 'Not signed in.', fieldErrors: {}, code: undefined });
+    }
+
+    const { delta, reason, notes } = parsed.data;
+    const res = await callApi({
+      path: '/api/v1/admin/inventory/adjust',
+      method: 'POST',
+      body: {
+        product_id: params.id,
+        delta,
+        reason,
+        notes: notes ?? undefined
+      },
+      accessToken: locals.session.access_token
+    });
+
+    if (!res.ok) {
+      return fail(res.status || 500, {
+        message: res.error?.message ?? 'Adjustment failed.',
+        fieldErrors: {},
+        code: res.error?.code
+      });
+    }
+    return { saved: true, message: undefined, code: undefined };
   }
 };

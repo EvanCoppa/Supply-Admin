@@ -72,7 +72,8 @@
                   <form
                     method="POST"
                     action="?/update"
-                    use:enhance={() => () => {
+                    use:enhance={() => async ({ update }) => {
+                      await update();
                       editingId = null;
                     }}
                     class="flex flex-wrap items-end gap-3"

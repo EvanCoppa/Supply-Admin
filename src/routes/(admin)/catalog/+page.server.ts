@@ -7,6 +7,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
   const search = url.searchParams.get('q')?.trim() ?? '';
   const status = url.searchParams.get('status') ?? '';
   const categoryId = url.searchParams.get('category') ?? '';
+  const inventoryFilter = url.searchParams.get('inventory') ?? '';
   const page = Math.max(1, Number(url.searchParams.get('page') ?? '1'));
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -14,7 +15,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
   let query = supabase
     .from('products')
     .select(
-      'id, sku, name, manufacturer, base_price, status, image_paths, category:categories(id, name), inventory:inventory(quantity_on_hand, low_stock_threshold)',
+      'id, sku, name, manufacturer, base_price, status, image_paths, category:categories(id, name), inventory:inventory(quantity_on_hand, quantity_reserved, low_stock_threshold, updated_at)',
       { count: 'exact' }
     )
     .order('name', { ascending: true })
@@ -28,6 +29,11 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
   }
   if (categoryId) {
     query = query.eq('category_id', categoryId);
+  }
+  if (inventoryFilter === 'low') {
+    query = query.filter('inventory.quantity_on_hand', 'lte', 'inventory.low_stock_threshold');
+  } else if (inventoryFilter === 'out') {
+    query = query.eq('inventory.quantity_on_hand', 0);
   }
 
   const [productsRes, categoriesRes] = await Promise.all([
@@ -45,7 +51,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     image_paths: string[] | null;
     image_url: string | null;
     category: { id: string; name: string } | null;
-    inventory: { quantity_on_hand: number; low_stock_threshold: number } | null;
+    inventory: { quantity_on_hand: number; quantity_reserved: number; low_stock_threshold: number; updated_at: string } | null;
   };
 
   const products = ((productsRes.data ?? []) as unknown as Omit<ProductRow, 'image_url'>[]).map(
@@ -61,6 +67,6 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
     page,
     pageSize: PAGE_SIZE,
     categories: categoriesRes.data ?? [],
-    filters: { search, status, categoryId }
+    filters: { search, status, categoryId, inventoryFilter }
   };
 };

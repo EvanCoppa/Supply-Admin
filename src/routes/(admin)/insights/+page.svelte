@@ -51,7 +51,7 @@
             {#each data.velocity as v (v.product_id)}
               <tr class="hover:bg-slate-50">
                 <td class="px-2 py-2">
-                  <a class="text-sky-700 hover:underline" href="/inventory/{v.product_id}">
+                  <a class="text-sky-700 hover:underline" href="/catalog/{v.product_id}">
                     {v.name ?? '—'}
                   </a>
                   <p class="font-mono text-[10px] text-slate-400">{v.sku ?? ''}</p>
@@ -103,7 +103,7 @@
                       {r.customer_name}
                     </a>
                     <span class="text-slate-500"> ordered </span>
-                    <a class="text-slate-800 hover:underline" href="/inventory/{r.product_id}">
+                    <a class="text-slate-800 hover:underline" href="/catalog/{r.product_id}">
                       {r.product_name ?? r.product_sku ?? '—'}
                     </a>
                   </p>
@@ -147,7 +147,7 @@
             <div>
               <a
                 class="font-medium text-sky-700 hover:underline"
-                href="/inventory/{w.product?.id ?? w.product_id}"
+                href="/catalog/{w.product?.id ?? w.product_id}"
               >
                 {w.product?.name ?? '—'}
               </a>

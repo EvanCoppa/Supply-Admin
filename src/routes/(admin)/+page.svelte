@@ -34,7 +34,7 @@
       <p class="mt-1 text-2xl font-semibold">{currency(data.metrics.revenue30d)}</p>
     </div>
     <a
-      href="/inventory?filter=low"
+      href="/catalog?inventory=low"
       class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-amber-400"
     >
       <p class="flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-slate-500">
@@ -192,7 +192,7 @@
     <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
       <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
         <h2 class="font-semibold">Low stock</h2>
-        <a class="text-xs text-sky-700 hover:underline" href="/inventory?filter=low">View all</a>
+        <a class="text-xs text-sky-700 hover:underline" href="/catalog?inventory=low">View all</a>
       </div>
       {#if data.lowStock.length === 0}
         <p class="px-4 py-6 text-sm text-slate-500">Everything is above threshold.</p>
@@ -226,7 +226,7 @@
   <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
     <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
       <h2 class="font-semibold">Recent inventory adjustments</h2>
-      <a class="text-xs text-sky-700 hover:underline" href="/inventory">View inventory</a>
+      <a class="text-xs text-sky-700 hover:underline" href="/catalog">View inventory</a>
     </div>
     {#if data.recentAdjustments.length === 0}
       <p class="px-4 py-6 text-sm text-slate-500">No adjustments recorded yet.</p>
@@ -239,7 +239,7 @@
                 {#if entry.product}
                   <a
                     class="text-sky-700 hover:underline"
-                    href="/inventory/{entry.product.id}/ledger"
+                    href="/catalog/{entry.product.id}"
                   >
                     <span class="font-mono text-xs text-slate-500">{entry.product.sku}</span>
                     {entry.product.name}

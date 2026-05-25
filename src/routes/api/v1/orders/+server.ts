@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import { z } from 'zod';
 import { createSupabaseAdminClient } from '$lib/supabase.server';
 import { requireSupplyCustomer } from '$lib/server/supply-auth';
+import { calculateTaxForAddress } from '$lib/server/tax-calculation';
 import {
   canBuyProduct,
   getAccessMap,
@@ -103,7 +104,17 @@ export const POST: RequestHandler = async ({ request }) => {
 
   const subtotal =
     Math.round(lineItems.reduce((sum, item) => sum + item.line_total, 0) * 100) / 100;
-  const tax = 0;
+
+  let tax = 0;
+  let taxRate = 0;
+  let shippingState: string | null = null;
+  if (parsed.data.shipping_address) {
+    const taxCalc = await calculateTaxForAddress(supabase, parsed.data.shipping_address, subtotal);
+    tax = taxCalc.tax;
+    taxRate = taxCalc.rate;
+    shippingState = taxCalc.state;
+  }
+
   const shipping = 0;
   const total = subtotal + tax + shipping;
 
@@ -116,6 +127,9 @@ export const POST: RequestHandler = async ({ request }) => {
       tax,
       shipping,
       total,
+      tax_rate: taxRate || null,
+      shipping_state: shippingState || null,
+      tax_calculated_at: new Date().toISOString(),
       shipping_address_snapshot: parsed.data.shipping_address ?? null,
       source: 'api',
       idempotency_key: parsed.data.idempotency_key ?? null

@@ -75,7 +75,8 @@
                   <form
                     method="POST"
                     action="?/update"
-                    use:enhance={() => () => {
+                    use:enhance={() => async ({ update }) => {
+                      await update();
                       editingId = null;
                     }}
                     class="grid gap-3 sm:grid-cols-3"

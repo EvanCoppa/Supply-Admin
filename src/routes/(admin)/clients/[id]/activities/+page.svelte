@@ -42,7 +42,8 @@
     <form
       method="POST"
       action="?/create"
-      use:enhance={() => () => {
+      use:enhance={() => async ({ update }) => {
+        await update();
         showCreate = false;
       }}
       class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-3"

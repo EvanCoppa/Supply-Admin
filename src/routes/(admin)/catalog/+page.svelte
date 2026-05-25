@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { currency } from '$lib/format';
+  import { currency, dateShort } from '$lib/format';
   import Select from '$lib/components/Select.svelte';
   import HelpTooltip from '$lib/components/HelpTooltip.svelte';
 
@@ -25,6 +25,12 @@
         class="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
       >
         Bulk image upload
+      </a>
+      <a
+        href="/catalog/import"
+        class="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+      >
+        Import inventory
       </a>
       <a
         href="/catalog/new"
@@ -54,6 +60,11 @@
         <option value={c.id} selected={c.id === data.filters.categoryId}>{c.name}</option>
       {/each}
     </Select>
+    <Select name="inventory">
+      <option value="">All inventory</option>
+      <option value="low" selected={data.filters.inventoryFilter === 'low'}>Low stock only</option>
+      <option value="out" selected={data.filters.inventoryFilter === 'out'}>Out of stock only</option>
+    </Select>
     <button
       type="submit"
       class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
@@ -75,7 +86,10 @@
             <th class="px-4 py-2 text-left font-medium">Category</th>
             <th class="px-4 py-2 text-left font-medium">Manufacturer</th>
             <th class="px-4 py-2 text-right font-medium">Price</th>
-            <th class="px-4 py-2 text-right font-medium">Stock</th>
+            <th class="px-4 py-2 text-right font-medium">On hand</th>
+            <th class="px-4 py-2 text-right font-medium">Reserved</th>
+            <th class="px-4 py-2 text-right font-medium">Threshold</th>
+            <th class="px-4 py-2 text-right font-medium">Updated</th>
             <th class="px-4 py-2 text-left font-medium">Status</th>
           </tr>
         </thead>
@@ -102,8 +116,8 @@
                 {/if}
               </td>
               <td class="px-4 py-2 font-mono text-xs">{p.sku}</td>
-              <td class="px-4 py-2">
-                <a class="text-sky-700 hover:underline" href="/catalog/{p.id}">{p.name}</a>
+              <td class="px-4 py-2 max-w-xs truncate">
+                <a class="text-sky-700 hover:underline" href="/catalog/{p.id}" title={p.name}>{p.name}</a>
               </td>
               <td class="px-4 py-2 text-slate-600">{p.category?.name ?? '—'}</td>
               <td class="px-4 py-2 text-slate-600">{p.manufacturer ?? '—'}</td>
@@ -111,14 +125,19 @@
               <td class="px-4 py-2 text-right" class:text-amber-700={low} class:font-semibold={low}>
                 {stock ?? '—'}
               </td>
+              <td class="px-4 py-2 text-right text-slate-600">{p.inventory?.quantity_reserved ?? '—'}</td>
+              <td class="px-4 py-2 text-right text-slate-500">{p.inventory?.low_stock_threshold ?? '—'}</td>
+              <td class="px-4 py-2 text-right text-slate-500">{p.inventory?.updated_at ? dateShort(p.inventory.updated_at) : '—'}</td>
               <td class="px-4 py-2">
-                <span
-                  class="rounded px-2 py-0.5 text-xs"
-                  class:bg-emerald-50={p.status === 'active'}
-                  class:text-emerald-700={p.status === 'active'}
-                  class:bg-slate-100={p.status !== 'active'}
-                  class:text-slate-600={p.status !== 'active'}>{p.status}</span
-                >
+                <div class="flex justify-center">
+                  <span
+                    class="rounded px-2 py-0.5 text-xs"
+                    class:bg-emerald-50={p.status === 'active'}
+                    class:text-emerald-700={p.status === 'active'}
+                    class:bg-slate-100={p.status !== 'active'}
+                    class:text-slate-600={p.status !== 'active'}>{p.status}</span
+                  >
+                </div>
               </td>
             </tr>
           {/each}

@@ -1,18 +1,8 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import AddressAutocomplete from '$lib/components/AddressAutocomplete.svelte';
+  import AddressInput from '$lib/components/AddressInput.svelte';
 
   let { data, form } = $props();
-
-  let formData = $state({
-    label: '',
-    line1: '',
-    line2: '',
-    city: '',
-    region: '',
-    postal_code: '',
-    country: ''
-  });
 </script>
 
 <div class="space-y-5">
@@ -22,90 +12,18 @@
     </div>
   {/if}
 
-  <form
-    method="POST"
-    action="?/create"
-    use:enhance
-    class="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-3"
-  >
-    <p class="sm:col-span-3 font-semibold">New address</p>
+  <form method="POST" action="?/create" use:enhance class="space-y-4">
+    <div class="space-y-3">
+      <h2 class="font-semibold">New address</h2>
+      <AddressInput label="Address details" namePrefix="" hideLabel={true} />
 
-    <div class="sm:col-span-3">
-      <label class="block">
-        <span class="mb-1 block text-xs font-medium">Search address</span>
-        <AddressAutocomplete
-          onselect={(e) => {
-            formData.line1 = e.detail.line1;
-            formData.line2 = e.detail.line2;
-            formData.city = e.detail.city;
-            formData.region = e.detail.region;
-            formData.postal_code = e.detail.postal_code;
-            formData.country = e.detail.country;
-          }}
-        />
+      <label class="inline-flex items-center gap-2 text-sm">
+        <input type="checkbox" name="is_default_shipping" />
+        Set as default shipping
       </label>
     </div>
 
-    <label class="block">
-      <span class="mb-1 block text-xs font-medium">Label</span>
-      <input name="label" bind:value={formData.label} class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
-    </label>
-    <label class="block sm:col-span-2">
-      <span class="mb-1 block text-xs font-medium">Line 1</span>
-      <input
-        name="line1"
-        required
-        bind:value={formData.line1}
-        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-      />
-    </label>
-    <label class="block sm:col-span-3">
-      <span class="mb-1 block text-xs font-medium">Line 2</span>
-      <input name="line2" bind:value={formData.line2} class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
-    </label>
-    <label class="block">
-      <span class="mb-1 block text-xs font-medium">City</span>
-      <input
-        name="city"
-        required
-        bind:value={formData.city}
-        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-      />
-    </label>
-    <label class="block">
-      <span class="mb-1 block text-xs font-medium">Region</span>
-      <input
-        name="region"
-        required
-        bind:value={formData.region}
-        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-      />
-    </label>
-    <label class="block">
-      <span class="mb-1 block text-xs font-medium">Postal code</span>
-      <input
-        name="postal_code"
-        required
-        bind:value={formData.postal_code}
-        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-      />
-    </label>
-    <label class="block">
-      <span class="mb-1 block text-xs font-medium">Country (ISO 2)</span>
-      <input
-        name="country"
-        required
-        maxlength="2"
-        placeholder="US"
-        bind:value={formData.country}
-        class="w-full rounded border border-slate-300 px-2 py-1.5 text-sm uppercase"
-      />
-    </label>
-    <label class="inline-flex items-center gap-2 text-sm sm:col-span-2">
-      <input type="checkbox" name="is_default_shipping" />
-      Set as default shipping
-    </label>
-    <div class="sm:col-span-3 flex justify-end">
+    <div class="flex justify-end">
       <button
         type="submit"
         class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"

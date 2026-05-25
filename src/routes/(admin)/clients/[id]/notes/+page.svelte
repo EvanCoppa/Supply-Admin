@@ -61,7 +61,8 @@
             <form
               method="POST"
               action="?/update"
-              use:enhance={() => () => {
+              use:enhance={() => async ({ update }) => {
+                await update();
                 editingId = null;
               }}
               class="space-y-2"

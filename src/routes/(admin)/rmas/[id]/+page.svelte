@@ -212,7 +212,8 @@
           <form
             method="POST"
             action="?/addItem"
-            use:enhance={() => () => {
+            use:enhance={() => async ({ update }) => {
+              await update();
               showAddItem = false;
             }}
             class="grid gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4 sm:grid-cols-6"

@@ -173,7 +173,7 @@
             <li class="flex items-center justify-between gap-2">
               <a
                 class="min-w-0 truncate text-slate-800 hover:underline"
-                href="/inventory/{t.product_id}"
+                href="/catalog/{t.product_id}"
               >
                 {t.name ?? t.sku ?? '—'}
               </a>

@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import { currency, dateTime } from '$lib/format';
   import OrderStatusBadge from '$lib/components/OrderStatusBadge.svelte';
+  import TaxDetails from '$lib/components/TaxDetails.svelte';
   import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 
   let { data, form } = $props();
@@ -275,6 +276,15 @@
           <p class="text-slate-500">No snapshot.</p>
         {/if}
       </div>
+
+      {#if o.tax > 0 || o.tax_rate}
+        <TaxDetails
+          subtotal={o.subtotal}
+          taxAmount={o.tax}
+          taxRate={o.tax_rate || 0}
+          state={o.shipping_state}
+        />
+      {/if}
 
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm text-sm">
         <h3 class="mb-2 font-semibold">Metadata</h3>

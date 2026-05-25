@@ -1,0 +1,70 @@
+-- Create tax rates table for US state-level sales tax
+CREATE TABLE IF NOT EXISTS tax_rates (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  state_code VARCHAR(2) NOT NULL,
+  county_code VARCHAR(5),
+  city VARCHAR(100),
+  tax_rate DECIMAL(5,4) NOT NULL,
+  effective_from TIMESTAMP DEFAULT NOW(),
+  effective_to TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(state_code, county_code, city, effective_from)
+);
+
+-- Index for fast lookups
+CREATE INDEX IF NOT EXISTS idx_tax_rates_state_effective
+  ON tax_rates(state_code, effective_from DESC);
+
+-- Sample US state tax rates (as of 2024)
+INSERT INTO tax_rates (state_code, tax_rate, effective_from) VALUES
+('AL', 0.04, NOW()),
+('AK', 0.00, NOW()),
+('AZ', 0.0560, NOW()),
+('AR', 0.0650, NOW()),
+('CA', 0.0725, NOW()),
+('CO', 0.0290, NOW()),
+('CT', 0.0635, NOW()),
+('DE', 0.00, NOW()),
+('FL', 0.06, NOW()),
+('GA', 0.0400, NOW()),
+('HI', 0.0400, NOW()),
+('ID', 0.0600, NOW()),
+('IL', 0.0625, NOW()),
+('IN', 0.0700, NOW()),
+('IA', 0.0600, NOW()),
+('KS', 0.0650, NOW()),
+('KY', 0.0600, NOW()),
+('LA', 0.0400, NOW()),
+('ME', 0.0550, NOW()),
+('MD', 0.0600, NOW()),
+('MA', 0.0625, NOW()),
+('MI', 0.0600, NOW()),
+('MN', 0.0688, NOW()),
+('MS', 0.0700, NOW()),
+('MO', 0.0423, NOW()),
+('MT', 0.00, NOW()),
+('NE', 0.0550, NOW()),
+('NV', 0.0685, NOW()),
+('NH', 0.00, NOW()),
+('NJ', 0.0625, NOW()),
+('NM', 0.0525, NOW()),
+('NY', 0.0400, NOW()),
+('NC', 0.0475, NOW()),
+('ND', 0.0500, NOW()),
+('OH', 0.0575, NOW()),
+('OK', 0.0450, NOW()),
+('OR', 0.00, NOW()),
+('PA', 0.0600, NOW()),
+('RI', 0.0700, NOW()),
+('SC', 0.0700, NOW()),
+('SD', 0.0450, NOW()),
+('TN', 0.0925, NOW()),
+('TX', 0.0625, NOW()),
+('UT', 0.0610, NOW()),
+('VT', 0.0600, NOW()),
+('VA', 0.0530, NOW()),
+('WA', 0.0650, NOW()),
+('WV', 0.0600, NOW()),
+('WI', 0.0500, NOW()),
+('WY', 0.0400, NOW())
+ON CONFLICT DO NOTHING;
