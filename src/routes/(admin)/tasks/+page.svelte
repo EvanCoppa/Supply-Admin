@@ -258,7 +258,7 @@
 <section class="kb">
   <header class="kb-head">
     <div>
-      <h1>Sprint board</h1>
+      <h1>Tasks</h1>
       <p class="meta">
         {localTasks.length} tasks
         {#if stats.overdue > 0}

@@ -102,18 +102,13 @@
       {/if}
     </div>
 
-    <form
-      method="POST"
-      action="?/save"
-      enctype="multipart/form-data"
-      use:enhance
-      class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
-    >
+    <form method="POST" action="?/save" enctype="multipart/form-data" use:enhance>
       <ProductForm
         product={data.product}
         categories={data.categories}
         fieldErrors={form?.fieldErrors ?? {}}
         submitLabel="Save"
+        cancelHref="/catalog"
       />
     </form>
   </div>

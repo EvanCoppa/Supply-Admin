@@ -52,7 +52,9 @@
   >
     <header class="flex items-start justify-between gap-6 border-b border-slate-200 pb-6">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">Supply</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
+          Evolution Supply
+        </p>
         <h1 class="mt-1 text-2xl font-semibold">Invoice</h1>
       </div>
       <div class="text-right text-sm">

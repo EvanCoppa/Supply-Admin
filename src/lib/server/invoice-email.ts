@@ -27,7 +27,7 @@ function renderInvoiceText(input: SendInvoiceEmailInput) {
   return [
     `${name},`,
     '',
-    `${invoiceSubject(input.invoice, input.kind)} is ready in your Supply portal.`,
+    `${invoiceSubject(input.invoice, input.kind)} is ready in your Evolution Supply portal.`,
     `Amount due: ${currency.format(balanceDue(input.invoice))}`,
     `Due date: ${due}`,
     '',
@@ -50,7 +50,7 @@ function renderInvoiceHtml(input: SendInvoiceEmailInput) {
   return `
     <div style="font-family:Inter,Arial,sans-serif;color:#0f172a;line-height:1.5">
       <h1 style="font-size:20px;margin:0 0 12px">${escapeHtml(invoiceSubject(input.invoice, input.kind))}</h1>
-      <p style="margin:0 0 12px">Your invoice is ready in the Supply portal.</p>
+      <p style="margin:0 0 12px">Your invoice is ready in the Evolution Supply portal.</p>
       <p style="margin:0"><strong>Amount due:</strong> ${amount}</p>
       <p style="margin:0 0 20px"><strong>Due date:</strong> ${escapeHtml(due)}</p>
       <p style="margin:0 0 20px">
