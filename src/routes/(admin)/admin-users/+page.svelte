@@ -87,7 +87,7 @@
         <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
           <tr>
             <th class="px-4 py-2 text-left font-medium">Name</th>
-            <th class="px-4 py-2 text-left font-medium">Auth user id</th>
+            <th class="px-4 py-2 text-left font-medium">Email</th>
             <th class="px-4 py-2 text-left font-medium">Status</th>
             <th class="px-4 py-2 text-right font-medium">Created</th>
             <th class="px-4 py-2"></th>
@@ -106,7 +106,7 @@
                   >
                 {/if}
               </td>
-              <td class="px-4 py-2 font-mono text-xs text-slate-500">{a.id}</td>
+              <td class="px-4 py-2 text-slate-600">{a.email ?? '—'}</td>
               <td class="px-4 py-2">
                 {#if isDeactivated}
                   <span

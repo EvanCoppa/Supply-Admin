@@ -10,7 +10,20 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
     .order('deactivated_at', { ascending: true, nullsFirst: true })
     .order('created_at', { ascending: false });
 
-  return { admins: data ?? [] };
+  const profiles = data ?? [];
+  const adminClient = createSupabaseAdminClient();
+  const emails = new Map<string, string>();
+  let page = 1;
+  while (true) {
+    const { data: list, error } = await adminClient.auth.admin.listUsers({ page, perPage: 200 });
+    if (error || !list?.users.length) break;
+    for (const u of list.users) if (u.email) emails.set(u.id, u.email);
+    if (list.users.length < 200) break;
+    page += 1;
+  }
+
+  const admins = profiles.map((p) => ({ ...p, email: emails.get(p.id) ?? null }));
+  return { admins };
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -32,19 +45,34 @@ export const actions: Actions = {
     }
 
     const adminClient = createSupabaseAdminClient();
-    const { error } = await adminClient.auth.admin.createUser({
+    const { data: created, error } = await adminClient.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
       user_metadata: { display_name: display_name || undefined, role: 'admin' }
     });
 
-    if (error) {
+    if (error || !created.user) {
       return fail(400, {
-        message: error.message ?? 'Create failed.',
+        message: error?.message ?? 'Create failed.',
         code: undefined
       });
     }
+
+    const { error: profileError } = await adminClient.from('user_profiles').insert({
+      id: created.user.id,
+      role: 'admin',
+      display_name: display_name || null
+    });
+
+    if (profileError) {
+      await adminClient.auth.admin.deleteUser(created.user.id);
+      return fail(400, {
+        message: profileError.message ?? 'Create failed.',
+        code: undefined
+      });
+    }
+
     return { saved: true, message: undefined, code: undefined };
   },
 
