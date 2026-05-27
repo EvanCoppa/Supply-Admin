@@ -80,14 +80,38 @@ function parseRate(rate: unknown): number {
   return 0;
 }
 
+const US_STATE_CODES: Record<string, string> = {
+  alabama: 'AL', alaska: 'AK', arizona: 'AZ', arkansas: 'AR', california: 'CA',
+  colorado: 'CO', connecticut: 'CT', delaware: 'DE', florida: 'FL', georgia: 'GA',
+  hawaii: 'HI', idaho: 'ID', illinois: 'IL', indiana: 'IN', iowa: 'IA',
+  kansas: 'KS', kentucky: 'KY', louisiana: 'LA', maine: 'ME', maryland: 'MD',
+  massachusetts: 'MA', michigan: 'MI', minnesota: 'MN', mississippi: 'MS',
+  missouri: 'MO', montana: 'MT', nebraska: 'NE', nevada: 'NV',
+  'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+  'north carolina': 'NC', 'north dakota': 'ND', ohio: 'OH', oklahoma: 'OK',
+  oregon: 'OR', pennsylvania: 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+  'south dakota': 'SD', tennessee: 'TN', texas: 'TX', utah: 'UT', vermont: 'VT',
+  virginia: 'VA', washington: 'WA', 'west virginia': 'WV', wisconsin: 'WI',
+  wyoming: 'WY', 'district of columbia': 'DC'
+};
+
+function normalizeStateCode(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (trimmed.length === 2) return trimmed.toUpperCase();
+  const code = US_STATE_CODES[trimmed.toLowerCase()];
+  return code ?? null;
+}
+
 function extractState(address: Record<string, unknown>): string | null {
-  return (
+  const raw =
     (address['state'] as string) ||
     (address['state_province'] as string) ||
     (address['province'] as string) ||
     (address['administrative_area_level_1'] as string) ||
-    null
-  );
+    null;
+  return normalizeStateCode(raw);
 }
 
 function extractCounty(address: Record<string, unknown>): string | null {
