@@ -177,6 +177,7 @@ export interface Product {
   manufacturer: string | null;
   unit_of_measure: string | null;
   pack_size: number | null;
+  unit_cost: number;
   base_price: number;
   tax_class: string | null;
   weight_grams: number | null;

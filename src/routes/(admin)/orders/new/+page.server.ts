@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { adminOrderCreateSchema, parseForm, parseOrderLineItems } from '$lib/schemas';
 import { calculateTaxForAddress } from '$lib/server/tax-calculation';
+import { roundToNearestDollar } from '$lib/utils';
 
 type CustomerAddress = {
   id: string;
@@ -97,13 +98,14 @@ export const actions: Actions = {
     }
 
     const lineRows = lines.map((line) => {
-      const lineTotal = Math.round(line.quantity * line.unit_price * 100) / 100;
+      const roundedUnitPrice = roundToNearestDollar(line.unit_price);
+      const lineTotal = Math.round(line.quantity * roundedUnitPrice * 100) / 100;
       return {
         product_id: line.product_id ?? null,
         product_sku_snapshot: line.product_sku_snapshot ?? null,
         product_name_snapshot: line.product_name_snapshot,
         quantity: line.quantity,
-        unit_price_snapshot: line.unit_price,
+        unit_price_snapshot: roundedUnitPrice,
         line_total: lineTotal
       };
     });

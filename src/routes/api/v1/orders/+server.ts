@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { createSupabaseAdminClient } from '$lib/supabase.server';
 import { requireSupplyCustomer } from '$lib/server/supply-auth';
 import { calculateTaxForAddress } from '$lib/server/tax-calculation';
+import { roundToNearestDollar } from '$lib/utils';
 import {
   canBuyProduct,
   getAccessMap,
@@ -91,13 +92,14 @@ export const POST: RequestHandler = async ({ request }) => {
       if (!product) throw error(400, `Product ${productId} is not available`);
       const quantity = quantities.get(productId) ?? 0;
       const unitPrice = await resolveCustomerPrice(supabase, customerId, product);
+      const roundedUnitPrice = roundToNearestDollar(unitPrice);
       return {
         product_id: product.id,
         product_sku_snapshot: product.sku,
         product_name_snapshot: product.name,
         quantity,
-        unit_price_snapshot: unitPrice,
-        line_total: Math.round(unitPrice * quantity * 100) / 100
+        unit_price_snapshot: roundedUnitPrice,
+        line_total: Math.round(roundedUnitPrice * quantity * 100) / 100
       };
     })
   );

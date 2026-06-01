@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
+import { calculateSalePrice } from '$lib/utils';
 
 type CsvRow = Record<string, string>;
 
@@ -30,7 +31,8 @@ const HEADER_ALIASES = {
     'last_purchased_qty',
     'last_purchased_quantity'
   ],
-  price: ['price', 'base price', 'base_price'],
+  cost: ['cost', 'unit cost', 'unit_cost', 'our price', 'our_price'],
+  price: ['price', 'base price', 'base_price', 'sale price', 'sale_price'],
   quantityOnHand: ['quantity on hand', 'quantity_on_hand', 'on hand', 'stock', 'stock on hand'],
   lowStockThreshold: ['low stock threshold', 'low_stock_threshold', 'threshold']
 } as const;
@@ -180,7 +182,14 @@ export const actions: Actions = {
       const lowStockThreshold = parseOptionalInteger(
         getValue(row, HEADER_ALIASES.lowStockThreshold.map(normalizeHeader))
       );
-      const price = parseOptionalMoney(getValue(row, HEADER_ALIASES.price.map(normalizeHeader)));
+      const cost = parseOptionalMoney(getValue(row, HEADER_ALIASES.cost.map(normalizeHeader)));
+      const priceFromCsv = parseOptionalMoney(getValue(row, HEADER_ALIASES.price.map(normalizeHeader)));
+
+      // If cost is provided, derive sale price from it. Otherwise use CSV price.
+      const unitCost = cost.value > 0 ? cost.value : 0;
+      const price = cost.value > 0
+        ? { value: calculateSalePrice(unitCost), needsReview: false }
+        : priceFromCsv;
 
       if (!name) errors.push({ row: rowNumber, sku, message: 'Product name is required.' });
       if (!sku) errors.push({ row: rowNumber, sku, message: 'SKU is required.' });
@@ -207,6 +216,7 @@ export const actions: Actions = {
         lastPurchasedQuantity,
         quantityOnHand,
         lowStockThreshold,
+        unitCost,
         price,
         lastPurchasedAt: parseSourceDate(
           getValue(row, HEADER_ALIASES.lastPurchased.map(normalizeHeader))
@@ -265,6 +275,7 @@ export const actions: Actions = {
       category_id: product.category
         ? (categoryMap.get(product.category.toLowerCase()) ?? null)
         : null,
+      unit_cost: product.unitCost,
       base_price: product.price.value,
       price_needs_review: product.price.needsReview,
       source_system: 'smile_inventory_csv',
