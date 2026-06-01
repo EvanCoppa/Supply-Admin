@@ -1,11 +1,13 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { NAV_SECTIONS } from '$lib/nav';
+  import { filterNavSectionsByRole } from '$lib/nav';
   import GlobalSearch from '$lib/components/GlobalSearch.svelte';
   import * as Icons from '@lucide/svelte';
   import type { Component } from 'svelte';
 
   let { data, children } = $props();
+
+  const navSections = $derived(filterNavSectionsByRole(data.profile?.role ?? 'customer'));
 
   function isActive(href: string) {
     if (href === '/') return page.url.pathname === '/';
@@ -24,7 +26,7 @@
       <h1 class="text-md font-semibold text-slate-900">Supply Admin</h1>
     </div>
     <nav class="px-3 py-2">
-      {#each NAV_SECTIONS as section}
+      {#each navSections as section}
         <p class="px-3 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
           {section.heading}
         </p>
@@ -56,7 +58,12 @@
     >
       <GlobalSearch />
       <div class="flex items-center gap-3 text-sm">
-        <span class="text-slate-600">{data.user?.email}</span>
+        <div class="text-right">
+          <p class="text-slate-600">{data.user?.email}</p>
+          {#if data.profile?.role}
+            <p class="text-xs text-slate-500">{data.profile.role}</p>
+          {/if}
+        </div>
         <form method="POST" action="/logout">
           <button
             type="submit"

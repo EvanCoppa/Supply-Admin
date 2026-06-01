@@ -5,8 +5,8 @@ import { createSupabaseAdminClient } from '$lib/supabase.server';
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   const { data } = await supabase
     .from('user_profiles')
-    .select('id, display_name, created_at, updated_at, deactivated_at')
-    .eq('role', 'admin')
+    .select('id, display_name, role, created_at, updated_at, deactivated_at')
+    .neq('role', 'customer')
     .order('deactivated_at', { ascending: true, nullsFirst: true })
     .order('created_at', { ascending: false });
 
@@ -36,6 +36,12 @@ export const actions: Actions = {
       .toLowerCase();
     const display_name = String(form.get('display_name') ?? '').trim();
     const password = String(form.get('password') ?? '');
+    const role = String(form.get('role') ?? 'admin').trim();
+
+    const validRoles = ['admin', 'sales_rep', 'warehouse_staff', 'accounting', 'new_hire'];
+    if (!validRoles.includes(role)) {
+      return fail(400, { message: 'Invalid role selected.', code: undefined });
+    }
 
     if (!email || !EMAIL_RE.test(email)) {
       return fail(400, { message: 'Enter a valid email address.', code: undefined });
@@ -49,7 +55,7 @@ export const actions: Actions = {
       email,
       password,
       email_confirm: true,
-      user_metadata: { display_name: display_name || undefined, role: 'admin' }
+      user_metadata: { display_name: display_name || undefined, role }
     });
 
     if (error || !created.user) {
@@ -61,7 +67,7 @@ export const actions: Actions = {
 
     const { error: profileError } = await adminClient.from('user_profiles').insert({
       id: created.user.id,
-      role: 'admin',
+      role,
       display_name: display_name || null
     });
 
