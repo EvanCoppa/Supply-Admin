@@ -17,9 +17,10 @@ export const productSchema = z.object({
   manufacturer: optionalTrimmed,
   unit_of_measure: optionalTrimmed,
   pack_size: optionalNumber,
-  base_price: requiredNumber('Base price is required.').refine((n) => n >= 0, {
-    message: 'Base price must be ≥ 0.'
+  unit_cost: requiredNumber('Unit cost is required.').refine((n) => n >= 0, {
+    message: 'Unit cost must be ≥ 0.'
   }),
+  base_price: optionalNumber,
   tax_class: optionalTrimmed,
   weight_grams: optionalNumber,
   status: enumWithDefault(PRODUCT_STATUSES, 'active', 'Invalid status.')

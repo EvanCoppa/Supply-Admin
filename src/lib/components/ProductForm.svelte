@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { calculateSalePrice } from '$lib/utils';
   import type { Product } from '$lib/types/db';
   import Select from '$lib/components/Select.svelte';
 
@@ -22,6 +23,10 @@
     fieldErrors = {}
   }: Props = $props();
 
+  let unitCost = $state(product.unit_cost ?? 0);
+  let markupPercent = $state(40);
+
+  const derivedSalePrice = $derived(calculateSalePrice(unitCost, markupPercent));
   const imageError = $derived(fieldErrors['image']?.[0]);
 </script>
 
@@ -85,16 +90,40 @@
     <h2 class="font-semibold">Pricing &amp; sizing</h2>
     <div class="grid gap-3 sm:grid-cols-3">
       <label class="block">
-        <span class="mb-1 block text-xs font-medium text-slate-600">Base price (USD)</span>
+        <span class="mb-1 block text-xs font-medium text-slate-600">Unit cost (USD)</span>
+        <input
+          type="number"
+          name="unit_cost"
+          step="0.01"
+          min="0"
+          required
+          bind:value={unitCost}
+          class="w-full rounded border border-slate-300 px-2 py-1.5"
+        />
+      </label>
+      <label class="block">
+        <span class="mb-1 block text-xs font-medium text-slate-600">Markup (%)</span>
+        <input
+          type="number"
+          bind:value={markupPercent}
+          min="0"
+          step="1"
+          class="w-full rounded border border-slate-300 px-2 py-1.5"
+        />
+        <p class="mt-0.5 text-xs text-slate-500">Default: 40%</p>
+      </label>
+      <label class="block">
+        <span class="mb-1 block text-xs font-medium text-slate-600">Sale price (USD)</span>
         <input
           type="number"
           name="base_price"
+          value={derivedSalePrice}
           step="1"
           min="0"
-          required
-          value={product.base_price ?? ''}
-          class="w-full rounded border border-slate-300 px-2 py-1.5"
+          readonly
+          class="w-full rounded border border-slate-300 bg-slate-50 px-2 py-1.5 text-slate-600"
         />
+        <p class="mt-0.5 text-xs text-slate-500">Auto-calculated from cost + markup, rounded to nearest dollar</p>
       </label>
       <label class="block">
         <span class="mb-1 block text-xs font-medium text-slate-600">Tax class</span>
