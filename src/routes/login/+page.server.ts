@@ -28,13 +28,18 @@ export const actions: Actions = {
 
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('role, customer_id')
+      .select('role, customer_id, deactivated_at')
       .eq('id', data.user.id)
       .maybeSingle();
 
-    if (!profile || (profile.role !== 'admin' && profile.role !== 'customer')) {
+    if (!profile) {
       await supabase.auth.signOut();
       return fail(403, { email, message: 'This account does not have application access.' });
+    }
+
+    if (profile.deactivated_at) {
+      await supabase.auth.signOut();
+      return fail(403, { email, message: 'This account has been deactivated.' });
     }
 
     if (profile.role === 'customer') {
@@ -45,6 +50,8 @@ export const actions: Actions = {
       throw redirect(303, next.startsWith('/portal') ? next : '/portal/invoices');
     }
 
+    // All staff roles (admin, sales_rep, accounting, warehouse_staff, new_hire) can sign in;
+    // per-route access is enforced by the route guard in hooks.server.ts.
     throw redirect(303, next.startsWith('/') && !next.startsWith('/portal') ? next : '/');
   },
 
