@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { dateShort } from '$lib/format';
+  import { formatRole } from '$lib/permissions';
 
   let { data, form } = $props();
 
@@ -128,7 +129,7 @@
               <td class="px-4 py-2 text-slate-600">{a.email ?? '—'}</td>
               <td class="px-4 py-2">
                 <span class="rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800">
-                  {a.role}
+                  {formatRole(a.role)}
                 </span>
               </td>
               <td class="px-4 py-2">

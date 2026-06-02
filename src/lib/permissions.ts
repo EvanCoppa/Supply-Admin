@@ -1,5 +1,17 @@
 import type { UserRole } from './types/db';
 
+/**
+ * Formats a raw DB role value (e.g. `new_hire`) into a human-readable label
+ * (e.g. `New Hire`) for display in the UI.
+ */
+export function formatRole(role: string | null | undefined): string {
+  if (!role) return '';
+  return role
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 export type Permission =
   | 'view_dashboard'
   | 'manage_users'

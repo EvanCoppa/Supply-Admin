@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { filterNavSectionsByRole } from '$lib/nav';
+  import { formatRole } from '$lib/permissions';
   import GlobalSearch from '$lib/components/GlobalSearch.svelte';
   import * as Icons from '@lucide/svelte';
   import type { Component } from 'svelte';
@@ -61,7 +62,7 @@
         <div class="text-right">
           <p class="text-slate-600">{data.user?.email}</p>
           {#if data.profile?.role}
-            <p class="text-xs text-slate-500">{data.profile.role}</p>
+            <p class="text-xs text-slate-500">{formatRole(data.profile.role)}</p>
           {/if}
         </div>
         <form method="POST" action="/logout">

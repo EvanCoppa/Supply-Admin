@@ -178,6 +178,7 @@
                 <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
                   <tr>
                     <th class="px-3 py-2 text-left font-medium">Name</th>
+                    <th class="px-3 py-2 text-left font-medium">SKU</th>
                     <th class="px-3 py-2 text-right font-medium">Qty</th>
                     <th class="px-3 py-2 text-right font-medium">Unit price</th>
                     <th class="px-3 py-2 text-right font-medium">Total</th>
@@ -193,11 +194,13 @@
                           required
                           class="w-full rounded border border-slate-300 px-2 py-1 text-sm"
                         />
-                        {#if line.product_sku_snapshot}
-                          <p class="mt-0.5 font-mono text-[10px] text-slate-500">
-                            {line.product_sku_snapshot}
-                          </p>
-                        {/if}
+                      </td>
+                      <td class="px-3 py-2">
+                        <input
+                          bind:value={line.product_sku_snapshot}
+                          placeholder="Optional"
+                          class="w-32 rounded border border-slate-300 px-2 py-1 font-mono text-xs"
+                        />
                       </td>
                       <td class="px-3 py-2 text-right">
                         <input
@@ -234,7 +237,7 @@
                 </tbody>
                 <tfoot>
                   <tr class="border-t border-slate-200 bg-slate-50 text-sm">
-                    <td colspan="3" class="px-3 py-2 text-right font-medium text-slate-600">
+                    <td colspan="4" class="px-3 py-2 text-right font-medium text-slate-600">
                       Subtotal
                     </td>
                     <td class="px-3 py-2 text-right font-semibold">{currency(subtotal)}</td>

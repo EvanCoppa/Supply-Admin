@@ -2,7 +2,13 @@
 // and 0003_crm_tables.sql.
 // Replace with `supabase gen types` output from packages/shared once that exists.
 
-export type UserRole = 'customer' | 'admin' | 'new_hire' | 'sales_rep' | 'warehouse_staff' | 'accounting';
+export type UserRole =
+  | 'customer'
+  | 'admin'
+  | 'new_hire'
+  | 'sales_rep'
+  | 'warehouse_staff'
+  | 'accounting';
 export type CustomerStatus = 'active' | 'suspended' | 'archived';
 export type CustomerLifecycleStage = 'lead' | 'prospect' | 'active' | 'at_risk' | 'churned';
 export type ContactRole = 'primary' | 'billing' | 'shipping' | 'clinical' | 'other';
@@ -271,8 +277,8 @@ export interface Order {
 export interface OrderLineItem {
   id: string;
   order_id: string;
-  product_id: string;
-  product_sku_snapshot: string;
+  product_id: string | null;
+  product_sku_snapshot: string | null;
   product_name_snapshot: string;
   quantity: number;
   unit_price_snapshot: number;
