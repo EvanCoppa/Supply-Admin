@@ -3,6 +3,7 @@ import { error, type Handle, type HandleServerError, redirect } from '@sveltejs/
 import { sequence } from '@sveltejs/kit/hooks';
 import { PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 import { checkRouteAccess } from '$lib/access.server';
+import type { UserProfile } from '$lib/types/db';
 
 export const handleError: HandleServerError = ({ error: err, event, status, message }) => {
   const code = `srv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -84,12 +85,16 @@ const authGuard: Handle = async ({ event, resolve }) => {
     return resolve(event);
   }
 
-  const { data: profile } = await event.locals.supabase
+  const { data } = await event.locals.supabase
     .from('user_profiles')
     .select('id, role, display_name, deactivated_at, created_at, updated_at')
     .eq('id', user.id)
     .maybeSingle();
 
+  // `user_profiles` no longer carries `customer_id` (customers moved to
+  // `customer_profiles`). Cast so the legacy customer branches below stay
+  // type-safe; they are inert here since no staff profile has role 'customer'.
+  const profile = data as UserProfile | null;
   event.locals.profile = profile;
 
   if (isPublic) {

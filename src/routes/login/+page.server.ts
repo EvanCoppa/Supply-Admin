@@ -42,14 +42,7 @@ export const actions: Actions = {
       return fail(403, { email, message: 'This account has been deactivated.' });
     }
 
-    if (profile.role === 'customer') {
-      if (!profile.customer_id) {
-        await supabase.auth.signOut();
-        return fail(403, { email, message: 'This customer account is not linked to a business.' });
-      }
-      throw redirect(303, next.startsWith('/portal') ? next : '/portal/invoices');
-    }
-
+    // This is the staff admin app; customers authenticate elsewhere (customer_profiles).
     // All staff roles (admin, sales_rep, accounting, warehouse_staff, new_hire) can sign in;
     // per-route access is enforced by the route guard in hooks.server.ts.
     throw redirect(303, next.startsWith('/') && !next.startsWith('/portal') ? next : '/');
