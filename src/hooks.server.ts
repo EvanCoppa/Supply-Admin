@@ -86,7 +86,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
   const { data: profile } = await event.locals.supabase
     .from('user_profiles')
-    .select('id, role, customer_id, display_name, deactivated_at, created_at, updated_at')
+    .select('id, role, display_name, deactivated_at, created_at, updated_at')
     .eq('id', user.id)
     .maybeSingle();
 

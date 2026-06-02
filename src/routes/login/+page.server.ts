@@ -28,7 +28,7 @@ export const actions: Actions = {
 
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('role, customer_id, deactivated_at')
+      .select('role, deactivated_at')
       .eq('id', data.user.id)
       .maybeSingle();
 
