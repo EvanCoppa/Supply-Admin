@@ -2,13 +2,9 @@
 // and 0003_crm_tables.sql.
 // Replace with `supabase gen types` output from packages/shared once that exists.
 
-export type UserRole =
-  | 'customer'
-  | 'admin'
-  | 'new_hire'
-  | 'sales_rep'
-  | 'warehouse_staff'
-  | 'accounting';
+export type UserRole = 'admin' | 'new_hire' | 'sales_rep' | 'warehouse_staff' | 'accounting';
+
+export type CustomerProfileRole = 'owner' | 'buyer' | 'viewer';
 export type CustomerStatus = 'active' | 'suspended' | 'archived';
 export type CustomerLifecycleStage = 'lead' | 'prospect' | 'active' | 'at_risk' | 'churned';
 export type ContactRole = 'primary' | 'billing' | 'shipping' | 'clinical' | 'other';
@@ -129,8 +125,21 @@ export interface DailyRoutineStep {
 export interface UserProfile {
   id: string;
   role: UserRole;
-  customer_id: string | null;
   display_name: string | null;
+  deactivated_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CustomerProfile {
+  id: string;
+  customer_id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+  role: CustomerProfileRole;
+  is_primary: boolean;
   deactivated_at: string | null;
   created_at: string;
   updated_at: string;

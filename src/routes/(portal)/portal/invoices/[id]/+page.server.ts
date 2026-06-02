@@ -5,16 +5,16 @@ import type { Invoice } from '$lib/types/db';
 import { createPaymentIntent, loadInvoiceBundle } from '$lib/server/invoices';
 import { createSupabaseAdminClient } from '$lib/supabase.server';
 
-export const load: PageServerLoad = async ({ params, locals: { profile, supabase } }) => {
-  const customerId = profile?.customer_id;
+export const load: PageServerLoad = async ({ params, locals: { customerProfile, supabase } }) => {
+  const customerId = customerProfile?.customer_id;
   const bundle = await loadInvoiceBundle(supabase, params.id, customerId ?? undefined);
   if (!bundle || bundle.invoice.status === 'draft') throw error(404, 'Invoice not found');
   return bundle;
 };
 
 export const actions: Actions = {
-  preparePayment: async ({ params, locals: { profile }, url }) => {
-    const customerId = profile?.customer_id;
+  preparePayment: async ({ params, locals: { customerProfile }, url }) => {
+    const customerId = customerProfile?.customer_id;
     const adminSupabase = createSupabaseAdminClient();
     const { data: invoice, error: invoiceError } = await adminSupabase
       .from('invoices')

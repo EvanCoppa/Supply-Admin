@@ -2,8 +2,8 @@ import type { PageServerLoad } from './$types';
 
 const PAGE_SIZE = 25;
 
-export const load: PageServerLoad = async ({ locals: { profile, supabase }, url }) => {
-  const customerId = profile?.customer_id;
+export const load: PageServerLoad = async ({ locals: { customerProfile, supabase }, url }) => {
+  const customerId = customerProfile?.customer_id;
   const status = url.searchParams.get('status') ?? '';
   const page = Math.max(1, Number(url.searchParams.get('page') ?? '1'));
   const from = (page - 1) * PAGE_SIZE;

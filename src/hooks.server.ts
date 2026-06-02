@@ -69,6 +69,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
   event.locals.session = session;
   event.locals.user = user;
   event.locals.profile = null;
+  event.locals.customerProfile = null;
 
   const isPublic = PUBLIC_PATHS.some((p) => event.url.pathname.startsWith(p));
   const isApi = event.url.pathname.startsWith('/api/');
@@ -84,30 +85,39 @@ const authGuard: Handle = async ({ event, resolve }) => {
     return resolve(event);
   }
 
-  const { data: profile } = await event.locals.supabase
-    .from('user_profiles')
-    .select('id, role, customer_id, display_name, deactivated_at, created_at, updated_at')
-    .eq('id', user.id)
-    .maybeSingle();
+  // Load staff (user_profiles) and shopper (customer_profiles) records in parallel.
+  // Exactly one should exist for any given auth user.
+  const [{ data: profile }, { data: customerProfile }] = await Promise.all([
+    event.locals.supabase
+      .from('user_profiles')
+      .select('id, role, display_name, deactivated_at, created_at, updated_at')
+      .eq('id', user.id)
+      .maybeSingle(),
+    event.locals.supabase
+      .from('customer_profiles')
+      .select(
+        'id, customer_id, email, first_name, last_name, phone, role, is_primary, deactivated_at, created_at, updated_at'
+      )
+      .eq('id', user.id)
+      .maybeSingle()
+  ]);
 
   event.locals.profile = profile;
+  event.locals.customerProfile = customerProfile;
+
+  const isShopper = !!customerProfile && !customerProfile.deactivated_at;
 
   if (isPublic) {
-    if (
-      event.url.pathname === '/login' &&
-      (profile?.role === 'admin' || profile?.role !== 'customer')
-    ) {
-      throw redirect(303, '/');
-    }
-    if (event.url.pathname === '/login' && profile?.role === 'customer') {
-      throw redirect(303, '/portal/invoices');
+    if (event.url.pathname === '/login') {
+      if (isShopper) throw redirect(303, '/portal/invoices');
+      if (profile) throw redirect(303, '/');
     }
     return resolve(event);
   }
 
   if (isPortal) {
-    if (profile?.role === 'customer' && profile.customer_id) return resolve(event);
-    if (profile?.role !== 'customer') throw redirect(303, '/');
+    if (isShopper) return resolve(event);
+    if (profile) throw redirect(303, '/');
     await event.locals.supabase.auth.signOut();
     throw redirect(303, '/login?error=not_customer');
   }
@@ -119,19 +129,24 @@ const authGuard: Handle = async ({ event, resolve }) => {
       )
     )
       return resolve(event);
-    if (profile?.role === 'customer' && profile.customer_id) return resolve(event);
+    if (isShopper) return resolve(event);
     throw error(403, 'Forbidden.');
   }
 
-  // Admin section access control
-  if (profile?.role === 'customer') {
+  // Admin section access control: shoppers cannot enter the admin UI.
+  if (isShopper) {
+    if (isApi) throw error(403, 'Forbidden.');
+    throw redirect(303, '/portal/invoices');
+  }
+
+  if (!profile) {
     await event.locals.supabase.auth.signOut();
     if (isApi) throw error(403, 'Forbidden.');
     throw redirect(303, '/login?error=not_authorized');
   }
 
   // Check for deactivated accounts
-  if (profile?.deactivated_at) {
+  if (profile.deactivated_at) {
     await event.locals.supabase.auth.signOut();
     if (isApi) throw error(403, 'Account deactivated.');
     throw redirect(303, '/login?error=account_deactivated');

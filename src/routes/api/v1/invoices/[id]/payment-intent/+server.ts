@@ -6,15 +6,14 @@ import { createPaymentIntent } from '$lib/server/invoices';
 import { createSupabaseAdminClient } from '$lib/supabase.server';
 
 export const POST: RequestHandler = async ({ params, locals, url }) => {
-  const profile = locals.profile;
-  if (!profile) throw error(401, 'Not signed in.');
-  if (profile.role !== 'admin' && profile.role !== 'customer') throw error(403, 'Forbidden.');
-  if (profile.role === 'customer' && !profile.customer_id)
-    throw error(403, 'Customer profile is not linked.');
+  const { profile, customerProfile } = locals;
+  const isShopper = !!customerProfile && !customerProfile.deactivated_at;
+  if (!profile && !isShopper) throw error(401, 'Not signed in.');
+  if (profile && profile.role !== 'admin' && !isShopper) throw error(403, 'Forbidden.');
 
   const supabase = createSupabaseAdminClient();
   let query = supabase.from('invoices').select('*').eq('id', params.id);
-  if (profile.role === 'customer') query = query.eq('customer_id', profile.customer_id);
+  if (isShopper) query = query.eq('customer_id', customerProfile.customer_id);
 
   const { data: invoice, error: invoiceError } = await query.maybeSingle();
   if (invoiceError) throw error(500, invoiceError.message);
@@ -23,7 +22,7 @@ export const POST: RequestHandler = async ({ params, locals, url }) => {
   try {
     const appUrl = publicEnv['PUBLIC_APP_URL'] || url.origin;
     const intent = await createPaymentIntent(supabase, invoice as Invoice, appUrl, {
-      created_by_role: profile.role
+      created_by_role: isShopper ? 'customer' : 'admin'
     });
     return json({
       intent: {

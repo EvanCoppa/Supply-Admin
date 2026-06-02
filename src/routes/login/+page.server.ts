@@ -26,11 +26,28 @@ export const actions: Actions = {
       return fail(401, { email, message: error?.message ?? 'Invalid credentials.' });
     }
 
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('role, customer_id, deactivated_at')
-      .eq('id', data.user.id)
-      .maybeSingle();
+    // An auth user has at most one of: a staff user_profiles row, OR a shopper
+    // customer_profiles row. Check both in parallel.
+    const [{ data: profile }, { data: customerProfile }] = await Promise.all([
+      supabase
+        .from('user_profiles')
+        .select('role, deactivated_at')
+        .eq('id', data.user.id)
+        .maybeSingle(),
+      supabase
+        .from('customer_profiles')
+        .select('customer_id, deactivated_at')
+        .eq('id', data.user.id)
+        .maybeSingle()
+    ]);
+
+    if (customerProfile) {
+      if (customerProfile.deactivated_at) {
+        await supabase.auth.signOut();
+        return fail(403, { email, message: 'This account has been deactivated.' });
+      }
+      throw redirect(303, next.startsWith('/portal') ? next : '/portal/invoices');
+    }
 
     if (!profile) {
       await supabase.auth.signOut();
@@ -40,14 +57,6 @@ export const actions: Actions = {
     if (profile.deactivated_at) {
       await supabase.auth.signOut();
       return fail(403, { email, message: 'This account has been deactivated.' });
-    }
-
-    if (profile.role === 'customer') {
-      if (!profile.customer_id) {
-        await supabase.auth.signOut();
-        return fail(403, { email, message: 'This customer account is not linked to a business.' });
-      }
-      throw redirect(303, next.startsWith('/portal') ? next : '/portal/invoices');
     }
 
     // All staff roles (admin, sales_rep, accounting, warehouse_staff, new_hire) can sign in;

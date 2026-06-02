@@ -60,10 +60,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'manage_territories',
     'view_analytics',
     'manage_tasks'
-  ],
-
-  // Customer - external customer, no admin access
-  customer: ['view_dashboard']
+  ]
 };
 
 // Route-based permissions - map routes to required permissions.

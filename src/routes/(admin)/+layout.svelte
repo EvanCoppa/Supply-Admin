@@ -8,7 +8,7 @@
 
   let { data, children } = $props();
 
-  const navSections = $derived(filterNavSectionsByRole(data.profile?.role ?? 'customer'));
+  const navSections = $derived(filterNavSectionsByRole(data.profile?.role ?? 'new_hire'));
 
   function isActive(href: string) {
     if (href === '/') return page.url.pathname === '/';
