@@ -2,7 +2,6 @@ import { createServerClient, type CookieMethodsServer } from '@supabase/ssr';
 import { error, type Handle, type HandleServerError, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
-import type { UserProfile } from '$lib/types/db';
 import { checkRouteAccess } from '$lib/access.server';
 
 export const handleError: HandleServerError = ({ error: err, event, status, message }) => {
@@ -91,10 +90,13 @@ const authGuard: Handle = async ({ event, resolve }) => {
     .eq('id', user.id)
     .maybeSingle();
 
-  event.locals.profile = profile as UserProfile | null;
+  event.locals.profile = profile;
 
   if (isPublic) {
-    if (event.url.pathname === '/login' && (profile?.role === 'admin' || profile?.role !== 'customer')) {
+    if (
+      event.url.pathname === '/login' &&
+      (profile?.role === 'admin' || profile?.role !== 'customer')
+    ) {
       throw redirect(303, '/');
     }
     if (event.url.pathname === '/login' && profile?.role === 'customer') {
@@ -111,7 +113,12 @@ const authGuard: Handle = async ({ event, resolve }) => {
   }
 
   if (isInvoiceApi) {
-    if (['admin', 'accounting', 'sales_rep', 'warehouse_staff', 'new_hire'].includes(profile?.role ?? '')) return resolve(event);
+    if (
+      ['admin', 'accounting', 'sales_rep', 'warehouse_staff', 'new_hire'].includes(
+        profile?.role ?? ''
+      )
+    )
+      return resolve(event);
     if (profile?.role === 'customer' && profile.customer_id) return resolve(event);
     throw error(403, 'Forbidden.');
   }
@@ -130,14 +137,13 @@ const authGuard: Handle = async ({ event, resolve }) => {
     throw redirect(303, '/login?error=account_deactivated');
   }
 
-  // Check route-specific permissions for admin routes
-  const isAdminRoute = event.url.pathname.startsWith('/admin');
-  if (isAdminRoute) {
-    const access = checkRouteAccess(profile, event.url.pathname);
-    if (!access.granted) {
-      if (isApi) throw error(403, access.reason ?? 'Forbidden.');
-      throw redirect(303, `/?error=access_denied`);
-    }
+  // Enforce route-specific permissions. The admin pages live in the `(admin)`
+  // route group, so their URLs have no `/admin` prefix — check every staff route
+  // here. Paths with no rule in ROUTE_PERMISSIONS resolve to "granted".
+  const access = checkRouteAccess(profile, event.url.pathname);
+  if (!access.granted) {
+    if (isApi) throw error(403, access.reason ?? 'Forbidden.');
+    throw redirect(303, `/?error=access_denied`);
   }
 
   return resolve(event);

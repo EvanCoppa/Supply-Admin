@@ -1,6 +1,6 @@
 import type { UserRole } from './types/db';
 import type { Permission } from './permissions';
-import { ROUTE_PERMISSIONS, hasPermission } from './permissions';
+import { hasPermission } from './permissions';
 
 export interface NavItem {
   label: string;
@@ -23,7 +23,12 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: 'Clients', href: '/clients', icon: 'Users', requiredPermission: 'manage_customers' },
       { label: 'Tasks', href: '/tasks', icon: 'CheckSquare', requiredPermission: 'manage_tasks' },
       { label: 'RMAs', href: '/rmas', icon: 'RotateCcw', requiredPermission: 'manage_customers' },
-      { label: 'Territories', href: '/territories', icon: 'MapPin', requiredPermission: 'manage_territories' },
+      {
+        label: 'Territories',
+        href: '/territories',
+        icon: 'MapPin',
+        requiredPermission: 'manage_territories'
+      },
       { label: 'Tags', href: '/tags', icon: 'Tag', requiredPermission: 'manage_customers' }
     ]
   },
@@ -31,26 +36,83 @@ export const NAV_SECTIONS: NavSection[] = [
     heading: 'Commerce',
     items: [
       { label: 'Catalog', href: '/catalog', icon: 'Package', requiredPermission: 'manage_catalog' },
-      { label: 'Orders', href: '/orders', icon: 'ShoppingCart', requiredPermission: 'manage_orders' },
-      { label: 'Purchases', href: '/purchases', icon: 'ShoppingBag', requiredPermission: 'manage_orders' },
-      { label: 'Featured Groups', href: '/featured-groups', icon: 'Star', requiredPermission: 'manage_catalog' },
-      { label: 'Categories', href: '/categories', icon: 'Grid3x3', requiredPermission: 'manage_catalog' },
-      { label: 'Image Generator', href: '/image-generator', icon: 'Wand2', requiredPermission: 'manage_catalog' }
+      {
+        label: 'Orders',
+        href: '/orders',
+        icon: 'ShoppingCart',
+        requiredPermission: 'manage_orders'
+      },
+      {
+        label: 'Purchases',
+        href: '/purchases',
+        icon: 'ShoppingBag',
+        requiredPermission: 'manage_orders'
+      },
+      {
+        label: 'Featured Groups',
+        href: '/featured-groups',
+        icon: 'Star',
+        requiredPermission: 'manage_catalog'
+      },
+      {
+        label: 'Categories',
+        href: '/categories',
+        icon: 'Grid3x3',
+        requiredPermission: 'manage_catalog'
+      },
+      {
+        label: 'Image Generator',
+        href: '/image-generator',
+        icon: 'Wand2',
+        requiredPermission: 'manage_catalog'
+      }
     ]
   },
   {
     heading: 'Finances',
     items: [
-      { label: 'Financials', href: '/dashboard', icon: 'BarChart3', requiredPermission: 'view_analytics' },
-      { label: 'Insights', href: '/insights', icon: 'TrendingUp', requiredPermission: 'view_analytics' },
-      { label: 'Profitability', href: '/reports/profitability', icon: 'DollarSign', requiredPermission: 'view_analytics' },
-      { label: 'AR Aging', href: '/reports/ar-aging', icon: 'Clock', requiredPermission: 'view_analytics' },
-      { label: 'Invoices', href: '/invoices', icon: 'FileText', requiredPermission: 'manage_invoices' }
+      {
+        label: 'Financials',
+        href: '/dashboard',
+        icon: 'BarChart3',
+        requiredPermission: 'view_analytics'
+      },
+      {
+        label: 'Insights',
+        href: '/insights',
+        icon: 'TrendingUp',
+        requiredPermission: 'view_analytics'
+      },
+      {
+        label: 'Profitability',
+        href: '/reports/profitability',
+        icon: 'DollarSign',
+        requiredPermission: 'view_analytics'
+      },
+      {
+        label: 'AR Aging',
+        href: '/reports/ar-aging',
+        icon: 'Clock',
+        requiredPermission: 'view_analytics'
+      },
+      {
+        label: 'Invoices',
+        href: '/invoices',
+        icon: 'FileText',
+        requiredPermission: 'manage_invoices'
+      }
     ]
   },
   {
     heading: 'System',
-    items: [{ label: 'Admin Users', href: '/admin-users', icon: 'Shield', requiredPermission: 'manage_users' }]
+    items: [
+      {
+        label: 'Admin Users',
+        href: '/admin-users',
+        icon: 'Shield',
+        requiredPermission: 'manage_users'
+      }
+    ]
   }
 ];
 
