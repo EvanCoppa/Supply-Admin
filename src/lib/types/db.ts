@@ -2,7 +2,7 @@
 // and 0003_crm_tables.sql.
 // Replace with `supabase gen types` output from packages/shared once that exists.
 
-export type UserRole = 'customer' | 'admin';
+export type UserRole = 'customer' | 'admin' | 'new_hire' | 'sales_rep' | 'warehouse_staff' | 'accounting';
 export type CustomerStatus = 'active' | 'suspended' | 'archived';
 export type CustomerLifecycleStage = 'lead' | 'prospect' | 'active' | 'at_risk' | 'churned';
 export type ContactRole = 'primary' | 'billing' | 'shipping' | 'clinical' | 'other';

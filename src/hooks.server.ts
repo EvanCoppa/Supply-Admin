@@ -3,6 +3,7 @@ import { error, type Handle, type HandleServerError, redirect } from '@sveltejs/
 import { sequence } from '@sveltejs/kit/hooks';
 import { PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 import type { UserProfile } from '$lib/types/db';
+import { checkRouteAccess } from '$lib/access.server';
 
 export const handleError: HandleServerError = ({ error: err, event, status, message }) => {
   const code = `srv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -86,14 +87,14 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
   const { data: profile } = await event.locals.supabase
     .from('user_profiles')
-    .select('id, role, customer_id, display_name, created_at, updated_at')
+    .select('id, role, customer_id, display_name, deactivated_at, created_at, updated_at')
     .eq('id', user.id)
     .maybeSingle();
 
   event.locals.profile = profile as UserProfile | null;
 
   if (isPublic) {
-    if (event.url.pathname === '/login' && profile?.role === 'admin') {
+    if (event.url.pathname === '/login' && (profile?.role === 'admin' || profile?.role !== 'customer')) {
       throw redirect(303, '/');
     }
     if (event.url.pathname === '/login' && profile?.role === 'customer') {
@@ -104,25 +105,39 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
   if (isPortal) {
     if (profile?.role === 'customer' && profile.customer_id) return resolve(event);
-    if (profile?.role === 'admin') throw redirect(303, '/');
+    if (profile?.role !== 'customer') throw redirect(303, '/');
     await event.locals.supabase.auth.signOut();
     throw redirect(303, '/login?error=not_customer');
   }
 
   if (isInvoiceApi) {
-    if (profile?.role === 'admin') return resolve(event);
+    if (['admin', 'accounting', 'sales_rep', 'warehouse_staff', 'new_hire'].includes(profile?.role ?? '')) return resolve(event);
     if (profile?.role === 'customer' && profile.customer_id) return resolve(event);
     throw error(403, 'Forbidden.');
   }
 
-  if (profile?.role !== 'admin') {
+  // Admin section access control
+  if (profile?.role === 'customer') {
     await event.locals.supabase.auth.signOut();
     if (isApi) throw error(403, 'Forbidden.');
-    throw redirect(303, '/login?error=not_admin');
+    throw redirect(303, '/login?error=not_authorized');
   }
 
-  if (event.url.pathname === '/login' && profile?.role === 'admin') {
-    throw redirect(303, '/');
+  // Check for deactivated accounts
+  if (profile?.deactivated_at) {
+    await event.locals.supabase.auth.signOut();
+    if (isApi) throw error(403, 'Account deactivated.');
+    throw redirect(303, '/login?error=account_deactivated');
+  }
+
+  // Check route-specific permissions for admin routes
+  const isAdminRoute = event.url.pathname.startsWith('/admin');
+  if (isAdminRoute) {
+    const access = checkRouteAccess(profile, event.url.pathname);
+    if (!access.granted) {
+      if (isApi) throw error(403, access.reason ?? 'Forbidden.');
+      throw redirect(303, `/?error=access_denied`);
+    }
   }
 
   return resolve(event);
