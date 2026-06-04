@@ -114,5 +114,33 @@ export const actions: Actions = {
 
     if (error) return fail(400, { message: error.message, fieldErrors: {} });
     throw redirect(303, `/clients/${data.id}`);
+  },
+
+  setStatus: async ({ request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const id = String(form.get('id') ?? '');
+    const status = String(form.get('status') ?? '');
+    if (!id) return fail(400, { message: 'Missing client id.' });
+    if (!['active', 'suspended', 'archived'].includes(status)) {
+      return fail(400, { message: 'Invalid status.' });
+    }
+
+    const { error } = await supabase.from('customers').update({ status }).eq('id', id);
+    if (error) return fail(400, { message: error.message });
+    return { actioned: `Client marked ${status}.` };
+  },
+
+  delete: async ({ request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const id = String(form.get('id') ?? '');
+    if (!id) return fail(400, { message: 'Missing client id.' });
+
+    const { error } = await supabase.from('customers').delete().eq('id', id);
+    if (error) {
+      return fail(400, {
+        message: `Could not delete: ${error.message}. Clients with orders or invoices must be archived instead.`
+      });
+    }
+    return { actioned: 'Client deleted.' };
   }
 };

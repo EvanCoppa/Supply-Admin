@@ -9,6 +9,12 @@
   let showCreate = $state(false);
   let businessName = $state('');
   let externalCode = $state('');
+  let openMenu = $state<string | null>(null);
+
+  function toggleMenu(id: string, e: MouseEvent) {
+    e.stopPropagation();
+    openMenu = openMenu === id ? null : id;
+  }
 
   const totalPages = $derived(Math.max(1, Math.ceil(data.total / data.pageSize)));
 
@@ -38,6 +44,8 @@
 </script>
 
 <svelte:head><title>Clients · Supply Admin</title></svelte:head>
+
+<svelte:window onclick={() => (openMenu = null)} />
 
 <section class="space-y-4">
   <header class="flex items-center justify-between">
@@ -171,6 +179,16 @@
     </button>
   </form>
 
+  {#if form?.actioned}
+    <div class="rounded border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+      {form.actioned}
+    </div>
+  {:else if form?.message && !showCreate}
+    <div class="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+      {form.message}
+    </div>
+  {/if}
+
   <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
     {#if data.clients.length === 0}
       <p class="px-4 py-10 text-center text-sm text-slate-500">No clients match these filters.</p>
@@ -185,6 +203,7 @@
             <th class="px-4 py-2 text-left font-medium">Sales rep</th>
             <th class="px-4 py-2 text-left font-medium">Status</th>
             <th class="px-4 py-2 text-right font-medium">Created</th>
+            <th class="px-4 py-2 text-right font-medium"><span class="sr-only">Actions</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
@@ -237,6 +256,105 @@
                 </span>
               </td>
               <td class="px-4 py-2 text-right text-slate-500">{dateShort(c.created_at)}</td>
+              <td class="px-4 py-2 text-right">
+                <div class="relative inline-block text-left">
+                  <button
+                    type="button"
+                    aria-label="Client actions"
+                    aria-haspopup="menu"
+                    aria-expanded={openMenu === c.id}
+                    onclick={(e) => toggleMenu(c.id, e)}
+                    class="rounded px-2 py-1 text-lg leading-none text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    ⋯
+                  </button>
+                  {#if openMenu === c.id}
+                    <div
+                      class="absolute right-0 z-10 mt-1 w-44 overflow-hidden rounded-md border border-slate-200 bg-white py-1 text-left text-sm shadow-lg"
+                    >
+                      <a
+                        href="/clients/{c.id}"
+                        role="menuitem"
+                        class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50"
+                      >
+                        View / edit
+                      </a>
+                      <a
+                        href="/clients/{c.id}/invoices"
+                        role="menuitem"
+                        class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50"
+                      >
+                        Invoices
+                      </a>
+                      <a
+                        href="/clients/{c.id}/orders"
+                        role="menuitem"
+                        class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50"
+                      >
+                        Orders
+                      </a>
+                      <a
+                        href="/clients/{c.id}/tasks"
+                        role="menuitem"
+                        class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50"
+                      >
+                        Tasks
+                      </a>
+                      <a
+                        href="/clients/{c.id}/reorder"
+                        role="menuitem"
+                        class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50"
+                      >
+                        Reorder plan
+                      </a>
+                      <div class="my-1 border-t border-slate-100"></div>
+                      {#if c.status !== 'archived'}
+                        <form method="POST" action="?/setStatus" use:enhance>
+                          <input type="hidden" name="id" value={c.id} />
+                          <input type="hidden" name="status" value="archived" />
+                          <button
+                            type="submit"
+                            role="menuitem"
+                            class="block w-full px-3 py-1.5 text-left text-amber-700 hover:bg-amber-50"
+                          >
+                            Archive
+                          </button>
+                        </form>
+                      {:else}
+                        <form method="POST" action="?/setStatus" use:enhance>
+                          <input type="hidden" name="id" value={c.id} />
+                          <input type="hidden" name="status" value="active" />
+                          <button
+                            type="submit"
+                            role="menuitem"
+                            class="block w-full px-3 py-1.5 text-left text-emerald-700 hover:bg-emerald-50"
+                          >
+                            Reactivate
+                          </button>
+                        </form>
+                      {/if}
+                      <form
+                        method="POST"
+                        action="?/delete"
+                        use:enhance
+                        onsubmit={(e) => {
+                          if (!confirm(`Delete ${c.business_name}? This cannot be undone.`))
+                            e.preventDefault();
+                        }}
+                      >
+                        <input type="hidden" name="id" value={c.id} />
+                        <button
+                          type="submit"
+                          role="menuitem"
+                          class="block w-full px-3 py-1.5 text-left text-red-700 hover:bg-red-50"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  {/if}
+                </div>
+              </td>
             </tr>
           {/each}
         </tbody>
