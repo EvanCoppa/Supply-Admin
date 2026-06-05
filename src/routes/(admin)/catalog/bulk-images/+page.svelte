@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
+  import { deserialize } from '$app/forms';
   import Upload from '@lucide/svelte/icons/upload';
   import FolderOpen from '@lucide/svelte/icons/folder-open';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
@@ -8,10 +8,17 @@
   import LoaderCircle from '@lucide/svelte/icons/loader-circle';
   import Image from '@lucide/svelte/icons/image';
 
-  let { data, form: serverForm } = $props();
+  let { data } = $props();
 
   type Product = { id: string; sku: string; name: string; hasImage: boolean };
   type MatchStatus = 'matched-sku' | 'matched-name' | 'ambiguous' | 'unmatched' | 'invalid';
+
+  type UploadResult = {
+    filename: string;
+    productSku: string | null;
+    status: 'uploaded' | 'failed';
+    message?: string;
+  };
 
   type Match = {
     file: File;
@@ -27,8 +34,17 @@
   const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
   const MAX_BYTES = 10 * 1024 * 1024;
 
+  // Vercel rejects request bodies over 4.5 MB with a 413 before our action runs,
+  // so we upload in batches that stay comfortably under that ceiling rather than
+  // sending every matched image in a single request.
+  const BATCH_MAX_BYTES = 4 * 1024 * 1024;
+  const BATCH_MAX_FILES = 25;
+
   let selectedFiles = $state<File[]>([]);
   let submitting = $state(false);
+  let uploadedSoFar = $state(0);
+  let totalToUpload = $state(0);
+  let outcome = $state<{ ok: boolean; message: string; results: UploadResult[] } | null>(null);
 
   let fileInputEl = $state<HTMLInputElement | null>(null);
 
@@ -163,6 +179,104 @@
     if (fileInputEl) fileInputEl.value = '';
   }
 
+  async function uploadAll() {
+    const toUpload = matches.filter(
+      (m): m is typeof m & { productId: string } =>
+        (m.status === 'matched-sku' || m.status === 'matched-name') && m.productId !== null
+    );
+    if (toUpload.length === 0 || submitting) return;
+
+    submitting = true;
+    outcome = null;
+    uploadedSoFar = 0;
+    totalToUpload = toUpload.length;
+
+    // Split into batches bounded by both cumulative size and count so no single
+    // request exceeds the platform body limit.
+    const batches: (typeof toUpload)[] = [];
+    let current: typeof toUpload = [];
+    let currentBytes = 0;
+    for (const m of toUpload) {
+      if (
+        current.length > 0 &&
+        (currentBytes + m.file.size > BATCH_MAX_BYTES || current.length >= BATCH_MAX_FILES)
+      ) {
+        batches.push(current);
+        current = [];
+        currentBytes = 0;
+      }
+      current.push(m);
+      currentBytes += m.file.size;
+    }
+    if (current.length > 0) batches.push(current);
+
+    const allResults: UploadResult[] = [];
+
+    for (const batch of batches) {
+      const fd = new FormData();
+      for (const m of batch) {
+        fd.append('productIds', m.productId);
+        fd.append('files', m.file, m.filename);
+      }
+
+      try {
+        const response = await fetch('?/upload', {
+          method: 'POST',
+          headers: { 'x-sveltekit-action': 'true' },
+          body: fd
+        });
+
+        // 400 is a handled validation failure that still returns a result body.
+        if (!response.ok && response.status !== 400) {
+          const hint =
+            response.status === 413
+              ? 'a file is too large for a single request'
+              : `request failed (${response.status})`;
+          for (const m of batch) {
+            allResults.push({
+              filename: m.filename,
+              productSku: m.productSku,
+              status: 'failed',
+              message: hint
+            });
+          }
+        } else {
+          const result = deserialize(await response.text());
+          const data =
+            result.type === 'success' || result.type === 'failure'
+              ? (result.data as { upload?: { results?: UploadResult[] } } | undefined)
+              : undefined;
+          allResults.push(...(data?.upload?.results ?? []));
+        }
+      } catch {
+        for (const m of batch) {
+          allResults.push({
+            filename: m.filename,
+            productSku: m.productSku,
+            status: 'failed',
+            message: 'network error'
+          });
+        }
+      }
+
+      uploadedSoFar += batch.length;
+    }
+
+    const uploadedCount = allResults.filter((r) => r.status === 'uploaded').length;
+    const failedCount = allResults.length - uploadedCount;
+    outcome = {
+      ok: failedCount === 0,
+      message: `Uploaded ${uploadedCount} image${uploadedCount === 1 ? '' : 's'}${
+        failedCount > 0 ? ` · ${failedCount} failed` : ''
+      }.`,
+      results: allResults
+    };
+
+    submitting = false;
+    selectedFiles = [];
+    if (fileInputEl) fileInputEl.value = '';
+  }
+
   function badgeClass(status: MatchStatus): string {
     switch (status) {
       case 'matched-sku':
@@ -193,20 +307,9 @@
     }
   }
 
-  const serverResults = $derived(
-    (serverForm?.upload as { results?: unknown } | undefined)?.results as
-      | {
-          filename: string;
-          productSku: string | null;
-          status: 'uploaded' | 'failed';
-          message?: string;
-        }[]
-      | undefined
-  );
-  const serverOk = $derived((serverForm?.upload as { ok?: boolean } | undefined)?.ok === true);
-  const serverMessage = $derived(
-    (serverForm?.upload as { message?: string } | undefined)?.message ?? ''
-  );
+  const serverResults = $derived(outcome?.results);
+  const serverOk = $derived(outcome?.ok === true);
+  const serverMessage = $derived(outcome?.message ?? '');
 </script>
 
 <svelte:head><title>Bulk image upload · Supply Admin</title></svelte:head>
@@ -221,7 +324,7 @@
     </p>
   </header>
 
-  {#if serverForm?.upload}
+  {#if outcome}
     <div
       class="flex items-start gap-3 rounded-lg border p-4 text-sm"
       class:border-emerald-200={serverOk}
@@ -265,33 +368,7 @@
     </div>
   {/if}
 
-  <form
-    method="POST"
-    action="?/upload"
-    enctype="multipart/form-data"
-    use:enhance={({ formData, cancel }) => {
-      if (matchedCount === 0) {
-        cancel();
-        return;
-      }
-      formData.delete('productIds');
-      formData.delete('files');
-      for (const m of matches) {
-        if ((m.status === 'matched-sku' || m.status === 'matched-name') && m.productId !== null) {
-          formData.append('productIds', m.productId);
-          formData.append('files', m.file, m.filename);
-        }
-      }
-      submitting = true;
-      return async ({ update }) => {
-        await update();
-        submitting = false;
-        selectedFiles = [];
-        if (fileInputEl) fileInputEl.value = '';
-      };
-    }}
-    class="space-y-5"
-  >
+  <div class="space-y-5">
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <label
         for="folder-input"
@@ -428,11 +505,16 @@
 
       <div class="flex items-center justify-end gap-3">
         <p class="text-xs text-slate-500">
-          Only the {matchedCount} matched file{matchedCount === 1 ? '' : 's'} will upload. Ambiguous,
-          unmatched, and invalid files are skipped.
+          {#if submitting}
+            Uploading {uploadedSoFar} of {totalToUpload}…
+          {:else}
+            Only the {matchedCount} matched file{matchedCount === 1 ? '' : 's'} will upload. Ambiguous,
+            unmatched, and invalid files are skipped.
+          {/if}
         </p>
         <button
-          type="submit"
+          type="button"
+          onclick={uploadAll}
           disabled={matchedCount === 0 || submitting}
           class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
@@ -446,5 +528,5 @@
         </button>
       </div>
     {/if}
-  </form>
+  </div>
 </section>
