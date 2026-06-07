@@ -7,6 +7,21 @@
 
   const clientId = $derived(data.client.id);
 
+  const tailwindColors = [
+    { bg: 'bg-emerald-50', text: 'text-emerald-700' },
+    { bg: 'bg-blue-50', text: 'text-blue-700' },
+    { bg: 'bg-amber-50', text: 'text-amber-700' },
+    { bg: 'bg-rose-50', text: 'text-rose-700' },
+    { bg: 'bg-purple-50', text: 'text-purple-700' },
+    { bg: 'bg-cyan-50', text: 'text-cyan-700' },
+    { bg: 'bg-indigo-50', text: 'text-indigo-700' },
+    { bg: 'bg-teal-50', text: 'text-teal-700' }
+  ];
+
+  function getTagColor(index: number) {
+    return tailwindColors[index % tailwindColors.length];
+  }
+
   const tabs = $derived([
     { href: `/clients/${clientId}`, label: 'Profile', exact: true },
     { href: `/clients/${clientId}/contacts`, label: 'Contacts' },
@@ -54,22 +69,19 @@
           class:bg-slate-100={data.client.status === 'archived'}
           class:text-slate-600={data.client.status === 'archived'}
         >
-          {data.client.status}
+          {data.client.status.charAt(0).toUpperCase() + data.client.status.slice(1)}
         </span>
       {/if}
       <span
         class="rounded px-2 py-0.5 text-xs {lifecycleColor[data.client.lifecycle_stage] ??
           'bg-slate-100 text-slate-700'}"
       >
-        {data.client.lifecycle_stage.replace('_', ' ')}
+        {data.client.lifecycle_stage.replace('_', ' ').charAt(0).toUpperCase() +
+          data.client.lifecycle_stage.replace('_', ' ').slice(1)}
       </span>
-      {#each data.tags as tag}
-        <span
-          class="rounded px-2 py-0.5 text-xs"
-          style={tag.color ? `background-color:${tag.color}20; color:${tag.color}` : ''}
-          class:bg-slate-100={!tag.color}
-          class:text-slate-700={!tag.color}
-        >
+      {#each data.tags as tag, i}
+        {@const colors = getTagColor(i)}
+        <span class="rounded px-2 py-0.5 text-xs {colors.bg} {colors.text}">
           {tag.name}
         </span>
       {/each}
