@@ -49,6 +49,12 @@ export const NAV_SECTIONS: NavSection[] = [
         requiredPermission: 'manage_orders'
       },
       {
+        label: 'Coupons',
+        href: '/coupons',
+        icon: 'Ticket',
+        requiredPermission: 'manage_coupons'
+      },
+      {
         label: 'Featured Groups',
         href: '/featured-groups',
         icon: 'Star',

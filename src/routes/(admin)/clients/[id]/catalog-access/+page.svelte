@@ -253,7 +253,7 @@
                   >
                     {category.name}
                   </a>
-                  <div class="text-xs text-slate-500">{category.total} active</div>
+                  <div class="text-xs text-slate-500">{category.total} products</div>
                 </td>
                 <td class="px-4 py-2 text-right">{category.visible}</td>
                 <td class="px-4 py-2 text-right">{category.buyable}</td>
@@ -292,7 +292,7 @@
                   <a class="font-medium text-sky-700 hover:underline" href="?group={group.id}">
                     {group.name}
                   </a>
-                  <div class="text-xs text-slate-500">{group.total} active</div>
+                  <div class="text-xs text-slate-500">{group.total} products</div>
                 </td>
                 <td class="px-4 py-2 text-right">{group.visible}</td>
                 <td class="px-4 py-2 text-right">{group.buyable}</td>

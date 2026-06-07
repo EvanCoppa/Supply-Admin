@@ -46,17 +46,17 @@
     />
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="text-2xl font-semibold">{data.client.business_name}</h1>
-      <span
-        class="rounded px-2 py-0.5 text-xs"
-        class:bg-emerald-50={data.client.status === 'active'}
-        class:text-emerald-700={data.client.status === 'active'}
-        class:bg-amber-50={data.client.status === 'suspended'}
-        class:text-amber-700={data.client.status === 'suspended'}
-        class:bg-slate-100={data.client.status === 'archived'}
-        class:text-slate-600={data.client.status === 'archived'}
-      >
-        {data.client.status}
-      </span>
+      {#if data.client.status !== 'active'}
+        <span
+          class="rounded px-2 py-0.5 text-xs"
+          class:bg-amber-50={data.client.status === 'suspended'}
+          class:text-amber-700={data.client.status === 'suspended'}
+          class:bg-slate-100={data.client.status === 'archived'}
+          class:text-slate-600={data.client.status === 'archived'}
+        >
+          {data.client.status}
+        </span>
+      {/if}
       <span
         class="rounded px-2 py-0.5 text-xs {lifecycleColor[data.client.lifecycle_stage] ??
           'bg-slate-100 text-slate-700'}"

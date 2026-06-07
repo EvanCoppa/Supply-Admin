@@ -333,6 +333,25 @@ export interface CustomerTagAssignment {
   created_at: string;
 }
 
+export type CouponDiscountType = 'fixed' | 'percent';
+
+export interface Coupon {
+  id: string;
+  code: string;
+  description: string | null;
+  discount_type: CouponDiscountType;
+  discount_value: number;
+  min_subtotal: number;
+  max_discount: number | null;
+  active: boolean;
+  starts_at: string | null;
+  expires_at: string | null;
+  usage_limit: number | null;
+  times_redeemed: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CustomerContact {
   id: string;
   customer_id: string;

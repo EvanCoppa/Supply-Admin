@@ -21,7 +21,8 @@ export type Permission =
   | 'manage_invoices'
   | 'manage_territories'
   | 'view_analytics'
-  | 'manage_tasks';
+  | 'manage_tasks'
+  | 'manage_coupons';
 
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   // New hires - operational access (clients, tasks, orders, catalog), but no
@@ -59,7 +60,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'manage_invoices',
     'manage_territories',
     'view_analytics',
-    'manage_tasks'
+    'manage_tasks',
+    // Coupons are gated by is_admin() at the DB level (RLS), so only the admin
+    // role can actually write them — keep the app-level permission admin-only too.
+    'manage_coupons'
   ],
 
   // Customer - external customer, no admin access
@@ -84,6 +88,7 @@ export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
   '/image-generator': ['manage_catalog'],
   '/orders': ['manage_orders'],
   '/purchases': ['manage_orders'],
+  '/coupons': ['manage_coupons'],
   // Finances
   '/dashboard': ['view_analytics'],
   '/insights': ['view_analytics'],
