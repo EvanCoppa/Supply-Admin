@@ -2,6 +2,7 @@ import { fail } from '@sveltejs/kit';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Actions, PageServerLoad } from './$types';
 import { createSupabaseAdminClient } from '$lib/supabase.server';
+import { getFirstProductImagePath, getProductImagePublicUrl } from '$lib/server/product-images';
 
 const PAGE_SIZE = 50;
 const MAX_BULK_PRODUCTS = 5000;
@@ -161,7 +162,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
 
   let productsQuery = supabase
     .from('products')
-    .select('id, sku, name, status, category_id, category:categories(id, name)', { count: 'exact' })
+    .select('id, sku, name, status, category_id, image_paths, category:categories(id, name)', {
+      count: 'exact'
+    })
     .eq('status', 'active')
     .order('name')
     .range(from, to);
@@ -210,10 +213,12 @@ export const load: PageServerLoad = async ({ params, locals: { supabase }, url }
         name: string;
         status: 'active';
         category_id: string | null;
+        image_paths: string[] | null;
         category: { id: string; name: string } | null;
       }[]
     ).map((product) => ({
       ...product,
+      image_url: getProductImagePublicUrl(supabase, getFirstProductImagePath(product.image_paths)),
       ...accessFor(mode, access.get(product.id))
     })),
     total: productsRes.count ?? 0,

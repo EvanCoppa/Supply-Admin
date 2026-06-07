@@ -397,8 +397,26 @@
               />
             </td>
             <td class="px-4 py-2">
-              <div class="font-medium text-slate-900">{product.name}</div>
-              <div class="font-mono text-xs text-slate-500">{product.sku}</div>
+              <div class="flex items-center gap-3">
+                {#if product.image_url}
+                  <img
+                    src={product.image_url}
+                    alt="{product.name} preview"
+                    class="h-9 w-9 flex-shrink-0 rounded border border-slate-200 object-cover"
+                    loading="lazy"
+                  />
+                {:else}
+                  <div
+                    class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-400"
+                  >
+                    —
+                  </div>
+                {/if}
+                <div class="min-w-0">
+                  <div class="font-medium text-slate-900">{product.name}</div>
+                  <div class="font-mono text-xs text-slate-500">{product.sku}</div>
+                </div>
+              </div>
             </td>
             <td class="px-4 py-2 text-slate-600">
               {product.category?.name ?? 'Uncategorized'}
