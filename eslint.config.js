@@ -24,7 +24,10 @@ export default [
       // React example file kept for reference; not part of the Svelte build.
       'src/components/**/*.tsx',
       // Ad-hoc script at repo root.
-      'test-import.mjs'
+      'test-import.mjs',
+      // Build-time utility (needs the optional @resvg/resvg-js dep); not part
+      // of the SvelteKit project.
+      'scripts/generate-icons.mjs'
     ]
   },
   js.configs.recommended,
@@ -38,7 +41,15 @@ export default [
       globals: { ...globals.browser, ...globals.node },
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['*.config.ts', '*.config.js', '.prettierrc.js']
+          // `src/service-worker.ts` is excluded from the SvelteKit tsconfig
+          // (it targets the webworker, not DOM, environment), so it has no
+          // configured project — lint it via the default project instead.
+          allowDefaultProject: [
+            '*.config.ts',
+            '*.config.js',
+            '.prettierrc.js',
+            'src/service-worker.ts'
+          ]
         },
         extraFileExtensions: ['.svelte']
       }
