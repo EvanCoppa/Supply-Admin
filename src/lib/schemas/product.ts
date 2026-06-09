@@ -11,6 +11,7 @@ export const PRODUCT_STATUSES = ['active', 'archived'] as const;
 
 export const productSchema = z.object({
   sku: requiredTrimmed('SKU is required.'),
+  barcode: optionalTrimmed,
   name: requiredTrimmed('Name is required.'),
   description: optionalTrimmed,
   category_id: optionalTrimmed,
