@@ -177,6 +177,7 @@ export interface Category {
 export interface Product {
   id: string;
   sku: string;
+  barcode: string | null;
   name: string;
   description: string | null;
   category_id: string | null;

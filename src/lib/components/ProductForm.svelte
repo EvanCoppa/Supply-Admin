@@ -45,16 +45,25 @@
         />
       </label>
       <label class="block">
-        <span class="mb-1 block text-xs font-medium text-slate-600">Name</span>
+        <span class="mb-1 block text-xs font-medium text-slate-600">Barcode</span>
         <input
           type="text"
-          name="name"
-          required
-          value={product.name ?? ''}
+          name="barcode"
+          value={product.barcode ?? ''}
           class="w-full rounded border border-slate-300 px-2 py-1.5"
         />
       </label>
     </div>
+    <label class="block">
+      <span class="mb-1 block text-xs font-medium text-slate-600">Name</span>
+      <input
+        type="text"
+        name="name"
+        required
+        value={product.name ?? ''}
+        class="w-full rounded border border-slate-300 px-2 py-1.5"
+      />
+    </label>
     <label class="block">
       <span class="mb-1 block text-xs font-medium text-slate-600">Description</span>
       <textarea
