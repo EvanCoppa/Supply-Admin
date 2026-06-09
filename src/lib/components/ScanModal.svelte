@@ -6,9 +6,15 @@
   interface Props {
     onSelect?: (product: Partial<Product>) => void;
     open?: boolean;
+    /**
+     * When true, a scanned/typed code that matches no catalog or UPC product
+     * can still be captured (returned as `{ barcode }`). Useful for assigning a
+     * barcode to an item that already exists but isn't in any lookup database.
+     */
+    allowRawCode?: boolean;
   }
 
-  let { onSelect, open = $bindable(false) }: Props = $props();
+  let { onSelect, open = $bindable(false), allowRawCode = false }: Props = $props();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let reader: any = null;
@@ -176,7 +182,9 @@
   let statusTimer: ReturnType<typeof setTimeout> | null = null;
   $effect(() => {
     if (statusTimer) clearTimeout(statusTimer);
-    if (status.kind === 'found' || status.kind === 'notfound' || status.kind === 'error') {
+    // Keep an unmatched code on screen when it can still be captured manually.
+    const keepVisible = allowRawCode && status.kind === 'notfound';
+    if (!keepVisible && (status.kind === 'found' || status.kind === 'notfound' || status.kind === 'error')) {
       statusTimer = setTimeout(() => {
         status = { kind: 'idle' };
       }, 3000);
@@ -369,6 +377,22 @@
             class="w-full rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
           >
             Use this product
+          </button>
+        </div>
+      {/if}
+
+      <!-- Unmatched code action (opt-in): capture the raw code anyway -->
+      {#if allowRawCode && status.kind === 'notfound'}
+        <div class="border-t border-slate-200 bg-amber-50 px-4 py-3">
+          <p class="mb-2 text-sm text-amber-900">
+            No product matched <span class="font-mono">{status.code}</span>, but you can still use
+            this code as the barcode.
+          </p>
+          <button
+            onclick={() => selectProduct({ barcode: status.kind === 'notfound' ? status.code : '' })}
+            class="w-full rounded bg-amber-600 px-3 py-2 text-sm font-medium text-white hover:bg-amber-700"
+          >
+            Use code anyway
           </button>
         </div>
       {/if}

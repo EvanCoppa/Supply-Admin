@@ -1,11 +1,34 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import ProductForm from '$lib/components/ProductForm.svelte';
+  import ScanModal from '$lib/components/ScanModal.svelte';
   import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
   import Select from '$lib/components/Select.svelte';
+  import { Camera } from '@lucide/svelte';
   import { dateTime } from '$lib/format';
+  import type { Product } from '$lib/types/db';
 
   let { data, form } = $props();
+
+  let scanOpen = $state(false);
+  let saveForm = $state<HTMLFormElement | null>(null);
+  let scannedBarcode = $state<string | null>(null);
+
+  // Write the scanned code straight into the existing Barcode input, leaving
+  // every other (possibly already-edited) field untouched. Save still persists it.
+  function handleScan(product: Partial<Product>) {
+    const code = product.barcode ?? null;
+    scanOpen = false;
+    if (!code) return;
+    const input = saveForm?.querySelector<HTMLInputElement>('input[name="barcode"]');
+    if (input) input.value = code;
+    scannedBarcode = code;
+  }
+
+  // Once the save round-trips, the loaded product reflects the new barcode.
+  $effect(() => {
+    if (form?.saved) scannedBarcode = null;
+  });
 </script>
 
 <svelte:head><title>{data.product.name} · Supply Admin</title></svelte:head>
@@ -107,16 +130,42 @@
       {/if}
     </div>
 
-    <form method="POST" action="?/save" enctype="multipart/form-data" use:enhance>
-      <ProductForm
-        product={data.product}
-        categories={data.categories}
-        fieldErrors={form?.fieldErrors ?? {}}
-        submitLabel="Save"
-        cancelHref="/catalog"
-      />
-    </form>
+    <div>
+      <div class="mb-3 flex items-center gap-3">
+        <button
+          type="button"
+          onclick={() => (scanOpen = true)}
+          class="flex items-center gap-2 rounded border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+        >
+          <Camera class="size-4" />
+          Scan barcode
+        </button>
+        {#if scannedBarcode}
+          <span class="text-sm text-amber-700">
+            Set barcode to <span class="font-mono">{scannedBarcode}</span> — click Save to keep it.
+          </span>
+        {/if}
+      </div>
+
+      <form
+        method="POST"
+        action="?/save"
+        enctype="multipart/form-data"
+        bind:this={saveForm}
+        use:enhance
+      >
+        <ProductForm
+          product={data.product}
+          categories={data.categories}
+          fieldErrors={form?.fieldErrors ?? {}}
+          submitLabel="Save"
+          cancelHref="/catalog"
+        />
+      </form>
+    </div>
   </div>
+
+  <ScanModal bind:open={scanOpen} onSelect={handleScan} allowRawCode />
 
   <div class="grid gap-5 lg:grid-cols-2">
     <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
