@@ -6,17 +6,24 @@
   import { Camera } from '@lucide/svelte';
   import type { Product } from '$lib/types/db';
 
+  type ProductLike = Partial<{ [K in keyof Product]: Product[K] | null }>;
+
   let { data, form } = $props();
 
   let scanOpen = $state(false);
-  let formData = $state<Partial<Product>>(form?.payload ?? {});
+  let formData = $state<ProductLike>({});
+
+  // Repopulate the form after a failed submit (the server returns the payload).
+  $effect(() => {
+    if (form?.payload) formData = { ...form.payload };
+  });
 
   function handleScan(product: Partial<Product>) {
     formData = {
       ...formData,
-      barcode: product.barcode,
-      name: product.name || formData.name,
-      description: product.description || formData.description
+      barcode: product.barcode ?? null,
+      name: product.name ?? formData.name ?? null,
+      description: product.description ?? formData.description ?? null
     };
     scanOpen = false;
   }
@@ -56,5 +63,5 @@
     </form>
   </div>
 
-  <ScanModal {scanOpen} onSelect={handleScan} />
+  <ScanModal bind:open={scanOpen} onSelect={handleScan} />
 </section>

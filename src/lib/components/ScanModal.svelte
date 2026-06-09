@@ -8,7 +8,7 @@
     open?: boolean;
   }
 
-  let { onSelect, open = false }: Props = $props();
+  let { onSelect, open = $bindable(false) }: Props = $props();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let reader: any = null;
@@ -53,6 +53,7 @@
     if (!soundOn) return;
     try {
       if (!audioCtx) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const Ctx = window.AudioContext || (window as any).webkitAudioContext;
         if (!Ctx) return;
         audioCtx = new Ctx();
@@ -161,11 +162,7 @@
   let statusTimer: ReturnType<typeof setTimeout> | null = null;
   $effect(() => {
     if (statusTimer) clearTimeout(statusTimer);
-    if (
-      status.kind === 'found' ||
-      status.kind === 'notfound' ||
-      status.kind === 'error'
-    ) {
+    if (status.kind === 'found' || status.kind === 'notfound' || status.kind === 'error') {
       statusTimer = setTimeout(() => {
         status = { kind: 'idle' };
       }, 3000);
@@ -178,35 +175,30 @@
   });
 </script>
 
+<svelte:window onkeydown={(e) => open && e.key === 'Escape' && close()} />
+
 {#if open}
   <!-- Backdrop -->
-  <div
-    role="presentation"
+  <button
+    type="button"
+    aria-label="Close scanner"
     onclick={close}
     class="fixed inset-0 z-40 bg-black/50"
-  ></div>
+  ></button>
 
   <!-- Modal -->
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div
-      class="w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-xl"
-      onclick={(e) => e.stopPropagation()}
-    >
+  <div class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="pointer-events-auto w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-xl">
       <!-- Header -->
       <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
         <h2 class="text-lg font-semibold">Scan Product Barcode</h2>
-        <button
-          onclick={close}
-          class="rounded hover:bg-slate-100 p-1.5"
-          aria-label="Close"
-        >
+        <button onclick={close} class="rounded hover:bg-slate-100 p-1.5" aria-label="Close">
           <X class="size-5" />
         </button>
       </div>
 
       <!-- Camera viewport -->
       <div class="relative aspect-video w-full bg-black">
-        <!-- svelte-ignore a11y_media_has_caption -->
         <video
           bind:this={video}
           class="h-full w-full object-cover {scanning ? '' : 'opacity-0'}"
@@ -234,7 +226,9 @@
             </div>
           </div>
         {:else}
-          <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center text-white/80">
+          <div
+            class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center text-white/80"
+          >
             <Camera class="size-10" />
             <p class="px-6 text-sm">Camera is off</p>
           </div>
@@ -258,20 +252,29 @@
         {#if status.kind !== 'idle'}
           <div class="absolute inset-x-3 bottom-3 flex justify-center">
             {#if status.kind === 'looking'}
-              <span class="flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-sm font-medium text-white">
+              <span
+                class="flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-sm font-medium text-white"
+              >
                 <Loader2 class="size-4 animate-spin" /> Looking up {status.code}…
               </span>
             {:else if status.kind === 'found'}
-              <span class="flex items-center gap-2 rounded-full bg-green-600 px-3 py-1.5 text-sm font-medium text-white">
+              <span
+                class="flex items-center gap-2 rounded-full bg-green-600 px-3 py-1.5 text-sm font-medium text-white"
+              >
                 <Check class="size-4" /> Found: {status.product.name || status.product.sku}
               </span>
             {:else if status.kind === 'notfound'}
-              <span class="flex items-center gap-2 rounded-full bg-amber-500 px-3 py-1.5 text-sm font-medium text-white">
+              <span
+                class="flex items-center gap-2 rounded-full bg-amber-500 px-3 py-1.5 text-sm font-medium text-white"
+              >
                 <X class="size-4" /> No match for {status.code}
               </span>
             {:else if status.kind === 'error'}
-              <span class="flex items-center gap-2 rounded-full bg-red-600 px-3 py-1.5 text-sm font-medium text-white">
-                <X class="size-4" /> {status.message}
+              <span
+                class="flex items-center gap-2 rounded-full bg-red-600 px-3 py-1.5 text-sm font-medium text-white"
+              >
+                <X class="size-4" />
+                {status.message}
               </span>
             {/if}
           </div>
@@ -319,9 +322,7 @@
       <!-- Found product action -->
       {#if status.kind === 'found'}
         <div class="border-t border-slate-200 bg-slate-50 px-4 py-3">
-          <p class="mb-2 text-sm text-slate-700">
-            Fill form with this product?
-          </p>
+          <p class="mb-2 text-sm text-slate-700">Fill form with this product?</p>
           <button
             onclick={() => selectProduct(status.kind === 'found' ? status.product : {})}
             class="w-full rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"

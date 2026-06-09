@@ -1,9 +1,12 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { env } from '$env/dynamic/private';
 
-async function lookupUPC(code: string): Promise<{ name?: string; description?: string }> {
-  const apiUrl = process.env.UPC_LOOKUP_API_URL || 'https://api.upcitemdb.com/prod/trial/lookup';
-  const apiKey = process.env.UPC_LOOKUP_API_KEY;
+async function lookupUPC(
+  code: string
+): Promise<{ name?: string | undefined; description?: string | undefined }> {
+  const apiUrl = env['UPC_LOOKUP_API_URL'] || 'https://api.upcitemdb.com/prod/trial/lookup';
+  const apiKey = env['UPC_LOOKUP_API_KEY'];
 
   try {
     const url = new URL(apiUrl);
@@ -14,7 +17,7 @@ async function lookupUPC(code: string): Promise<{ name?: string; description?: s
     if (!res.ok) return {};
 
     const data = (await res.json()) as {
-      items?: Array<{ title?: string; description?: string }>;
+      items?: { title?: string; description?: string }[];
     };
     const item = data.items?.[0];
     if (!item) return {};
