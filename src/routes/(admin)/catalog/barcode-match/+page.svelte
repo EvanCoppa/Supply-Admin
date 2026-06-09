@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
   import { invalidateAll } from '$app/navigation';
 
   let { data } = $props();
@@ -26,10 +25,20 @@
     candidates: Candidate[] | null;
     error: string | null;
     assigned: string | null;
+    failed: boolean;
   };
 
+  // Top candidate must clear this score to be auto-saved by "Resolve all".
+  const AUTO_THRESHOLD = 0.6;
+
   const rows = $state<Record<string, RowState>>({});
-  const DEFAULT_ROW: RowState = { loading: false, candidates: null, error: null, assigned: null };
+  const DEFAULT_ROW: RowState = {
+    loading: false,
+    candidates: null,
+    error: null,
+    assigned: null,
+    failed: false
+  };
 
   // Read-only lookup — safe to call during render. Returns a shared default
   // when no entry exists yet (never mutates `rows`).
@@ -39,8 +48,21 @@
 
   // Create-on-demand — only call from event handlers, never during render.
   function ensureRow(id: string): RowState {
-    return (rows[id] ??= { loading: false, candidates: null, error: null, assigned: null });
+    return (rows[id] ??= {
+      loading: false,
+      candidates: null,
+      error: null,
+      assigned: null,
+      failed: false
+    });
   }
+
+  // ---- batch state ----------------------------------------------------------
+  let batchRunning = $state(false);
+  let batchDone = $state(0);
+  let batchTotal = $state(0);
+  let batchSucceeded = $state(0);
+  let batchFailed = $state(0);
 
   // ---- global debug console -------------------------------------------------
   type LogLine = { ts: string; level: 'info' | 'warn' | 'error'; msg: string };
@@ -60,15 +82,15 @@
     logLines = [];
   }
 
-  // ---- search ---------------------------------------------------------------
-  async function findBarcodes(p: Product) {
+  // ---- search (by SKU) ------------------------------------------------------
+  async function findBarcodes(p: Product): Promise<Candidate[]> {
     const st = ensureRow(p.id);
     st.loading = true;
     st.error = null;
+    st.failed = false;
     st.candidates = null;
 
-    const params = new URLSearchParams({ name: p.name });
-    if (p.manufacturer) params.set('manufacturer', p.manufacturer);
+    const params = new URLSearchParams({ sku: p.sku });
 
     info(`[${p.sku}] → GET /api/catalog/scan/search?${params.toString()}`);
     const started = performance.now();
@@ -100,13 +122,89 @@
 
       st.candidates = body.candidates ?? [];
       info(`[${p.sku}] ✓ ${st.candidates.length} candidate(s)`);
+      return st.candidates;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       st.error = msg;
       errLog(`[${p.sku}] ✗ ${msg}`);
+      return [];
     } finally {
       st.loading = false;
     }
+  }
+
+  // ---- save a matched barcode ----------------------------------------------
+  async function assignBarcode(p: Product, barcode: string): Promise<boolean> {
+    const st = ensureRow(p.id);
+    info(`[${p.sku}] assigning barcode ${barcode}…`);
+    try {
+      const res = await fetch('/api/catalog/barcode-match/assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: p.id, barcode })
+      });
+      const body = (await res.json()) as { ok: boolean; message?: string };
+
+      if (res.ok && body.ok) {
+        st.assigned = barcode;
+        st.candidates = null;
+        st.failed = false;
+        info(`[${p.sku}] ✓ saved barcode ${barcode}`);
+        return true;
+      }
+
+      const m = body.message ?? 'assign failed';
+      st.error = m;
+      warn(`[${p.sku}] ✗ ${m}`);
+      return false;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      st.error = msg;
+      errLog(`[${p.sku}] ✗ ${msg}`);
+      return false;
+    }
+  }
+
+  // ---- batch: resolve every missing product automatically -------------------
+  async function resolveAll() {
+    if (batchRunning) return;
+    const targets = data.products.filter((p: Product) => !p.barcode);
+    if (targets.length === 0) return;
+
+    batchRunning = true;
+    batchTotal = targets.length;
+    batchDone = 0;
+    batchSucceeded = 0;
+    batchFailed = 0;
+    info(`▶ Resolve all: ${targets.length} product(s), threshold ${AUTO_THRESHOLD}`);
+
+    for (const p of targets) {
+      const candidates = await findBarcodes(p);
+      const top = candidates[0];
+      const st = ensureRow(p.id);
+
+      if (top && top.score >= AUTO_THRESHOLD) {
+        const saved = await assignBarcode(p, top.barcode);
+        if (saved) batchSucceeded++;
+        else {
+          st.failed = true;
+          batchFailed++;
+        }
+      } else {
+        st.failed = true;
+        batchFailed++;
+        const why = top
+          ? `best score ${(top.score * 100).toFixed(0)}% < ${(AUTO_THRESHOLD * 100).toFixed(0)}%`
+          : 'no candidates';
+        warn(`[${p.sku}] ✗ failed: ${why}`);
+      }
+
+      batchDone++;
+    }
+
+    info(`■ Resolve all done: ${batchSucceeded} saved, ${batchFailed} failed`);
+    batchRunning = false;
+    await invalidateAll();
   }
 
   function scoreColor(score: number): string {
@@ -135,7 +233,14 @@
             : `${data.products.length} active product(s)`}
         </p>
       </div>
-      <div class="flex gap-2 text-sm">
+      <div class="flex items-center gap-2 text-sm">
+        <button
+          onclick={resolveAll}
+          disabled={batchRunning || remaining === 0}
+          class="rounded bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+        >
+          {batchRunning ? `Resolving ${batchDone}/${batchTotal}…` : 'Resolve all'}
+        </button>
         <a
           href="?{data.onlyMissing ? 'all=1' : ''}"
           class="rounded border border-slate-300 px-3 py-1.5 hover:bg-slate-100"
@@ -145,6 +250,17 @@
       </div>
     </div>
 
+    {#if batchRunning || batchDone > 0}
+      <div
+        class="mb-4 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+      >
+        {batchRunning ? 'Resolving…' : 'Done.'}
+        {batchDone}/{batchTotal} processed ·
+        <span class="font-medium text-green-700">{batchSucceeded} saved</span> ·
+        <span class="font-medium text-red-600">{batchFailed} failed</span>
+      </div>
+    {/if}
+
     {#if data.loadError}
       <div class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{data.loadError}</div>
     {/if}
@@ -152,7 +268,11 @@
     <div class="space-y-3">
       {#each data.products as p (p.id)}
         {@const st = rowState(p.id)}
-        <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <div
+          class="rounded-lg border bg-white p-4"
+          class:border-slate-200={!st.failed}
+          class:border-red-300={st.failed}
+        >
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="truncate font-medium">{p.name}</p>
@@ -163,13 +283,15 @@
                 <p class="mt-1 text-xs font-mono text-green-700">barcode: {p.barcode}</p>
               {:else if st.assigned}
                 <p class="mt-1 text-xs font-mono text-green-700">✓ assigned: {st.assigned}</p>
+              {:else if st.failed}
+                <p class="mt-1 text-xs font-medium text-red-600">✗ no confident match</p>
               {:else}
                 <p class="mt-1 text-xs text-slate-400">no barcode</p>
               {/if}
             </div>
             <button
               onclick={() => findBarcodes(p)}
-              disabled={st.loading}
+              disabled={st.loading || batchRunning}
               class="shrink-0 rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
             >
               {st.loading ? 'Searching…' : 'Find barcodes'}
@@ -199,34 +321,14 @@
                       </p>
                       <p class="text-[11px] text-slate-400">{c.reasons.join(' · ')}</p>
                     </div>
-                    <form
-                      method="POST"
-                      action="?/assign"
-                      use:enhance={() => {
-                        info(`[${p.sku}] assigning barcode ${c.barcode}…`);
-                        return async ({ result }) => {
-                          if (result.type === 'success') {
-                            st.assigned = c.barcode;
-                            st.candidates = null;
-                            info(`[${p.sku}] ✓ saved barcode ${c.barcode}`);
-                            await invalidateAll();
-                          } else if (result.type === 'failure') {
-                            const m = (result.data?.message as string) ?? 'assign failed';
-                            st.error = m;
-                            warn(`[${p.sku}] ✗ ${m}`);
-                          }
-                        };
-                      }}
+                    <button
+                      type="button"
+                      disabled={batchRunning}
+                      onclick={() => assignBarcode(p, c.barcode)}
+                      class="shrink-0 rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium hover:bg-slate-100 disabled:opacity-50"
                     >
-                      <input type="hidden" name="productId" value={p.id} />
-                      <input type="hidden" name="barcode" value={c.barcode} />
-                      <button
-                        type="submit"
-                        class="shrink-0 rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium hover:bg-slate-100"
-                      >
-                        Assign
-                      </button>
-                    </form>
+                      Assign
+                    </button>
                   </li>
                 {/each}
               </ul>
@@ -254,7 +356,9 @@
     </div>
     <div bind:this={logEl} class="flex-1 overflow-y-auto p-3 font-mono text-[11px] leading-relaxed">
       {#if logLines.length === 0}
-        <p class="text-slate-600">Click “Find barcodes” to see what happens behind the scenes…</p>
+        <p class="text-slate-600">
+          Click “Find barcodes” or “Resolve all” to see what happens behind the scenes…
+        </p>
       {/if}
       {#each logLines as line}
         <div
