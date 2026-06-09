@@ -82,7 +82,7 @@
     logLines = [];
   }
 
-  // ---- search (by SKU) ------------------------------------------------------
+  // ---- search (by product name) ---------------------------------------------
   async function findBarcodes(p: Product): Promise<Candidate[]> {
     const st = ensureRow(p.id);
     st.loading = true;
@@ -90,7 +90,8 @@
     st.failed = false;
     st.candidates = null;
 
-    const params = new URLSearchParams({ sku: p.sku });
+    const params = new URLSearchParams({ name: p.name, sku: p.sku });
+    if (p.manufacturer) params.set('manufacturer', p.manufacturer);
 
     info(`[${p.sku}] → GET /api/catalog/scan/search?${params.toString()}`);
     const started = performance.now();
