@@ -29,7 +29,16 @@
   };
 
   const rows = $state<Record<string, RowState>>({});
+  const DEFAULT_ROW: RowState = { loading: false, candidates: null, error: null, assigned: null };
+
+  // Read-only lookup — safe to call during render. Returns a shared default
+  // when no entry exists yet (never mutates `rows`).
   function rowState(id: string): RowState {
+    return rows[id] ?? DEFAULT_ROW;
+  }
+
+  // Create-on-demand — only call from event handlers, never during render.
+  function ensureRow(id: string): RowState {
     return (rows[id] ??= { loading: false, candidates: null, error: null, assigned: null });
   }
 
@@ -53,7 +62,7 @@
 
   // ---- search ---------------------------------------------------------------
   async function findBarcodes(p: Product) {
-    const st = rowState(p.id);
+    const st = ensureRow(p.id);
     st.loading = true;
     st.error = null;
     st.candidates = null;
@@ -77,8 +86,7 @@
 
       // Replay the server-side debug trace into the console.
       for (const step of body.debug ?? []) {
-        const detail =
-          typeof step.detail === 'string' ? step.detail : JSON.stringify(step.detail);
+        const detail = typeof step.detail === 'string' ? step.detail : JSON.stringify(step.detail);
         const line = `[${p.sku}]   server@${step.at}ms ${step.label}: ${detail}`;
         if (step.label.toLowerCase().includes('error')) errLog(line);
         else if (step.label.toLowerCase().includes('warn')) warn(line);
@@ -115,7 +123,9 @@
   <div class="overflow-y-auto p-6">
     <div class="mb-4 flex items-start justify-between gap-4">
       <div>
-        <div class="mb-1 inline-flex items-center gap-2 rounded bg-amber-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-800">
+        <div
+          class="mb-1 inline-flex items-center gap-2 rounded bg-amber-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-800"
+        >
           Throwaway / debug tool
         </div>
         <h1 class="text-xl font-semibold">Barcode Matching</h1>
@@ -176,7 +186,9 @@
             {:else}
               <ul class="mt-3 space-y-2">
                 {#each st.candidates as c (c.barcode)}
-                  <li class="flex items-center gap-3 rounded border border-slate-100 bg-slate-50 px-3 py-2">
+                  <li
+                    class="flex items-center gap-3 rounded border border-slate-100 bg-slate-50 px-3 py-2"
+                  >
                     <span class="rounded px-1.5 py-0.5 text-xs font-semibold {scoreColor(c.score)}">
                       {(c.score * 100).toFixed(0)}%
                     </span>

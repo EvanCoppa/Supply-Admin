@@ -38,7 +38,7 @@
     { href: `/clients/${clientId}/invoices`, label: 'Invoices' },
     { href: `/clients/${clientId}/rmas`, label: 'RMAs' },
     { href: `/clients/${clientId}/credit`, label: 'Credit' },
-    { href: `/clients/${clientId}/tokens`, label: 'API Tokens' }
+    { href: `/clients/${clientId}/tokens`, label: 'Access' }
   ]);
 
   const lifecycleColor: Record<string, string> = {

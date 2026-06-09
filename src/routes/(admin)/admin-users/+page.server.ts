@@ -106,7 +106,7 @@ export const actions: Actions = {
     return { saved: true, message: undefined, code: undefined };
   },
 
-  delete: async ({ request, locals: { supabase, user } }) => {
+  delete: async ({ request, locals: { user } }) => {
     const form = await request.formData();
     const id = String(form.get('id') ?? '').trim();
 
@@ -116,7 +116,9 @@ export const actions: Actions = {
       return fail(400, { message: 'You cannot delete your own account.', code: undefined });
     }
 
-    const { error } = await supabase.from('user_profiles').delete().eq('id', id);
+    const adminClient = createSupabaseAdminClient();
+
+    const { error } = await adminClient.from('user_profiles').delete().eq('id', id);
 
     if (error) {
       return fail(400, {
@@ -124,6 +126,16 @@ export const actions: Actions = {
         code: undefined
       });
     }
+
+    // Remove the underlying auth user so the email can be reused.
+    const { error: authError } = await adminClient.auth.admin.deleteUser(id);
+    if (authError) {
+      return fail(400, {
+        message: `Profile removed, but the auth account could not be deleted: ${authError.message}`,
+        code: undefined
+      });
+    }
+
     return { saved: true, message: undefined, code: undefined };
   }
 };
