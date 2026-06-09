@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { Camera, CameraOff, Check, X, Loader2, Volume2, VolumeX } from '@lucide/svelte';
+  import { Camera, CameraOff, Check, X, Loader2, Volume2, VolumeX, Keyboard } from '@lucide/svelte';
   import type { Product } from '$lib/types/db';
 
   interface Props {
@@ -31,6 +31,7 @@
     | { kind: 'error'; message: string };
 
   let status = $state<ScanStatus>({ kind: 'idle' });
+  let manualCode = $state('');
   let lastCode = '';
   const CLEAR_AFTER_MISSES = 5;
 
@@ -147,6 +148,16 @@
     }
   }
 
+  function submitManual(e: SubmitEvent) {
+    e.preventDefault();
+    const code = manualCode.trim();
+    if (!code) return;
+    manualCode = '';
+    // Manual entry should always fire even if it repeats the last scan.
+    lastCode = '';
+    void handleCode(code);
+  }
+
   function selectProduct(product: Partial<Product>) {
     onSelect?.(product);
     close();
@@ -157,7 +168,10 @@
     open = false;
     status = { kind: 'idle' };
     lastCode = '';
+    manualCode = '';
   }
+
+  const busy = $derived(status.kind === 'looking');
 
   let statusTimer: ReturnType<typeof setTimeout> | null = null;
   $effect(() => {
@@ -318,6 +332,33 @@
           {cameraError}
         </div>
       {/if}
+
+      <!-- Manual entry fallback -->
+      <form onsubmit={submitManual} class="border-t border-slate-200 px-4 py-3">
+        <label
+          for="manual-barcode"
+          class="flex items-center gap-2 text-xs font-medium text-slate-600"
+        >
+          <Keyboard class="size-4 text-slate-400" />
+          Enter a barcode or SKU manually
+        </label>
+        <div class="mt-2 flex gap-2">
+          <input
+            id="manual-barcode"
+            bind:value={manualCode}
+            placeholder="e.g. 885909950805 or SKU-123"
+            autocomplete="off"
+            class="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
+          />
+          <button
+            type="submit"
+            disabled={busy || !manualCode.trim()}
+            class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+          >
+            Look up
+          </button>
+        </div>
+      </form>
 
       <!-- Found product action -->
       {#if status.kind === 'found'}
