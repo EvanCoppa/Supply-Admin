@@ -137,9 +137,20 @@ export const actions: Actions = {
 
     const { error } = await supabase.from('customers').delete().eq('id', id);
     if (error) {
-      return fail(400, {
-        message: `Could not delete: ${error.message}. Clients with orders or invoices must be archived instead.`
-      });
+      // 23503 = foreign_key_violation: client has orders/invoices, so archive instead
+      if (error.code === '23503') {
+        const archiveRes = await supabase
+          .from('customers')
+          .update({ status: 'archived' })
+          .eq('id', id);
+        if (archiveRes.error) {
+          return fail(400, { message: `Could not archive: ${archiveRes.error.message}` });
+        }
+        return {
+          actioned: 'Client has orders or invoices, so it was archived instead of deleted.'
+        };
+      }
+      return fail(400, { message: `Could not delete: ${error.message}` });
     }
     return { actioned: 'Client deleted.' };
   }

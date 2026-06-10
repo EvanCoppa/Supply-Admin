@@ -390,7 +390,12 @@
             await update();
           }}
         onsubmit={(e) => {
-          if (!confirm(`Delete ${c.business_name}? This cannot be undone.`)) e.preventDefault();
+          if (
+            !confirm(
+              `Delete ${c.business_name}? This cannot be undone. Clients with orders or invoices will be archived instead.`
+            )
+          )
+            e.preventDefault();
         }}
       >
         <input type="hidden" name="id" value={c.id} />
