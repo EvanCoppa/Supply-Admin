@@ -271,6 +271,13 @@ export interface Order {
   payment_reference: string | null;
   source: OrderSource;
   idempotency_key: string | null;
+  carrier: string | null;
+  carrier_service: string | null;
+  tracking_number: string | null;
+  tracking_url: string | null;
+  label_url: string | null;
+  shipment_id: string | null;
+  label_purchased_at: string | null;
   placed_at: string;
   updated_at: string;
 }

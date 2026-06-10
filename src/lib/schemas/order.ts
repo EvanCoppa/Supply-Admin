@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { optionalNumber, optionalTrimmed, requiredTrimmed } from './helpers';
+import { optionalNumber, optionalTrimmed, requiredNumber, requiredTrimmed } from './helpers';
 
 export const ORDER_STATUSES = [
   'pending_payment',
@@ -43,6 +43,17 @@ export const orderRefundSchema = z.object({
     }
     return n;
   })
+});
+
+export const shippingRateRequestSchema = z.object({
+  weight_oz: requiredNumber('Package weight is required.').refine((n) => n > 0, {
+    message: 'Weight must be greater than 0.'
+  })
+});
+
+export const buyLabelSchema = z.object({
+  shipment_id: requiredTrimmed('Missing shipment reference — fetch rates again.'),
+  rate_id: requiredTrimmed('Select a shipping rate.')
 });
 
 export const orderLineInputSchema = z.object({

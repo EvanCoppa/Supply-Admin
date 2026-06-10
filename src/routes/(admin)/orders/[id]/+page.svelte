@@ -64,6 +64,12 @@
     refundSubmitting = false;
   }
 
+  const canBuyLabel = $derived(['paid', 'fulfilled'].includes(o.status) && !o.label_url);
+  let labelWeight = $state('');
+  let selectedRateId = $state('');
+  let gettingRates = $state(false);
+  let buyingLabel = $state(false);
+
   const cogsTotal = $derived(
     data.purchases
       .filter((p) => p.status !== 'cancelled')
@@ -251,6 +257,147 @@
           </table>
         {/if}
       </div>
+
+      {#if canBuyLabel || o.label_url || o.tracking_number}
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 class="mb-3 font-semibold">Shipping label</h2>
+
+          {#if o.label_url || o.tracking_number}
+            <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-4">
+              <div>
+                <dt class="text-xs uppercase tracking-wider text-slate-500">Carrier</dt>
+                <dd>{o.carrier ?? '—'}</dd>
+              </div>
+              <div>
+                <dt class="text-xs uppercase tracking-wider text-slate-500">Service</dt>
+                <dd>{o.carrier_service ?? '—'}</dd>
+              </div>
+              <div>
+                <dt class="text-xs uppercase tracking-wider text-slate-500">Tracking</dt>
+                <dd class="font-mono text-xs">
+                  {#if o.tracking_url}
+                    <a class="text-sky-700 hover:underline" href={o.tracking_url} target="_blank">
+                      {o.tracking_number}
+                    </a>
+                  {:else}
+                    {o.tracking_number ?? '—'}
+                  {/if}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-xs uppercase tracking-wider text-slate-500">Purchased</dt>
+                <dd>{o.label_purchased_at ? dateTime(o.label_purchased_at) : '—'}</dd>
+              </div>
+            </dl>
+            {#if o.label_url}
+              <a
+                href={o.label_url}
+                target="_blank"
+                class="mt-4 inline-block rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+              >
+                Print label
+              </a>
+            {/if}
+          {:else if !data.shippingConfigured}
+            <p class="text-sm text-slate-500">
+              Shipping is not configured. Set <code>EASYPOST_API_KEY</code> and the
+              <code>SHIP_FROM_*</code> variables to buy labels, or enter a tracking number manually below.
+            </p>
+          {:else}
+            <form
+              method="POST"
+              action="?/getRates"
+              use:enhance={() => {
+                gettingRates = true;
+                selectedRateId = '';
+                return ({ update }) => {
+                  void update().finally(() => (gettingRates = false));
+                };
+              }}
+              class="flex items-end gap-2"
+            >
+              <label class="block">
+                <span class="mb-1 block text-xs font-medium text-slate-600">
+                  Package weight (oz)
+                </span>
+                <input
+                  type="number"
+                  name="weight_oz"
+                  min="0.1"
+                  step="0.1"
+                  bind:value={labelWeight}
+                  required
+                  class="w-36 rounded border border-slate-300 px-2 py-1.5 text-sm"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={gettingRates || labelWeight === ''}
+                class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              >
+                {gettingRates ? 'Fetching rates…' : 'Get rates'}
+              </button>
+            </form>
+
+            {#if form?.rates && form.shipmentId}
+              <form
+                method="POST"
+                action="?/buyLabel"
+                use:enhance={() => {
+                  buyingLabel = true;
+                  return ({ update }) => {
+                    void update().finally(() => (buyingLabel = false));
+                  };
+                }}
+                class="mt-4 space-y-3 border-t border-slate-100 pt-4"
+              >
+                <input type="hidden" name="shipment_id" value={form.shipmentId} />
+                <fieldset class="space-y-1">
+                  <legend class="mb-1 text-xs font-medium text-slate-600">
+                    Rates for {form.weightOz} oz (cheapest first)
+                  </legend>
+                  {#each form.rates as rate (rate.id)}
+                    <label
+                      class="flex items-center justify-between gap-3 rounded border px-3 py-2 text-sm hover:bg-slate-50"
+                      class:border-sky-500={selectedRateId === rate.id}
+                      class:border-slate-200={selectedRateId !== rate.id}
+                    >
+                      <span class="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="rate_id"
+                          value={rate.id}
+                          bind:group={selectedRateId}
+                        />
+                        <span class="font-medium">{rate.carrier}</span>
+                        <span class="text-slate-500">{rate.service}</span>
+                      </span>
+                      <span class="flex items-center gap-3">
+                        {#if rate.delivery_days}
+                          <span class="text-xs text-slate-500">
+                            {rate.delivery_days}d
+                          </span>
+                        {/if}
+                        <span class="font-semibold">{currency(rate.rate)}</span>
+                      </span>
+                    </label>
+                  {/each}
+                </fieldset>
+                <p class="rounded bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  Buying a label charges the EasyPost account and marks this order shipped.
+                </p>
+                <button
+                  type="submit"
+                  disabled={!selectedRateId || buyingLabel}
+                  class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                >
+                  {buyingLabel ? 'Purchasing…' : 'Buy label'}
+                </button>
+              </form>
+            {/if}
+          {/if}
+        </div>
+      {/if}
 
       <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <div class="mb-4 flex items-center justify-between">

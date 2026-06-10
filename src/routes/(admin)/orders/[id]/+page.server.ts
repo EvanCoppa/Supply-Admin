@@ -1,6 +1,20 @@
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { orderRefundSchema, orderTransitionSchema, parseForm } from '$lib/schemas';
+import {
+  buyLabelSchema,
+  orderRefundSchema,
+  orderTransitionSchema,
+  parseForm,
+  shippingRateRequestSchema
+} from '$lib/schemas';
+import {
+  buildToAddress,
+  buyShipmentLabel,
+  createShipment,
+  getFromAddress,
+  isShippingConfigured,
+  ShippingError
+} from '$lib/server/shipping';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
   const [orderRes, lineItemsRes, paymentsRes, purchasesRes] = await Promise.all([
@@ -46,9 +60,13 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     order: orderRes.data,
     lineItems: lineItemsRes.data ?? [],
     payments: paymentsRes.data ?? [],
-    purchases: (purchasesRes.data ?? []) as unknown as PurchaseForOrder[]
+    purchases: (purchasesRes.data ?? []) as unknown as PurchaseForOrder[],
+    shippingConfigured: isShippingConfigured()
   };
 };
+
+// Labels can be bought once the order is paid; buying one marks it shipped.
+const LABEL_ELIGIBLE_STATUSES = new Set(['paid', 'fulfilled']);
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   pending_payment: [],
@@ -89,8 +107,133 @@ export const actions: Actions = {
       });
     }
 
-    const { error } = await supabase.from('orders').update({ status: to }).eq('id', params.id);
+    const update: { status: string; tracking_number?: string } = { status: to };
+    if (to === 'shipped' && parsed.data.tracking) update.tracking_number = parsed.data.tracking;
+
+    const { error } = await supabase.from('orders').update(update).eq('id', params.id);
     if (error) return fail(400, { message: error.message, fieldErrors: {}, code: undefined });
+    return { saved: true, message: undefined, code: undefined };
+  },
+
+  getRates: async ({ params, request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const parsed = parseForm(shippingRateRequestSchema, form);
+    if (!parsed.success) {
+      return fail(400, {
+        message: parsed.message,
+        fieldErrors: parsed.fieldErrors,
+        code: undefined
+      });
+    }
+
+    const { data: order } = await supabase
+      .from('orders')
+      .select('status, shipping_address_snapshot, customer:customers(business_name)')
+      .eq('id', params.id)
+      .maybeSingle();
+    if (!order) return fail(404, { message: 'Order not found.', fieldErrors: {}, code: undefined });
+    if (!LABEL_ELIGIBLE_STATUSES.has(order.status)) {
+      return fail(400, {
+        message: `Cannot buy a label for a ${order.status} order.`,
+        fieldErrors: {},
+        code: undefined
+      });
+    }
+
+    try {
+      const to = buildToAddress(
+        order.shipping_address_snapshot,
+        (order.customer as { business_name?: string } | null)?.business_name
+      );
+      const quote = await createShipment({
+        to,
+        from: getFromAddress(),
+        weightOz: parsed.data.weight_oz
+      });
+      if (quote.rates.length === 0) {
+        return fail(400, {
+          message: 'No rates available for this address and weight.',
+          fieldErrors: {},
+          code: undefined
+        });
+      }
+      return {
+        rates: quote.rates,
+        shipmentId: quote.shipment_id,
+        weightOz: parsed.data.weight_oz,
+        message: undefined,
+        code: undefined
+      };
+    } catch (err) {
+      const message =
+        err instanceof ShippingError ? err.message : 'Failed to fetch shipping rates.';
+      return fail(400, { message, fieldErrors: {}, code: undefined });
+    }
+  },
+
+  buyLabel: async ({ params, request, locals: { supabase } }) => {
+    const form = await request.formData();
+    const parsed = parseForm(buyLabelSchema, form);
+    if (!parsed.success) {
+      return fail(400, {
+        message: parsed.message,
+        fieldErrors: parsed.fieldErrors,
+        code: undefined
+      });
+    }
+
+    const { data: order } = await supabase
+      .from('orders')
+      .select('status, label_url')
+      .eq('id', params.id)
+      .maybeSingle();
+    if (!order) return fail(404, { message: 'Order not found.', fieldErrors: {}, code: undefined });
+    if (order.label_url) {
+      return fail(400, {
+        message: 'A label has already been purchased for this order.',
+        fieldErrors: {},
+        code: undefined
+      });
+    }
+    if (!LABEL_ELIGIBLE_STATUSES.has(order.status)) {
+      return fail(400, {
+        message: `Cannot buy a label for a ${order.status} order.`,
+        fieldErrors: {},
+        code: undefined
+      });
+    }
+
+    let label;
+    try {
+      label = await buyShipmentLabel({
+        shipmentId: parsed.data.shipment_id,
+        rateId: parsed.data.rate_id
+      });
+    } catch (err) {
+      const message = err instanceof ShippingError ? err.message : 'Label purchase failed.';
+      return fail(400, { message, fieldErrors: {}, code: undefined });
+    }
+
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({
+        status: 'shipped',
+        carrier: label.carrier,
+        carrier_service: label.service,
+        tracking_number: label.tracking_number,
+        tracking_url: label.tracking_url,
+        label_url: label.label_url,
+        shipment_id: parsed.data.shipment_id,
+        label_purchased_at: new Date().toISOString()
+      })
+      .eq('id', params.id);
+    if (updateError) {
+      return fail(400, {
+        message: `Label was purchased (tracking ${label.tracking_number}) but saving it failed: ${updateError.message}`,
+        fieldErrors: {},
+        code: undefined
+      });
+    }
     return { saved: true, message: undefined, code: undefined };
   },
 
