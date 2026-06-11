@@ -187,6 +187,13 @@
       >
         Preview / Print
       </a>
+      <a
+        class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+        href="/invoices/{data.invoice.id}/pdf"
+        download
+      >
+        Download PDF
+      </a>
       {#if editable}
         <form method="POST" action="?/issue" use:enhance>
           <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"

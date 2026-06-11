@@ -49,6 +49,7 @@
             <th class="px-3 py-2 text-right font-medium">Total</th>
             <th class="px-3 py-2 text-right font-medium">Balance</th>
             <th class="px-3 py-2 text-right font-medium">Due</th>
+            <th class="px-3 py-2 text-right font-medium">PDF</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
@@ -69,6 +70,15 @@
                 {currency(balance(inv))}
               </td>
               <td class="px-3 py-2 text-right text-slate-600">{dateShort(inv.due_at)}</td>
+              <td class="px-3 py-2 text-right">
+                <a
+                  class="text-sky-700 hover:underline"
+                  href="/portal/invoices/{inv.id}/pdf"
+                  download
+                >
+                  Download
+                </a>
+              </td>
             </tr>
           {/each}
         </tbody>

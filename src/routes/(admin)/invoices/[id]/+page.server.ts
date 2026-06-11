@@ -1,7 +1,7 @@
 import { error, fail } from '@sveltejs/kit';
 import { env as publicEnv } from '$env/dynamic/public';
 import type { Actions, PageServerLoad } from './$types';
-import type { Invoice } from '$lib/types/db';
+import type { Invoice, InvoiceLineItem } from '$lib/types/db';
 import {
   invoicePaymentRecordSchema,
   invoiceSendSchema,
@@ -226,12 +226,19 @@ export const actions: Actions = {
     if (!recipient)
       return fail(400, { message: 'Add a billing email before sending.', fieldErrors: {} });
 
+    const { data: lines } = await supabase
+      .from('invoice_line_items')
+      .select('*')
+      .eq('invoice_id', invoice.id)
+      .order('display_order', { ascending: true });
+
     const appUrl = publicEnv['PUBLIC_APP_URL'] || url.origin;
     const result = await sendInvoiceEmail(supabase, {
       invoice,
       recipient,
       kind: parsed.data.reminder ? 'reminder' : 'send',
-      portalUrl: `${appUrl.replace(/\/$/, '')}/portal/invoices/${invoice.id}`
+      portalUrl: `${appUrl.replace(/\/$/, '')}/portal/invoices/${invoice.id}`,
+      lines: (lines ?? []) as InvoiceLineItem[]
     });
 
     if (!result.ok) return fail(400, { message: result.message, fieldErrors: {} });

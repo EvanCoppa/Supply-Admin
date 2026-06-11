@@ -1,7 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { env } from '$env/dynamic/private';
-import type { Invoice } from '$lib/types/db';
+import type { Invoice, InvoiceLineItem } from '$lib/types/db';
 import { balanceDue } from './invoices';
+import { invoicePdfFilename, renderInvoicePdf } from './invoice-pdf';
 
 type EmailKind = 'send' | 'reminder';
 
@@ -10,6 +11,8 @@ interface SendInvoiceEmailInput {
   recipient: string;
   kind: EmailKind;
   portalUrl: string;
+  /** When provided, a PDF of the invoice is rendered and attached. */
+  lines?: InvoiceLineItem[];
 }
 
 const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
@@ -95,6 +98,26 @@ export async function sendInvoiceEmail(supabase: SupabaseClient, input: SendInvo
   let providerMessageId: string | null = null;
   let errorMessage: string | null = null;
 
+  // Attach the invoice PDF when line items are available. A render failure
+  // should never block delivery, so fall back to a link-only email.
+  let attachments: { filename: string; content: string }[] | undefined;
+  if (input.lines) {
+    try {
+      const pdf = await renderInvoicePdf({ invoice: input.invoice, lines: input.lines });
+      attachments = [
+        {
+          filename: invoicePdfFilename(input.invoice),
+          content: Buffer.from(pdf).toString('base64')
+        }
+      ];
+    } catch (err) {
+      console.error('[invoice-pdf] render failed, sending without attachment', {
+        invoiceId: input.invoice.id,
+        err
+      });
+    }
+  }
+
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -107,7 +130,8 @@ export async function sendInvoiceEmail(supabase: SupabaseClient, input: SendInvo
         to: input.recipient,
         subject,
         text: renderInvoiceText(input),
-        html: renderInvoiceHtml(input)
+        html: renderInvoiceHtml(input),
+        ...(attachments ? { attachments } : {})
       })
     });
     const body = (await res.json().catch(() => ({}))) as {

@@ -33,9 +33,18 @@
         Issued {dateShort(data.invoice.issued_at)} · Due {dateShort(data.invoice.due_at)}
       </p>
     </div>
-    <div class="rounded-lg border border-slate-200 bg-white px-5 py-4 text-right shadow-sm">
-      <p class="text-xs uppercase tracking-wider text-slate-500">Balance due</p>
-      <p class="text-2xl font-semibold" class:text-red-700={balance > 0}>{currency(balance)}</p>
+    <div class="flex flex-col items-end gap-2">
+      <div class="rounded-lg border border-slate-200 bg-white px-5 py-4 text-right shadow-sm">
+        <p class="text-xs uppercase tracking-wider text-slate-500">Balance due</p>
+        <p class="text-2xl font-semibold" class:text-red-700={balance > 0}>{currency(balance)}</p>
+      </div>
+      <a
+        class="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-100"
+        href="/portal/invoices/{data.invoice.id}/pdf"
+        download
+      >
+        Download PDF
+      </a>
     </div>
   </header>
 

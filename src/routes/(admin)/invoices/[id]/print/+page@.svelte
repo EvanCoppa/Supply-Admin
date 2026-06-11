@@ -38,13 +38,22 @@
     <a href="/invoices/{invoice.id}" class="text-sm text-sky-700 hover:underline"
       >← Back to invoice</a
     >
-    <button
-      type="button"
-      onclick={printNow}
-      class="rounded bg-slate-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
-    >
-      Print / Save as PDF
-    </button>
+    <div class="flex items-center gap-2">
+      <a
+        href="/invoices/{invoice.id}/pdf"
+        download
+        class="rounded border border-slate-300 bg-white px-4 py-1.5 text-sm font-medium text-slate-900 hover:bg-slate-100"
+      >
+        Download PDF
+      </a>
+      <button
+        type="button"
+        onclick={printNow}
+        class="rounded bg-slate-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+      >
+        Print / Save as PDF
+      </button>
+    </div>
   </div>
 
   <article
