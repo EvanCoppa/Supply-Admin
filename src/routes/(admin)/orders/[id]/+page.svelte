@@ -98,6 +98,14 @@
       <h1 class="text-2xl font-semibold font-mono">{o.id.slice(0, 8)}</h1>
       <OrderStatusBadge status={o.status} />
       <span class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{o.source}</span>
+      {#if ['paid', 'fulfilled', 'shipped', 'delivered'].includes(o.status)}
+        <a
+          href="/orders/{o.id}/packing-slip"
+          class="ml-auto rounded border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
+        >
+          Packing slip
+        </a>
+      {/if}
     </div>
     <p class="text-sm text-slate-500">Placed {dateTime(o.placed_at)}</p>
   </header>
