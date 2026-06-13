@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YesSmile.AI — Investor Deck</title>
+<!--
+  ============================================================================
+  YESSMILE.AI — INVESTOR DECK
+  ============================================================================
+  Built on the clean-white slideshow framework from the Osaic Report API deck:
+  same slide engine, dark-gradient dividers, white content slides, tables,
+  navigation, and print support. Content adapted from the YesSmile GTM deck.
+
+  CONTROLS:  → / ↓ / Space / PgDn / click .... next slide
+             ← / ↑ / PgUp ................... previous slide
+             Home / End ..................... first / last slide
+             F .............................. toggle fullscreen
+  ============================================================================
+-->
+<style>
+  :root {
+    /* ===== PALETTE (clean evergreen + lime, on white) ===== */
+    --evergreen:    #15535e;
+    --lime:         #cbfa40;
+    --tower-gray:   #a0bfc2;
+    --white:        #ffffff;
+    --jonquil:      #eaff99;
+    --zircon:       #bacbff;
+    --bittersweet:  #fd705c;
+
+    --evergreen-900: #0a2b31;
+    --evergreen-800: #0c333b;
+    --evergreen-700: #103f48;
+    --evergreen-400: #2f7c88;
+
+    --brand-ink:   var(--evergreen);
+    --cover-from:  var(--evergreen-900);
+    --cover-mid:   var(--evergreen-700);
+    --cover-to:    var(--evergreen);
+    --eyebrow:     var(--lime);
+    --rule:        var(--lime);
+
+    --text:        #1f2933;
+    --text-soft:   #47616a;
+    --text-mute:   #6b7a82;
+    --line:        #d5dee0;
+    --line-soft:   #e6ecec;
+    --surface:     #eef3f3;
+    --surface-alt: #f5f8f8;
+    --code-bg:     #e7eeee;
+    --code-fg:     #0f3d45;
+    --pre-bg:      #0c333b;
+    --pre-fg:      #e9f1f0;
+
+    --note-bg:     #eef4f4;
+    --note-border: var(--evergreen);
+
+    --ok-bg:  #e1efe9;  --ok-fg:  #15535e;
+    --err-bg: #fdeceb;  --err-fg: #c2402f;
+    --req-bg: #ffe3dd;  --req-fg: #c2402f;
+    --opt-bg: #e9eeec;  --opt-fg: #5d6f72;
+
+    --font-sans: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+    --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    background: #2c3134;
+    font-family: var(--font-sans);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ---------- Deck / slide geometry (1280×720, scaled to fit) ---------- */
+  #deck {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 1280px; height: 720px;
+    transform-origin: center center;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 1280px; height: 720px;
+    background: #ffffff;
+    padding: 56px 72px 84px 72px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.28s ease;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.45);
+    overflow: hidden;
+  }
+  .slide.active { opacity: 1; visibility: visible; }
+
+  /* ---------- Chrome ---------- */
+  #progress {
+    position: absolute;
+    left: 0; bottom: 0;
+    height: 5px;
+    background: var(--lime);
+    width: 0;
+    transition: width 0.28s ease;
+    z-index: 10;
+  }
+  #counter {
+    position: absolute;
+    right: 26px; bottom: 16px;
+    font-size: 13px;
+    color: var(--text-mute);
+    z-index: 10;
+    letter-spacing: 0.5px;
+  }
+
+  /* ---------- Running header ---------- */
+  .runhead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+    margin-bottom: 22px;
+  }
+  .runhead .logo {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--brand-ink);
+  }
+  .runhead .logo .ai { color: var(--evergreen-400); }
+  .runhead .tag {
+    font-size: 12px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    font-weight: 600;
+  }
+
+  /* ---------- Headings ---------- */
+  h2 {
+    font-size: 33px;
+    color: var(--brand-ink);
+    margin: 0 0 6px 0;
+    padding-bottom: 10px;
+    border-bottom: 4px solid var(--rule);
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    display: inline-block;
+  }
+  .h2row { margin-bottom: 16px; }
+  .h2row .secnum {
+    font-size: 14px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--evergreen-400);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 3px;
+  }
+  h3 {
+    font-size: 19px;
+    color: var(--brand-ink);
+    margin: 16px 0 8px 0;
+    font-weight: 700;
+  }
+  h3:first-child { margin-top: 0; }
+  p { margin: 0 0 10px 0; font-size: 16px; line-height: 1.55; }
+  .lead { font-size: 19px; color: #3e4c59; line-height: 1.55; margin-bottom: 16px; }
+  .soft { color: var(--text-soft); }
+  strong.ink { color: var(--brand-ink); }
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* ---------- Columns ---------- */
+  .cols { display: flex; gap: 32px; align-items: flex-start; }
+  .cols > div { flex: 1; min-width: 0; }
+  .cols > .narrow { flex: 0.75; }
+  .cols > .wide { flex: 1.35; }
+
+  /* ---------- Tables ---------- */
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 14px 0; font-size: 14px; }
+  th {
+    background: var(--brand-ink);
+    color: #ffffff;
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: 0.4px;
+  }
+  td { padding: 7px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: top; color: #2f4349; }
+  tr:nth-child(even) td { background: var(--surface-alt); }
+  table.compact td, table.compact th { padding: 5px 10px; font-size: 13px; }
+
+  .pill { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 1px 9px; border-radius: 11px; }
+  .pill.req { background: var(--req-bg); color: var(--req-fg); }
+  .pill.opt { background: var(--opt-bg); color: var(--opt-fg); }
+  .pill.lime { background: var(--lime); color: var(--evergreen-900); }
+
+  ul { margin: 4px 0 12px 0; padding-left: 22px; font-size: 15.5px; }
+  li { margin-bottom: 6px; line-height: 1.45; }
+  ul.tight li { margin-bottom: 3px; }
+  ul.check { list-style: none; padding-left: 0; }
+  ul.check li { padding-left: 24px; position: relative; }
+  ul.check li::before { content: "✓"; position: absolute; left: 0; color: var(--evergreen-400); font-weight: 700; }
+
+  .note {
+    background: var(--note-bg);
+    border-left: 4px solid var(--note-border);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14.5px;
+    color: #2f4349;
+    margin: 12px 0;
+    line-height: 1.5;
+  }
+  .note strong { color: var(--brand-ink); }
+
+  /* ============ Stat cards ============ */
+  .statgrid { display: flex; gap: 22px; margin: 18px 0; }
+  .statgrid.cols4 .stat { flex: 1; }
+  .stat {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--evergreen);
+    border-radius: 10px;
+    padding: 20px 20px 18px 20px;
+  }
+  .stat .big { font-size: 40px; font-weight: 800; color: var(--brand-ink); letter-spacing: -1px; line-height: 1; }
+  .stat .lbl { font-size: 15px; font-weight: 700; color: var(--evergreen-400); margin-top: 8px; }
+  .stat .sub { font-size: 13px; color: var(--text-soft); margin-top: 6px; line-height: 1.4; }
+  .statgrid.small .stat { padding: 15px 16px; }
+  .statgrid.small .stat .big { font-size: 30px; }
+  .statgrid.small .stat .lbl { font-size: 13.5px; margin-top: 5px; }
+  .statgrid.small .stat .sub { font-size: 12px; }
+
+  /* ============ Forces (numbered) ============ */
+  .forces { display: flex; gap: 26px; margin-top: 16px; }
+  .force { flex: 1; }
+  .force .n {
+    font-family: var(--font-mono);
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--lime);
+    -webkit-text-stroke: 1px var(--evergreen-400);
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+  .force .t { font-size: 18px; font-weight: 700; color: var(--brand-ink); margin-bottom: 7px; }
+  .force .d { font-size: 14px; color: var(--text-soft); line-height: 1.5; }
+
+  /* ============ TAM/SAM/SOM funnel ============ */
+  .funnel { margin: 10px 0; }
+  .frow {
+    display: flex; align-items: center; gap: 18px;
+    margin-bottom: 12px;
+  }
+  .fbar {
+    background: linear-gradient(90deg, var(--evergreen) 0%, var(--evergreen-400) 100%);
+    color: #fff;
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .fbar .ftag { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; opacity: 0.85; }
+  .fbar .fval { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .frow .fdesc { font-size: 13.5px; color: var(--text-soft); flex: 1; line-height: 1.4; }
+  .frow.t1 .fbar { width: 50%; }
+  .frow.t2 .fbar { width: 36%; background: linear-gradient(90deg, var(--evergreen-400) 0%, #4a99a4 100%); }
+  .frow.t3 .fbar { width: 24%; background: linear-gradient(90deg, #4a99a4 0%, var(--tower-gray) 100%); color: var(--evergreen-900); }
+
+  /* ============ Card grid (modules, streams, AI) ============ */
+  .cardgrid { display: grid; gap: 14px; }
+  .cardgrid.c3 { grid-template-columns: repeat(3, 1fr); }
+  .cardgrid.c2 { grid-template-columns: repeat(2, 1fr); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 14px 16px;
+  }
+  .card .ct { font-size: 16px; font-weight: 700; color: var(--brand-ink); margin-bottom: 4px; }
+  .card .ck { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--evergreen-400); margin-bottom: 6px; }
+  .card .cd { font-size: 13px; color: var(--text-soft); line-height: 1.45; }
+  .card.lime-accent { border-left: 4px solid var(--lime); }
+
+  /* ============ Pricing tiers ============ */
+  .tiers { display: flex; gap: 18px; align-items: stretch; margin-top: 8px; }
+  .tier {
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 20px 20px 22px 20px;
+    background: #fff;
+    position: relative;
+  }
+  .tier.feature {
+    border: 2px solid var(--evergreen);
+    box-shadow: 0 8px 22px rgba(21,83,94,0.13);
+  }
+  .tier .badge {
+    position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+    background: var(--lime); color: var(--evergreen-900);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 3px 12px; border-radius: 11px;
+  }
+  .tier .tname { font-size: 18px; font-weight: 700; color: var(--brand-ink); }
+  .tier .tprice { font-size: 32px; font-weight: 800; color: var(--brand-ink); letter-spacing: -1px; margin: 6px 0 2px 0; }
+  .tier .tunit { font-size: 12.5px; color: var(--text-mute); margin-bottom: 12px; }
+  .tier ul { font-size: 13px; padding-left: 0; list-style: none; margin: 0; }
+  .tier ul li { padding-left: 20px; position: relative; margin-bottom: 7px; color: #33474d; }
+  .tier ul li::before { content: "✓"; position: absolute; left: 0; color: var(--evergreen-400); font-weight: 700; }
+
+  /* ============ Use of funds ============ */
+  .fund { margin-top: 8px; }
+  .fundrow { display: flex; align-items: center; gap: 16px; margin-bottom: 13px; }
+  .fundrow .fl { width: 210px; flex-shrink: 0; }
+  .fundrow .fl .fll { font-size: 15px; font-weight: 700; color: var(--brand-ink); }
+  .fundrow .fl .fls { font-size: 12px; color: var(--text-soft); line-height: 1.3; }
+  .fundrow .track { flex: 1; background: var(--surface); border-radius: 6px; height: 26px; overflow: hidden; }
+  .fundrow .fill { height: 100%; background: linear-gradient(90deg, var(--evergreen) 0%, var(--evergreen-400) 100%); border-radius: 6px; }
+  .fundrow .amt { width: 120px; flex-shrink: 0; text-align: right; font-size: 14px; font-weight: 700; color: var(--brand-ink); }
+  .fundrow .amt .pct { color: var(--evergreen-400); margin-right: 6px; }
+
+  /* ============ Team grid ============ */
+  .teamgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 6px; }
+  .person {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 14px 16px;
+  }
+  .person .pn { font-size: 16px; font-weight: 700; color: var(--brand-ink); }
+  .person .pr { font-size: 11.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--evergreen-400); margin: 2px 0 7px 0; }
+  .person .pb { font-size: 12.5px; color: var(--text-soft); line-height: 1.45; }
+
+  /* ============ Flow steps ============ */
+  .flow { display: flex; gap: 0; align-items: stretch; margin: 18px 0; }
+  .flow .step {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 15px 15px 13px 15px;
+    position: relative;
+  }
+  .flow .step + .step { margin-left: 36px; }
+  .flow .step + .step::before {
+    content: "→";
+    position: absolute; left: -28px; top: 50%; transform: translateY(-50%);
+    color: var(--evergreen-400); font-size: 22px; font-weight: 700;
+  }
+  .flow .step .sn {
+    display: inline-block; background: var(--evergreen); color: var(--lime);
+    font-weight: 700; font-size: 13px; width: 25px; height: 25px; line-height: 25px;
+    text-align: center; border-radius: 50%; margin-bottom: 9px;
+  }
+  .flow .step .st { font-weight: 700; font-size: 16px; color: var(--brand-ink); margin-bottom: 5px; }
+  .flow .step .sd { font-size: 12.5px; color: var(--text-soft); line-height: 1.45; }
+
+  /* ============ Timeline ============ */
+  .timeline { display: flex; gap: 0; margin-top: 14px; }
+  .tnode { flex: 1; position: relative; padding: 0 10px; }
+  .tnode::before {
+    content: ""; position: absolute; top: 9px; left: 0; right: 0; height: 3px; background: var(--line);
+  }
+  .tnode:first-child::before { left: 50%; }
+  .tnode:last-child::before { right: 50%; }
+  .tnode .dot {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--lime);
+    border: 3px solid var(--evergreen); position: relative; z-index: 1; margin: 0 auto;
+  }
+  .tnode .tm { text-align: center; font-size: 13px; font-weight: 800; color: var(--evergreen-400); margin-top: 8px; letter-spacing: 0.5px; }
+  .tnode .th { text-align: center; font-size: 14.5px; font-weight: 700; color: var(--brand-ink); margin-top: 3px; }
+  .tnode .tdd { text-align: center; font-size: 12px; color: var(--text-soft); margin-top: 5px; line-height: 1.4; padding: 0 4px; }
+
+  /* ---------- Footer strip ---------- */
+  .slidefoot {
+    position: absolute;
+    left: 72px; right: 72px; bottom: 26px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: #9aa5b1;
+    letter-spacing: 0.3px;
+  }
+
+  /* ============ Dark slides ============ */
+  .slide.dark {
+    background: linear-gradient(150deg, var(--cover-from) 0%, var(--cover-mid) 55%, var(--cover-to) 100%);
+    color: #ffffff;
+  }
+  .slide.dark h2 { color: #fff; border-bottom-color: var(--lime); }
+  .slide.dark .eyebrow {
+    font-size: 15px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--eyebrow); margin-bottom: 18px; font-weight: 600;
+  }
+  .slide.dark h1 {
+    font-size: 64px; line-height: 1.04; margin: 0 0 18px 0;
+    font-weight: 800; letter-spacing: -1.2px;
+  }
+  .slide.dark h1 .ai { color: var(--lime); }
+  .slide.dark .subtitle { font-size: 21px; color: #d3e2e1; font-weight: 400; max-width: 760px; line-height: 1.5; }
+  .slide.dark .kicker { font-size: 15px; color: #9fc6c2; margin-top: 14px; letter-spacing: 0.3px; }
+
+  .slide.cover { padding-top: 150px; }
+  .slide.cover .brandmark { position: absolute; top: 52px; left: 72px; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+  .slide.cover .brandmark .ai { color: var(--lime); }
+  .slide.cover .raisebar {
+    position: absolute; bottom: 96px; left: 72px; right: 72px;
+    display: flex; gap: 40px; border-top: 1px solid rgba(255,255,255,0.22); padding-top: 18px;
+  }
+  .slide.cover .raisebar .ri .rv { font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+  .slide.cover .raisebar .ri .rl { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--lime); margin-bottom: 3px; font-weight: 700; }
+  .slide.cover .conf {
+    position: absolute; bottom: 40px; left: 72px; right: 72px;
+    font-size: 11px; letter-spacing: 1px; color: #9fc6c2; text-transform: uppercase;
+  }
+
+  /* Agenda */
+  .agenda { columns: 2; column-gap: 64px; margin-top: 24px; }
+  .agenda-item {
+    display: flex; align-items: baseline; gap: 16px;
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.18);
+    font-size: 18px; color: #e7f0ef; break-inside: avoid;
+  }
+  .agenda-item .num { color: var(--lime); font-weight: 700; font-family: var(--font-mono); font-size: 15px; min-width: 26px; }
+
+  /* Thesis cards (closing) */
+  .thesisgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 18px; }
+  .thesis {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-left: 4px solid var(--lime);
+    border-radius: 8px; padding: 15px 18px;
+  }
+  .thesis .tt { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+  .thesis .td { font-size: 13.5px; color: #c8dcda; line-height: 1.45; }
+  .slide.closing .ask {
+    margin-top: 22px; font-size: 17px; color: var(--jonquil); font-weight: 600; letter-spacing: 0.2px;
+  }
+  .slide.closing .big2 { font-size: 30px; font-weight: 800; color: #fff; margin-top: 10px; letter-spacing: -0.5px; }
+
+  .quote { font-size: 22px; font-style: italic; color: #eaf3f2; line-height: 1.5; max-width: 820px; margin-top: 14px; }
+  .quote .mark { color: var(--lime); font-style: normal; font-weight: 800; }
+
+  /* ---------- Print ---------- */
+  @media print {
+    html, body { overflow: visible; background: #fff; }
+    #deck { position: static; transform: none !important; width: auto; height: auto; }
+    .slide { position: relative; opacity: 1; visibility: visible; page-break-after: always; box-shadow: none; margin: 0 auto; }
+    #progress, #counter, #hint { display: none; }
+    @page { size: 13.33in 7.5in; margin: 0; }
+  }
+
+  #hint { position: absolute; left: 26px; bottom: 14px; font-size: 12px; color: rgba(255,255,255,0.45); z-index: 10; }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+<!-- ===================== 1 · COVER ===================== -->
+<section class="slide dark cover">
+  <div class="brandmark">YesSmile<span class="ai">.AI</span></div>
+  <div class="eyebrow">Series Seed · Pre-Seed SAFE</div>
+  <h1>The Operating System for<br>Dental Practice Revenue</h1>
+  <div class="subtitle">AI-powered revenue intelligence, patient conversion, and practice automation — one platform replacing the entire dental revenue stack.</div>
+  <div class="raisebar">
+    <div class="ri"><div class="rl">Raise</div><div class="rv">$1.5M</div></div>
+    <div class="ri"><div class="rl">Post-Money</div><div class="rv">$15M</div></div>
+    <div class="ri"><div class="rl">Pre-Money</div><div class="rv">$13.5M</div></div>
+    <div class="ri"><div class="rl">Instrument</div><div class="rv">SAFE</div></div>
+  </div>
+  <div class="conf">Confidential — For Accredited Investor Use Only</div>
+</section>
+
+<!-- ===================== 2 · AGENDA ===================== -->
+<section class="slide dark">
+  <div class="eyebrow">YesSmile.AI · Investor Deck</div>
+  <h2>What We'll Cover</h2>
+  <div class="agenda">
+    <div class="agenda-item"><span class="num">01</span>The problem — a $200B revenue leak</div>
+    <div class="agenda-item"><span class="num">02</span>Why now — three converging forces</div>
+    <div class="agenda-item"><span class="num">03</span>Market opportunity (TAM / SAM / SOM)</div>
+    <div class="agenda-item"><span class="num">04</span>The platform — one revenue OS</div>
+    <div class="agenda-item"><span class="num">05</span>The patient revenue cycle</div>
+    <div class="agenda-item"><span class="num">06</span>AI &amp; automation</div>
+    <div class="agenda-item"><span class="num">07</span>Business model &amp; unit economics</div>
+    <div class="agenda-item"><span class="num">08</span>Pricing</div>
+    <div class="agenda-item"><span class="num">09</span>Go-to-market</div>
+    <div class="agenda-item"><span class="num">10</span>Competitive positioning</div>
+    <div class="agenda-item"><span class="num">11</span>Traction &amp; roadmap</div>
+    <div class="agenda-item"><span class="num">12</span>Team, use of funds &amp; the ask</div>
+  </div>
+</section>
+
+<!-- ===================== 3 · PROBLEM ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">The Problem</span></div>
+  <div class="h2row"><span class="secnum">Section 01</span><h2>Dentistry Has a $200B Revenue Leak</h2></div>
+  <p class="lead">The U.S. dental industry produces over $200B a year — and most of it never gets collected. Not because patients don't need the work, but because the infrastructure to capture it was never built.</p>
+  <div class="statgrid">
+    <div class="stat"><div class="big">$200B+</div><div class="lbl">Annual U.S. dental production</div><div class="sub">An estimated 60–80% of diagnosed treatment goes uncollected.</div></div>
+    <div class="stat"><div class="big">~40%</div><div class="lbl">Industry avg. case acceptance</div><div class="sub">Best practice is 65%+. Most practices never close the gap.</div></div>
+    <div class="stat"><div class="big">5–7</div><div class="lbl">Disconnected platforms per office</div><div class="sub">No system connects treatment → acceptance → revenue.</div></div>
+  </div>
+  <div class="note"><strong>Core insight:</strong> patients walk out with unresolved treatment plans. Revenue sits dormant in every practice's own database. Nobody is working on it — and nobody even knows it's there.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 4 · WHY NOW ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Why Now</span></div>
+  <div class="h2row"><span class="secnum">Section 02</span><h2>Three Forces, One Generational Opening</h2></div>
+  <p class="lead">Technology, market structure, and timing have collided. The category is open.</p>
+  <div class="forces">
+    <div class="force">
+      <div class="n">01</div>
+      <div class="t">AI Infrastructure Maturity</div>
+      <div class="d">For the first time, AI can automate treatment presentation, ADA code matching, patient follow-up, and supply prediction at practice scale. The foundation didn't exist three years ago.</div>
+    </div>
+    <div class="force">
+      <div class="n">02</div>
+      <div class="t">DSO Consolidation Wave</div>
+      <div class="d">16% of dentists are now DSO-affiliated. Private equity demands enterprise reporting, operational efficiency, and EBITDA expansion — YesSmile speaks directly to that mandate.</div>
+    </div>
+    <div class="force">
+      <div class="n">03</div>
+      <div class="t">PMS Fragmentation Crisis</div>
+      <div class="d">400+ practice management systems, zero unified revenue intelligence layer. YesSmile's 400+ PMS integration layer turns that chaos into a permanent competitive moat.</div>
+    </div>
+  </div>
+  <div class="note"><strong>Traction signal:</strong> 400+ PMS integrations live · payment processing active · supply partnership across 100 offices.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 5 · MARKET ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Market Opportunity</span></div>
+  <div class="h2row"><span class="secnum">Section 03</span><h2>A $200B Industry With No Infrastructure Layer</h2></div>
+  <p class="lead">178,000 dental practices. A single unified platform. The category is open.</p>
+  <div class="funnel">
+    <div class="frow t1">
+      <div class="fbar"><span class="ftag">TAM</span><span class="fval">$200B+</span></div>
+      <div class="fdesc">Total U.S. dental production across 178,000 practices.</div>
+    </div>
+    <div class="frow t2">
+      <div class="fbar"><span class="ftag">SAM</span><span class="fval">$30B</span></div>
+      <div class="fdesc">~60,000–70,000 high-earning single/multi-office practices ($1M+ production).</div>
+    </div>
+    <div class="frow t3">
+      <div class="fbar"><span class="ftag">SOM</span><span class="fval">$750M+</span></div>
+      <div class="fdesc">Year 5: 10,000 practices × $7,500 ARPU (software + payments + supply).</div>
+    </div>
+  </div>
+  <div class="statgrid small">
+    <div class="stat"><div class="big">178,000</div><div class="lbl">Dental practices</div></div>
+    <div class="stat"><div class="big">3,000+</div><div class="lbl">DSOs</div></div>
+    <div class="stat"><div class="big">$4.2B</div><div class="lbl">Dental technology spend (2025)</div></div>
+  </div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 6 · PLATFORM ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">The Platform</span></div>
+  <div class="h2row"><span class="secnum">Section 04</span><h2>YesSmile Is Infrastructure, Not a Tool</h2></div>
+  <p class="lead">One platform that replaces the entire dental revenue stack — unified, automated, and compounding. Six modules, one system of record.</p>
+  <div class="cardgrid c3">
+    <div class="card"><div class="ck">Plan</div><div class="ct">Present</div><div class="cd">AI treatment presentation &amp; case acceptance workflows.</div></div>
+    <div class="card"><div class="ck">Process</div><div class="ct">Verify</div><div class="cd">Insurance verification &amp; revenue cycle management.</div></div>
+    <div class="card"><div class="ck">Code</div><div class="ct">Bill</div><div class="cd">AI ADA code matching &amp; billing automation.</div></div>
+    <div class="card"><div class="ck">Pay</div><div class="ct">Collect</div><div class="cd">Integrated payment processing &amp; patient financing.</div></div>
+    <div class="card"><div class="ck">Supply</div><div class="ct">Reorder</div><div class="cd">AI-powered supply ordering &amp; inventory management.</div></div>
+    <div class="card"><div class="ck">Report</div><div class="ct">Analyze</div><div class="cd">Practice revenue intelligence &amp; analytics.</div></div>
+  </div>
+  <div class="note"><strong>Integration moat:</strong> 400+ PMS integrations — Dentrix · Eaglesoft · Ortho2Edge · Sikka.AI data layer · Gold Standard payments. Setup in under 30 minutes, no IT team required.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 7 · PATIENT JOURNEY ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Product · Patient Journey</span></div>
+  <div class="h2row"><span class="secnum">Section 05</span><h2>Automating the Full Revenue Cycle</h2></div>
+  <p class="lead">From first presentation to collected payment — every step automated, tracked, and optimized without adding headcount.</p>
+  <div class="flow">
+    <div class="step"><span class="sn">1</span><div class="st">Present</div><div class="sd">AI-generated branded treatment plan delivered digitally — building patient trust at the point of care.</div></div>
+    <div class="step"><span class="sn">2</span><div class="st">Follow Up</div><div class="sd">Automated SMS + email sequences re-engage patients who haven't committed — zero manual staff effort.</div></div>
+    <div class="step"><span class="sn">3</span><div class="st">Finance</div><div class="sd">In-platform financing reduces the cost barrier and lifts conversion on large cases.</div></div>
+    <div class="step"><span class="sn">4</span><div class="st">Collect</div><div class="sd">Integrated payment processing captures the balance — no third-party portal, no dropped transactions.</div></div>
+  </div>
+  <div class="note"><strong>PMS integration layer:</strong> 400+ systems connected via Sikka.AI · Dentrix · Eaglesoft · Ortho2Edge. Each step is tracked, so dormant revenue becomes visible and recoverable for the first time.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 8 · AI & AUTOMATION ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Product · AI &amp; Automation</span></div>
+  <div class="h2row"><span class="secnum">Section 06</span><h2>AI-Powered From the Ground Up</h2></div>
+  <p class="lead">Every module uses AI to cut staff workload, lift conversion, and surface revenue that would otherwise go uncollected.</p>
+  <div class="cardgrid c3">
+    <div class="card lime-accent"><div class="ct">AI Treatment Presentation</div><div class="cd">Branded, personalized plans that build patient trust and drive acceptance at the point of care.</div></div>
+    <div class="card lime-accent"><div class="ct">AI Follow-Up Sequences</div><div class="cd">Multi-channel automated outreach reignites cold treatment plans — no new front-desk tasks.</div></div>
+    <div class="card lime-accent"><div class="ct">AI ADA Code Matching</div><div class="cd">Proprietary algorithm maps clinical notes to ADA codes, cutting billing errors and capturing missed revenue.</div></div>
+    <div class="card lime-accent"><div class="ct">AI Supply Intelligence</div><div class="cd">Demand forecasting and auto-reorder eliminate overstock, stockouts, and manual procurement.</div></div>
+    <div class="card lime-accent"><div class="ct">Revenue Analytics Dashboard</div><div class="cd">Real-time production, case acceptance, unscheduled treatment value, collections, and EBITDA per location.</div></div>
+    <div class="card lime-accent"><div class="ct">Patient Portal</div><div class="cd">Every patient gets a live dashboard: dental health, treatment plan, and financial responsibility.</div></div>
+  </div>
+  <div class="note"><strong>The moat compounds:</strong> every data point improves AI accuracy — a structural advantage that deepens as YesSmile scales.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 9 · BUSINESS MODEL ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Business Model</span></div>
+  <div class="h2row"><span class="secnum">Section 07</span><h2>Seven Compounding Revenue Streams</h2></div>
+  <p class="lead">Recurring SaaS infrastructure with compounding switching costs across software, payments, supply, and data.</p>
+  <div class="cardgrid c3" style="margin-bottom:14px;">
+    <div class="card"><div class="ct">Platform Fee</div><div class="cd">Monthly fee per location.</div></div>
+    <div class="card"><div class="ct">Subscription</div><div class="cd">Tiered module bundles.</div></div>
+    <div class="card"><div class="ct">AI Credits</div><div class="cd">Usage-based AI consumption.</div></div>
+    <div class="card"><div class="ct">Payments</div><div class="cd">% of patient payment volume.</div></div>
+    <div class="card"><div class="ct">Supply Revenue</div><div class="cd">7% of supply orders.</div></div>
+    <div class="card"><div class="ct">Insurance Verify + SMS</div><div class="cd">Per-verification and per-message volume billing.</div></div>
+  </div>
+  <div class="note"><strong>ARPU target:</strong> $300/mo software → <strong class="ink">$7,500/yr total per office</strong> (software + payments + supply). Annual subscription preferred; payments scale with practice volume.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 10 · UNIT ECONOMICS ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Business Model · Unit Economics</span></div>
+  <div class="h2row"><span class="secnum">Section 07</span><h2>SaaS Economics Built for Compounding</h2></div>
+  <div class="statgrid small">
+    <div class="stat"><div class="big">$3,600</div><div class="lbl">Software ARPU / yr</div><div class="sub">$300/mo subscription target.</div></div>
+    <div class="stat"><div class="big">$7,500</div><div class="lbl">Full-platform ARPU / yr</div><div class="sub">Software + payments + supply.</div></div>
+    <div class="stat"><div class="big">75–80%</div><div class="lbl">Gross margin target</div><div class="sub">Software-first, low marginal cost.</div></div>
+  </div>
+  <div class="statgrid small">
+    <div class="stat"><div class="big">$37,500+</div><div class="lbl">Target LTV</div><div class="sub">~5-yr life at full-platform ARPU.</div></div>
+    <div class="stat"><div class="big">&lt;$2,500</div><div class="lbl">Target CAC</div><div class="sub">Channel-led motion keeps CAC contained.</div></div>
+    <div class="stat"><div class="big">15:1+</div><div class="lbl">LTV / CAC ratio</div><div class="sub">Switching costs compound per module.</div></div>
+  </div>
+  <div class="note"><strong>Milestones:</strong> Seed — 100 offices → $30K MRR ($360K ARR). Series A — 500+ offices → $150K+ MRR ($1.8M+ ARR software-only); $3.75M+ ARR at full-platform ARPU.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 11 · PRICING ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Business Model · Pricing</span></div>
+  <div class="h2row"><span class="secnum">Section 08</span><h2>Tiered Pricing That Scales With Growth</h2></div>
+  <div class="tiers">
+    <div class="tier">
+      <div class="tname">Starter</div>
+      <div class="tprice">~$199<span style="font-size:15px;font-weight:600;color:var(--text-mute);">/mo</span></div>
+      <div class="tunit">Per location</div>
+      <ul>
+        <li>Plan module (AI treatment presentation)</li>
+        <li>Patient portal</li>
+        <li>Basic analytics</li>
+        <li>Up to 3 users</li>
+        <li>PMS integration</li>
+      </ul>
+    </div>
+    <div class="tier feature">
+      <div class="badge">MOST POPULAR</div>
+      <div class="tname">Growth</div>
+      <div class="tprice">~$349<span style="font-size:15px;font-weight:600;color:var(--text-mute);">/mo</span></div>
+      <div class="tunit">Per location</div>
+      <ul>
+        <li>Everything in Starter</li>
+        <li>Process (insurance verification)</li>
+        <li>SMS follow-up sequences</li>
+        <li>Unlimited users</li>
+        <li>CSM + priority support</li>
+      </ul>
+    </div>
+    <div class="tier">
+      <div class="tname">Enterprise</div>
+      <div class="tprice">Custom</div>
+      <div class="tunit">Multi-location / DSO</div>
+      <ul>
+        <li>All modules included</li>
+        <li>Code + Report + Supply</li>
+        <li>API access</li>
+        <li>Dedicated implementation</li>
+        <li>Enterprise SLA</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note" style="margin-top:14px;"><strong>Add-on modules (à la carte):</strong> Code · Report · Supply · Insurance Verify · SMS · AI Credits — stackable on any base tier.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 12 · GTM ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Go-To-Market</span></div>
+  <div class="h2row"><span class="secnum">Section 09</span><h2>Partner-Led. Sales-Driven. Community-Powered.</h2></div>
+  <p class="lead">Enter through trusted dental consultant networks, then scale through outbound and enterprise DSO relationships.</p>
+  <div class="cardgrid c3">
+    <div class="card"><div class="ck">Channel-Led</div><div class="ct">Consultant &amp; Partner Network</div><div class="cd">Dental consultants, CE speakers, and tech partners introduce YesSmile to practices they already advise — warm referrals with built-in trust.</div></div>
+    <div class="card"><div class="ck">Direct Sales</div><div class="ct">SDR → AE → AM Motion</div><div class="cd">Structured outbound funnel: SDRs generate meetings, AEs convert to paid, AMs drive upsell and expansion within each account.</div></div>
+    <div class="card"><div class="ck">Enterprise</div><div class="ct">DSO &amp; PE Sponsor Sales</div><div class="cd">Dedicated motion targeting PE-backed DSOs on EBITDA expansion, standardization, and multi-location roll-out economics.</div></div>
+  </div>
+  <div class="note"><strong>Funnel:</strong> Free Revenue Audit → Discovery Call → Managed Trial (14–30 days) → Paid Subscription → Upsell + Expansion. &nbsp; Partners: Evo Medical (4 reps) · Optimal Aligners (7 reps) · Gold Standard Processing · Sikka.AI.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 13 · COMPETITIVE ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Competitive Positioning</span></div>
+  <div class="h2row"><span class="secnum">Section 10</span><h2>Point Solutions vs. Infrastructure</h2></div>
+  <p class="lead">Existing tools were built to solve one problem at a time. YesSmile was built to replace the entire stack.</p>
+  <table class="compact">
+    <tr><th style="width:22%">Player</th><th style="width:38%">What it does</th><th>The gap</th></tr>
+    <tr><td><strong>Paper / Status Quo</strong></td><td>Paper estimates, manual phone follow-up, zero digital infrastructure.</td><td>No communication layer, no data, no automation — the floor YesSmile displaces.</td></tr>
+    <tr><td><strong>Dentrix / Eaglesoft</strong><br><span class="soft" style="font-size:12px;">Practice management</span></td><td>Scheduling, charting, and billing — the clinical backbone of most practices.</td><td>Built for insurance processing and clinical workflow — not revenue intelligence or patient conversion.</td></tr>
+    <tr><td><strong>Case Acceptance Tools</strong><br><span class="soft" style="font-size:12px;">Point solution</span></td><td>Narrow digital treatment presentation with limited follow-up.</td><td>Single-module — require 4–6 other tools to run a complete revenue cycle.</td></tr>
+  </table>
+  <div class="note"><strong>YesSmile vs. all of the above:</strong> Treatment → Conversion → Communication → Payments → Supply → Analytics — one platform, compounding switching costs, enterprise-grade from day one.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 14 · TRACTION ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Traction</span></div>
+  <div class="h2row"><span class="secnum">Section 11</span><h2>Where We Are. Where We're Going.</h2></div>
+  <h3>Today — proof of concept validated</h3>
+  <div class="statgrid small">
+    <div class="stat"><div class="big">1–2</div><div class="lbl">Paying offices</div><div class="sub">Initial paying customers live on platform.</div></div>
+    <div class="stat"><div class="big">100</div><div class="lbl">Offices on supply portal</div><div class="sub">Revenue-generating supply relationships active.</div></div>
+    <div class="stat"><div class="big">400+</div><div class="lbl">PMS integrations live</div><div class="sub">Dentrix · Eaglesoft · Ortho2Edge via Sikka.AI.</div></div>
+    <div class="stat"><div class="big">Live</div><div class="lbl">Payments processing</div><div class="sub">Transaction infrastructure live and processing.</div></div>
+  </div>
+  <h3>Path to Series A — 18 months</h3>
+  <div class="timeline">
+    <div class="tnode"><div class="dot"></div><div class="tm">MONTH 3</div><div class="th">GTM Live</div><div class="tdd">CRM + SDR 1 hired, channel activations, demo pipeline flowing.</div></div>
+    <div class="tnode"><div class="dot"></div><div class="tm">MONTH 6</div><div class="th">20 Offices · $6K MRR</div><div class="tdd">Payments + supply add-ons active; 5+ trials converting.</div></div>
+    <div class="tnode"><div class="dot"></div><div class="tm">MONTH 12</div><div class="th">75 Offices · $30K MRR</div><div class="tdd">Full-platform ARPU; AM hired; &lt;1% monthly churn.</div></div>
+    <div class="tnode"><div class="dot"></div><div class="tm">MONTH 18</div><div class="th">200 Offices · Series A</div><div class="tdd">$80K MRR · LTV/CAC &gt;10x · DSO enterprise pipeline.</div></div>
+  </div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 15 · TEAM ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Team &amp; Leadership</span></div>
+  <div class="h2row"><span class="secnum">Section 12</span><h2>Built by Founders Who Lived the Problem</h2></div>
+  <div class="teamgrid">
+    <div class="person"><div class="pn">Dr. Lee</div><div class="pr">CEO · Founder</div><div class="pb">Smile Design Manhattan, 575 Madison Ave NYC. 20+ years. Co-founded YesSmile from inside a $2M+ practice.</div></div>
+    <div class="person"><div class="pn">Nick Biuso</div><div class="pr">COO · Founder</div><div class="pb">Serial entrepreneur. GuaranTeeth founder. 3× Bloomberg/NYSE floor. 300+ doctor presentations.</div></div>
+    <div class="person"><div class="pn">Evan Coppa</div><div class="pr">CTO · Founder</div><div class="pb">RIT web dev grad. Hand-coded the entire YesSmile platform from scratch — built portal.yessmile.ai end-to-end.</div></div>
+    <div class="person"><div class="pn">Ali Byrd</div><div class="pr">CFO</div><div class="pb">Wharton MBA · Duke Engineering. Former CFO at Olive, CoverWallet/Aon. Raised $2B+ in career.</div></div>
+    <div class="person"><div class="pn">Tyshaan Alleyne</div><div class="pr">Director of Sales</div><div class="pb">Straumann/ClearCorrect Regional Sales Director. Align Technology DSO specialist. 100% Club.</div></div>
+    <div class="person"><div class="pn">Robert Wallace</div><div class="pr">Head of Enterprise Sales</div><div class="pb">Top Philips Sonicare rep NYC. BI Worldwide BD Director. Boardroom-level dental selling.</div></div>
+  </div>
+  <div class="note"><strong>Strategic partners:</strong> Evo Medical Supplies (4 reps) · Optimal Aligners (7 reps) · Gold Standard Processing · Daniela Bueno (Creative/Brand, Delta Dental) · Andrew DeLaus ($20M+ org builder).</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 16 · USE OF FUNDS ===================== -->
+<section class="slide">
+  <div class="runhead"><span class="logo">YesSmile<span class="ai">.AI</span></span><span class="tag">Use of Funds</span></div>
+  <div class="h2row"><span class="secnum">Section 12</span><h2>$1.5M Seed — Infrastructure Acceleration</h2></div>
+  <p class="lead">Every dollar allocated to product depth, GTM scale, and operational readiness for Series A.</p>
+  <div class="fund">
+    <div class="fundrow"><div class="fl"><div class="fll">Engineering &amp; Product</div><div class="fls">2 engineers + AI/PMS infra + QA</div></div><div class="track"><div class="fill" style="width:100%;"></div></div><div class="amt"><span class="pct">33%</span>$500K</div></div>
+    <div class="fundrow"><div class="fl"><div class="fll">Sales &amp; GTM</div><div class="fls">2 SDRs + 1 AE + CRM &amp; enablement</div></div><div class="track"><div class="fill" style="width:91%;"></div></div><div class="amt"><span class="pct">30%</span>$450K</div></div>
+    <div class="fundrow"><div class="fl"><div class="fll">Operations &amp; CS</div><div class="fls">Customer success, implementation, onboarding</div></div><div class="track"><div class="fill" style="width:45%;"></div></div><div class="amt"><span class="pct">15%</span>$225K</div></div>
+    <div class="fundrow"><div class="fl"><div class="fll">Marketing &amp; Brand</div><div class="fls">Content, conferences, partner activations</div></div><div class="track"><div class="fill" style="width:30%;"></div></div><div class="amt"><span class="pct">10%</span>$150K</div></div>
+    <div class="fundrow"><div class="fl"><div class="fll">G&amp;A</div><div class="fls">Legal, finance, insurance, admin</div></div><div class="track"><div class="fill" style="width:21%;"></div></div><div class="amt"><span class="pct">7%</span>$105K</div></div>
+    <div class="fundrow"><div class="fl"><div class="fll">Reserve</div><div class="fls">Strategic contingency</div></div><div class="track"><div class="fill" style="width:15%;"></div></div><div class="amt"><span class="pct">5%</span>$75K</div></div>
+  </div>
+  <div class="note"><strong>Target:</strong> 12 months runway to Series A milestones — 250 paying offices · $75K MRR · partnership revenue active.</div>
+  <div class="slidefoot"><span>YesSmile.AI · Investor Deck</span><span>Confidential — Accredited Investor Use Only</span></div>
+</section>
+
+<!-- ===================== 17 · THESIS / CLOSING ===================== -->
+<section class="slide dark closing">
+  <div class="eyebrow">The Investment Thesis</div>
+  <h2>Why YesSmile.AI Is Category-Defining</h2>
+  <div class="thesisgrid">
+    <div class="thesis"><div class="tt">Large fragmented market</div><div class="td">$200B+ production · 178,000 practices · $4.2B tech spend · no unified revenue intelligence layer. The category is wide open.</div></div>
+    <div class="thesis"><div class="tt">Recurring SaaS economics</div><div class="td">7 compounding revenue streams · $7,500+ ARPU target · 15:1+ LTV/CAC · enterprise-grade retention.</div></div>
+    <div class="thesis"><div class="tt">Structural competitive moat</div><div class="td">400+ PMS integrations, payments, and supply create switching costs that deepen with every module and every year.</div></div>
+    <div class="thesis"><div class="tt">Venture-scale category</div><div class="td">HubSpot owns marketing. Salesforce owns sales. Toast owns restaurants. Nobody owns dental revenue — yet.</div></div>
+  </div>
+  <div class="big2">The category is open. We intend to own it.</div>
+  <div class="ask">$1.5M · $15M post-money · SAFE — seeking accredited investors aligned on a 10-figure dental infrastructure outcome.</div>
+</section>
+
+</div><!-- /#deck -->
+
+<div id="progress"></div>
+<div id="counter"></div>
+<div id="hint">← → navigate · F fullscreen</div>
+
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var counter = document.getElementById('counter');
+  var progress = document.getElementById('progress');
+  var deck = document.getElementById('deck');
+  var current = 0;
+
+  function clamp(n) { return Math.max(0, Math.min(slides.length - 1, n)); }
+
+  function show(n) {
+    current = clamp(n);
+    slides.forEach(function (s, i) { s.classList.toggle('active', i === current); });
+    counter.textContent = (current + 1) + ' / ' + slides.length;
+    progress.style.width = ((current + 1) / slides.length * 100) + '%';
+    if (history.replaceState) history.replaceState(null, '', '#' + (current + 1));
+  }
+
+  function fit() {
+    var scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720) * 0.97;
+    deck.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(current + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); show(current - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); show(0); }
+    else if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+    else if (e.key === 'f' || e.key === 'F') {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.clientX < window.innerWidth * 0.15) show(current - 1);
+    else show(current + 1);
+  });
+
+  var touchX = null;
+  document.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (dx < -40) show(current + 1);
+    else if (dx > 40) show(current - 1);
+    touchX = null;
+  }, { passive: true });
+
+  window.addEventListener('resize', fit);
+
+  var start = parseInt((location.hash || '').replace('#', ''), 10);
+  show(isNaN(start) ? 0 : start - 1);
+  fit();
+})();
+</script>
+</body>
+</html>
